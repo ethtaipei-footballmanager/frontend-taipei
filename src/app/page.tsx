@@ -1,23 +1,26 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import Navbar from "@/components/Navbar";
 import { configureConnection } from "@puzzlehq/sdk";
-import ConnectWallet from "@/components/ConnectWallet";
 import { useEffect } from "react";
 
 export default function Home() {
   useEffect(() => {
-    configureConnection({
-      dAppName: "<YOUR DAPP NAME>",
-      dAppDescription: "<YOUR DAPP DESCRIPTION>",
-      dAppUrl: "<YOUR DAPP URL>",
-      dAppIconURL: "<YOUR DAPP ICON URL>",
-    });
+    const initializeWallet = async () => {
+      configureConnection({
+        dAppName: "Super Leo Lig",
+        dAppDescription: "Zk Football Manager game",
+        dAppUrl: "https://localhost:3000/",
+        dAppIconURL: "<YOUR DAPP ICON URL>",
+      });
+    };
+
+    initializeWallet();
+    console.log("connection");
   }, []);
 
   return (
     <div>
-      <ConnectWallet />
+      <Navbar />
     </div>
   );
 }

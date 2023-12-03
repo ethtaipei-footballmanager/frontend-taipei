@@ -1,6 +1,12 @@
 "use client";
-import { connect, useAccount } from "@puzzlehq/sdk";
+import {
+  disconnect,
+  shortenAddress,
+  useAccount,
+  useConnect,
+} from "@puzzlehq/sdk";
 import React, { useEffect } from "react";
+import { ThemeToggle } from "./ToggleTheme";
 import { Button } from "./ui/button";
 
 interface IConnectWallet {}
@@ -9,16 +15,14 @@ const ConnectWallet: React.FC<IConnectWallet> = ({}) => {
   //   const [loading, setLoading] = useState(false);
   //   const [error, setError] = useState<string | undefined>();
   const { account, error, loading } = useAccount();
+  const { connect } = useConnect();
 
   const connectWallet = async () => {
     // setLoading(true);
     // setError(undefined);
     try {
-      const session = await connect();
-      console.log(
-        "🚀 ~ file: ConnectWallet.tsx:18 ~ connectWal ~ session:",
-        session
-      );
+      await connect();
+
       console.log("account", account);
     } catch (e) {
       //   setError((e as Error).message);
@@ -28,15 +32,18 @@ const ConnectWallet: React.FC<IConnectWallet> = ({}) => {
   };
 
   useEffect(() => {
-    console.log("account", account, error, loading);
+    console.log("account123", account, error, loading);
   }, [account]);
 
   return (
-    <>
-      <Button onClick={connectWallet}>ConnectWallet</Button>;
-      {account && <p>you did it!</p>}
-      {error && <p>error connecting: {error}</p>}
-    </>
+    <div className="flex gap-6">
+      {account ? (
+        <Button onClick={disconnect}>{shortenAddress(account.address)}</Button>
+      ) : (
+        <Button onClick={connectWallet}>Connect Wallet</Button>
+      )}
+      <ThemeToggle />
+    </div>
   );
 };
 export default ConnectWallet;
