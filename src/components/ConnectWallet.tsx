@@ -1,7 +1,7 @@
 "use client";
 import { shortenAddress, useAccount, useConnect } from "@puzzlehq/sdk";
 import { SessionTypes } from "@walletconnect/types";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ThemeToggle } from "./ToggleTheme";
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
 import Identicon from "react-identicons";
@@ -14,6 +14,7 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
   //   const [loading, setLoading] = useState(false);
   //   const [error, setError] = useState<string | undefined>();
   const { account, error, loading } = useAccount();
+  const [address, setAddress] = useState("");
   const { connect } = useConnect();
 
   const connectWallet = async () => {
@@ -32,20 +33,19 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
   console.log("hey account", account);
 
   useEffect(() => {
-    console.log("account123", account, error, loading);
-  }, [account, error, loading]);
+    setAddress(account?.address);
+  }, [account]);
 
   return (
     <div className="flex gap-6">
       {account ? (
-        // <Button onClick={disconnect}>{shortenAddress(account.address)}</Button>
         <Button
           onClick={() => setIsWalletModal(true)}
           variant="outline"
           className="tracking-wider text-base text-black dark:text-white font-semibold flex gap-2"
         >
-          {<Identicon string={shortenAddress(account.address)} size={24} />}
-          {shortenAddress(account.address)}
+          {address && <Identicon string={shortenAddress(address)} size={24} />}
+          {address && shortenAddress(address)}
         </Button>
       ) : (
         <Button onClick={connectWallet}>Connect Wallet</Button>
