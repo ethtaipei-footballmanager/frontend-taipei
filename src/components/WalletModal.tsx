@@ -101,10 +101,12 @@ const WalletModal: React.FC<IWalletModal> = ({
             {isCopied ? (
               <>
                 <MdDone
-                  className=" cursor-pointer stroke-black  text-black fill-current"
+                  className=" cursor-pointer  stroke-black  text-black fill-current"
                   size={24}
                 />
-                <span className="text-xs font-semibold text-black">Copied</span>
+                <span className="text-xs  font-semibold text-black">
+                  Copied
+                </span>
               </>
             ) : (
               <>
@@ -112,7 +114,7 @@ const WalletModal: React.FC<IWalletModal> = ({
                   className=" stroke-black  text-black fill-current  cursor-pointer"
                   size={24}
                 />
-                <span className="text-xs font-semibold text-black">
+                <span className="text-xs mt-1 font-semibold text-black">
                   Copy Address
                 </span>
               </>
@@ -127,7 +129,7 @@ const WalletModal: React.FC<IWalletModal> = ({
           >
             <IoLogOutOutline
               className="stroke-black  text-black fill-current cursor-pointer"
-              size={24}
+              size={28}
             />
             <span className="text-xs font-semibold text-black">Disconnect</span>{" "}
           </button>

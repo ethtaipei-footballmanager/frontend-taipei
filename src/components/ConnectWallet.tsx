@@ -11,15 +11,11 @@ interface IConnectWallet {
 }
 
 const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
-  //   const [loading, setLoading] = useState(false);
-  //   const [error, setError] = useState<string | undefined>();
   const { account, error, loading } = useAccount();
   const [address, setAddress] = useState("");
   const { connect } = useConnect();
 
   const connectWallet = async () => {
-    // setLoading(true);
-    // setError(undefined);
     try {
       const session: SessionTypes.Struct = await connect();
 
@@ -42,9 +38,9 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
         <Button
           onClick={() => setIsWalletModal(true)}
           variant="outline"
-          className="tracking-wider text-base text-black dark:text-white font-semibold flex gap-2"
+          className="tracking-wider text-base text-black dark:text-white font-semibold flex gap-2.5"
         >
-          {address && <Identicon string={shortenAddress(address)} size={24} />}
+          {address && <Identicon string={shortenAddress(address)} size={20} />}
           {address && shortenAddress(address)}
         </Button>
       ) : (
