@@ -1,10 +1,16 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
+import { useAccount } from "@puzzlehq/sdk";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import ConnectWallet from "./ConnectWallet";
+import WalletModal from "./WalletModal";
 const Navbar = () => {
+  const { account, error, loading } = useAccount();
+  const [isWalletModal, setIsWalletModal] = useState(false);
+
   return (
     <nav className=" w-screen z-10 flex bg-fuchsia-500 dark:bg-black text-white justify-between items-center py-3 px-6">
       <div>
@@ -48,7 +54,8 @@ const Navbar = () => {
           Create Game
         </Link>
       </div>
-      <ConnectWallet />
+      <ConnectWallet setIsWalletModal={setIsWalletModal} />
+      {isWalletModal && <WalletModal setIsWalletModal={setIsWalletModal} />}
     </nav>
   );
 };
