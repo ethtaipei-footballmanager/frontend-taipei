@@ -1,9 +1,10 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { MdOutlineWbSunny } from "react-icons/md";
 
-import { Button } from "@/components/ui/button";
-import { Icons } from "./icons";
+import { LuMoon } from "react-icons/lu";
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
@@ -26,12 +27,14 @@ export function ThemeToggle() {
           variant="ghost"
           size="sm"
         >
-          <Icons.sun className="w-6 h-6 " />
+          {/* <Icons.sun className="w-6 h-6 " /> */}
+          <MdOutlineWbSunny size={24} />
           <span className="sr-only">Toggle theme</span>
         </Button>
       ) : (
         <Button onClick={() => setTheme("light")} variant="ghost" size="sm">
-          <Icons.moon className="w-6 h-6 dark:text-white" />
+          {/* <Icons.moon className="w-6 h-6 dark:text-white" /> */}
+          <LuMoon size={24} />
           <span className="sr-only">Toggle theme</span>
         </Button>
       )}
