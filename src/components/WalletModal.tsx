@@ -89,7 +89,7 @@ const WalletModal: React.FC<IWalletModal> = ({
               Public Balance: {balances && balances[0].public.toFixed(2)}
             </h1>
             <h1 className="font-semibold tracking-tighter text-[#868989] ">
-              Private Balance: {balances && balances[0].public.toFixed(2)}
+              Private Balance: {balances && balances[0].private.toFixed(2)}
             </h1>
           </div>
         </div>
