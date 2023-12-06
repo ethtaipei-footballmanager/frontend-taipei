@@ -30,7 +30,10 @@ const WalletModal: React.FC<IWalletModal> = ({
   const ref = useRef<HTMLDivElement | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const { account } = useAccount();
-  const { balances } = useBalance();
+  const { balances } = useBalance({
+    address: account?.address!,
+    multisig: true,
+  });
   console.log("🚀 ~ file: WalletModal.tsx:31 ~ balances:", balances);
 
   useEffect(() => {
@@ -59,7 +62,7 @@ const WalletModal: React.FC<IWalletModal> = ({
   };
 
   const copyAddress = () => {
-    navigator.clipboard.writeText(account.address as string);
+    navigator.clipboard.writeText(account?.address as string);
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);
@@ -80,10 +83,10 @@ const WalletModal: React.FC<IWalletModal> = ({
           onClick={closeModal}
         />
         <div className="absolute top-12 flex gap-2 w-full flex-col justify-center items-center">
-          <Identicon string={shortenAddress(account.address)} size={32} />
+          <Identicon string={shortenAddress(account?.address!)} size={32} />
           <div className="flex flex-col gap-0.5  justify-center text-center ">
             <h1 className="font-bold tracking-lighter  text-[#25292e] text-[18px] ">
-              {shortenAddress(account.address)}
+              {shortenAddress(account?.address!)}
             </h1>
             <h1 className="font-semibold tracking-tighter text-[#868989] ">
               Public Balance: {balances && balances[0].public.toFixed(2)}

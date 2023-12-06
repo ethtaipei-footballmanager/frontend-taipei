@@ -15,6 +15,8 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
   const [address, setAddress] = useState("");
   const { connect } = useConnect();
 
+  // const balances = useBalance();
+
   const connectWallet = async () => {
     try {
       const session: SessionTypes.Struct = await connect();
@@ -29,7 +31,9 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
   console.log("hey account", account);
 
   useEffect(() => {
-    setAddress(account?.address);
+    console.log("account wallet", account);
+
+    setAddress(account?.address!);
   }, [account]);
 
   return (
