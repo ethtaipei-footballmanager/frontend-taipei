@@ -66,6 +66,34 @@
   }
 }
 
+.swiper-container {
+  width: 100%;
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.swiper-slide {
+  background-position: center;
+  background-size: cover;
+  width: 300px;
+  height: 300px;
+}
+.swiper-button-prev {
+  color: black;
+}
+
+.swiper-slide {
+  opacity: 0.6;
+}
+.swiper-slide-visible {
+  opacity: 1;
+}
+.swiper-slide-next {
+  opacity: 0.75;
+}
+.swiper-slide-prev {
+  opacity: 0.75;
+}
 @layer base {
   * {
     @apply border-border;

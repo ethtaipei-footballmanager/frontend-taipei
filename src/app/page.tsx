@@ -1,5 +1,4 @@
 "use client";
-import Navbar from "@/components/Navbar";
 import { configureConnection, useAccount } from "@puzzlehq/sdk";
 import { useEffect } from "react";
 
@@ -21,9 +20,5 @@ export default function Home() {
     console.log("connection");
   }, []);
 
-  return (
-    <div>
-      <Navbar />
-    </div>
-  );
+  return <div>{/* <Navbar /> */}</div>;
 }
