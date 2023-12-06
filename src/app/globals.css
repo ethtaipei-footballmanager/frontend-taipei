@@ -85,14 +85,30 @@
 .swiper-slide {
   opacity: 0.6;
 }
+
+/* Light mode styles */
 .swiper-slide-visible {
   opacity: 1;
 }
-.swiper-slide-next {
-  opacity: 0.75;
-}
+
+.swiper-slide-next,
 .swiper-slide-prev {
   opacity: 0.75;
+}
+
+/* Dark mode styles */
+.dark .swiper-slide {
+  opacity: 0.8;
+}
+
+.dark .swiper-slide-visible,
+.dark .swiper-slide.dark-mode-visible {
+  opacity: 1;
+}
+
+.dark .swiper-slide-next,
+.dark .swiper-slide-prev {
+  opacity: 0.975;
 }
 @layer base {
   * {
