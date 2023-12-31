@@ -12,6 +12,7 @@ import { MdDone } from "react-icons/md";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import Identicon from "react-identicons";
+import { Button } from "./ui/button";
 
 interface IWalletModal {
   //   logout: () => void;
@@ -72,20 +73,20 @@ const WalletModal: React.FC<IWalletModal> = ({
     <div
       id="bg"
       ref={ref}
-      className="fixed inset-0 flex  bg-opacity-40 items-center justify-center z-10 divide-y divide-gray-200 bg-[#b2b2b2]"
+      className="fixed inset-0 flex   items-center justify-center  backdrop-blur-sm  z-10 divide-y divide-gray-200 dark:bg-[#020917]/80 bg-white/80"
     >
       <div
         id="modal"
-        className="relative bg-[#f4f4f4] rounded-xl shadow-2xl  drop-shadow-2xl w-96 border-2 h-72"
+        className="relative bg-[#f4f4f4] dark:bg-[#020817] rounded-xl shadow-2xl  drop-shadow-2xl w-96 border-2 h-72"
       >
         <AiOutlineClose
-          className="absolute right-6 top-4 cursor-pointer"
+          className="absolute text-black right-6 top-4 cursor-pointer"
           onClick={closeModal}
         />
         <div className="absolute top-12 flex gap-2 w-full flex-col justify-center items-center">
           <Identicon string={shortenAddress(account?.address!)} size={32} />
           <div className="flex flex-col gap-0.5  justify-center text-center ">
-            <h1 className="font-bold tracking-lighter  text-[#25292e] text-[18px] ">
+            <h1 className="font-bold tracking-lighter dark:text-white  text-[#25292e] text-[18px] ">
               {shortenAddress(account?.address!)}
             </h1>
             <h1 className="font-semibold tracking-tighter text-[#868989] ">
@@ -97,7 +98,7 @@ const WalletModal: React.FC<IWalletModal> = ({
           </div>
         </div>
         <div className="absolute bottom-4 w-full flex gap-8 justify-center">
-          <button
+          <Button
             onClick={copyAddress}
             className="flex flex-col gap-1 bg-[#fafafa] w-2/5 hover:scale-105 transition duration-200 ease-in-out rounded-lg py-2.5 justify-center items-center"
           >
@@ -122,8 +123,8 @@ const WalletModal: React.FC<IWalletModal> = ({
                 </span>
               </>
             )}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => {
               setIsWalletModal(false);
               disconnect();
@@ -135,7 +136,7 @@ const WalletModal: React.FC<IWalletModal> = ({
               size={28}
             />
             <span className="text-xs font-semibold text-black">Disconnect</span>{" "}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

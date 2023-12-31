@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import ConnectWallet from "./ConnectWallet";
-import WalletModal from "./WalletModal";
 const Navbar = () => {
   const { account, error, loading } = useAccount();
   const [isWalletModal, setIsWalletModal] = useState(false);
@@ -55,7 +54,7 @@ const Navbar = () => {
         </Link>
       </div>
       <ConnectWallet setIsWalletModal={setIsWalletModal} />
-      {isWalletModal && <WalletModal setIsWalletModal={setIsWalletModal} />}
+      {/* {isWalletModal && <WalletModal setIsWalletModal={setIsWalletModal} />} */}
     </nav>
   );
 };

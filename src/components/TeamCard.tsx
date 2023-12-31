@@ -2,17 +2,31 @@
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Card } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 type Team = {
   name: string;
-  image: string;
   attack: number;
   defense: number;
+  image: string;
+  foundingYear: number;
+  colors: string[];
+  colorCodes: string[];
+  achievements: string[];
+  fanbase: string;
 };
 
 interface ITeamCard {
   team: Team;
+  index: number;
+  selectedTeam: number;
 }
 
 const calculateStarRating = (attack: number, defense: number): number => {
@@ -23,15 +37,43 @@ const calculateStarRating = (attack: number, defense: number): number => {
   return starRating;
 };
 
-const TeamCard: React.FC<ITeamCard> = ({ team }) => {
+type ColorVariants = {
+  [key: string]: string[];
+};
+
+const colorVariants: ColorVariants = {
+  "0": [
+    "bg-[#3498db] hover:bg-[#3498db] border-[#3498db]",
+    "bg-[#bdc3c7] hover:bg-[#bdc3c7] border-[#bdc3c7]",
+  ],
+  "1": [
+    "bg-[#3498db] hover:bg-[#3498db] border-[#3498db]",
+    "bg-[#f39c12] hover:bg-[#f39c12] border-[#f39c12]",
+  ],
+  "2": [
+    "bg-[#8e44ad] hover:bg-[#8e44ad] border-[#8e44ad]",
+    "bg-[#596275] hover:bg-[#596275] border-[#596275]",
+  ],
+};
+const TeamCard: React.FC<ITeamCard> = ({ team, selectedTeam, index }) => {
   const [starRating, setStarRating] = useState(() =>
     calculateStarRating(team.attack, team.defense)
   );
+
   const controls = useAnimation();
   useEffect(() => {
     controls.start({ width: `${(starRating % 1) * 100}%` });
     setStarRating(calculateStarRating(team.attack, team.defense));
   }, [team.attack, team.defense]);
+
+  const badgeColorOneStyle = {
+    borderColor: `var(--${team.colors[0]})`,
+    backgroundColor: `var(--${team.colors[0]})`,
+  };
+  const badgeColorTwoStyle = {
+    borderColor: `var(--${team.colors[1]})`,
+    backgroundColor: `var(--${team.colors[1]})`,
+  };
 
   // ...
 
@@ -143,58 +185,112 @@ const TeamCard: React.FC<ITeamCard> = ({ team }) => {
   // ...
 
   return (
-    <Card
-      className="flex flex-col gap-8   text-black  items-center border bg-neutral-100 cursor-pointer  p-2.5 w-80 h-[50vh] mt-4 rounded-[10px] border-solid  border-[#ddd]"
-      onClick={() => {
-        console.log("team", team.name);
-        //   onTeamSelected(team.name);
-        //   setIsGameStarted(true);
-      }}
-    >
-      <div className="flex items-center justify-center flex-col gap-4">
-        <h3 className="font-bold text-2xl  tracking-tighter mt-2">
-          {team.name}
-        </h3>
-        <div className="w-36 h-36 rounded">
-          <Image
-            width={144}
-            height={144}
-            src={`/${team.image}.svg`}
-            alt={team.name}
-            className="w-full h-full"
-          />
-          <motion.div
-            className="relative right-[30%]"
-            layout
-            initial={{ width: "0%" }}
-            animate={controls}
-            transition={{
-              duration: 0.5,
-            }}
-          >
-            {renderStars()}
-          </motion.div>
-          <div className="flex items-center justify-around mt-6">
-            <div className="flex flex-col gap-2 items-center">
-              <h2 className="font-bold text-xl tracking-tighter underline">
-                ATT
-              </h2>
-              <p className="text-lg tracking-tight">{team.attack}</p>
-            </div>
-            <div className="flex flex-col gap-2 items-center">
-              <h2 className="font-bold text-xl tracking-tighter underline">
-                DEF
-              </h2>
-              <p className="text-lg tracking-tight">{team.defense}</p>
-            </div>
-          </div>
-          {/* <Avatar>
+    <div className="relative">
+      <TooltipProvider delayDuration={200}>
+        <Tooltip defaultOpen={index !== selectedTeam ? false : true}>
+          <TooltipTrigger asChild>
+            <Card
+              className="flex flex-col gap-8   text-black  items-center border bg-neutral-100 cursor-pointer  p-2.5 w-80 h-[50vh] mt-4 rounded-[10px] border-solid  border-[#ddd]"
+              onClick={() => {
+                console.log("team", team.name);
+                //   onTeamSelected(team.name);
+                //   setIsGameStarted(true);
+              }}
+            >
+              <div className="flex items-center justify-center flex-col gap-4">
+                <h3 className="font-bold text-2xl  tracking-tighter mt-2">
+                  {team.name}
+                </h3>
+                <div className="w-36 h-36 rounded">
+                  <Image
+                    width={144}
+                    height={144}
+                    src={`/${team.image}.svg`}
+                    alt={team.name}
+                    className="w-full h-full"
+                  />
+                  <motion.div
+                    className="relative right-[30%]"
+                    layout
+                    initial={{ width: "0%" }}
+                    animate={controls}
+                    transition={{
+                      duration: 0.5,
+                    }}
+                  >
+                    {renderStars()}
+                  </motion.div>
+                  <div className="flex items-center justify-around mt-6">
+                    <div className="flex flex-col gap-2 items-center">
+                      <h2 className="font-bold text-xl tracking-tighter underline">
+                        ATT
+                      </h2>
+                      <p className="text-lg tracking-tight">{team.attack}</p>
+                    </div>
+                    <div className="flex flex-col gap-2 items-center">
+                      <h2 className="font-bold text-xl tracking-tighter underline">
+                        DEF
+                      </h2>
+                      <p className="text-lg tracking-tight">{team.defense}</p>
+                    </div>
+                  </div>
+                  {/* <Avatar>
           <AvatarImage src={`/${team.image}.png`} alt={team.name} />
           <AvatarFallback>{team.name}</AvatarFallback>
         </Avatar> */}
-        </div>
-      </div>
-    </Card>
+                </div>
+              </div>
+            </Card>
+          </TooltipTrigger>
+          {index === selectedTeam && (
+            <TooltipContent
+              side="top"
+              className="absolute flex flex-col items-center  w-[40vh]"
+            >
+              <CardHeader>
+                <CardTitle className="text-lg font-bold">{team.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2   ">
+                <div>
+                  <h3 className="text-sm font-semibold">Founding Year</h3>
+                  <p className="text-xs">{team.foundingYear}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold">Colors</h3>
+                  <div className="flex space-x-2">
+                    <Badge
+                      className={`${colorVariants[index][0]} `}
+                      variant={"default"}
+                    >
+                      <p className="text-xs text-white">{team.colors[0]}</p>
+                    </Badge>
+                    <Badge
+                      variant={"default"}
+                      className={`${colorVariants[index][1]} `}
+                    >
+                      <p className="text-xs text-white">{team.colors[1]}</p>
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold">Achievements</h3>
+                  <ul>
+                    {team.achievements.map((ach) => {
+                      return <li className="text-xs ">{ach}</li>;
+                    })}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold">Fanbase</h3>
+                  <p className="text-xs">{team.fanbase}</p>
+                </div>
+              </CardContent>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+    </div>
   );
 };
 export default TeamCard;
