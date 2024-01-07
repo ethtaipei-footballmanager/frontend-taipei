@@ -58,23 +58,13 @@ const calculateOverallRating = (attributes: PlayerAttributes): number => {
     0
   );
 
-  // Define the maximum overall rating (99)
-  const maxOverallRating = 99;
-
-  // Normalize the overall rating to a scale of 0 to maxOverallRating
-  const overallRating = Math.min(
-    maxOverallRating,
-    Math.max(
-      0,
-      (weightedSum /
-        Object.values(weights).reduce((sum, weight) => sum + weight, 0)) *
-        maxOverallRating
-    )
-  );
+  // Directly use the weighted sum as the overall rating
+  const overallRating = Math.min(99, Math.max(0, weightedSum));
 
   // Round the overall rating to two decimal places
-  return Math.round(overallRating * 100) / 100;
+  return Math.floor((Math.round(overallRating * 100) / 100) * 3.5);
 };
+
 type DropResult = {
   slot?: number;
 };
@@ -166,33 +156,45 @@ const Player: React.FC<IPlayer> = ({
     //   </div>
     // </Card>
     <>
-      <Card
-        ref={drag}
-        onClick={onPlayerClick}
-        onDoubleClick={handleDoubleClick}
-        className="w-full  cursor-pointer h-24  flex justify-center items-center   bg-white shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out"
-      >
-        <CardContent className=" flex w-[100%] relative items-center  justify-center  ">
-          <div className="  flex flex-col absolute bottom-3 -left-[30%] items-center  w-full">
-            <Badge
-              className={`${
-                positionColors[player.position as keyof typeof positionColors]
-              }  text-white px-1.5`}
-            >
-              {player.position}
-            </Badge>
-          </div>
-          <div className="flex flex-col w-16 absolute left-8 h-24 items-center  justify-end  ">
-            <Avatar className=" w-10 h-10 ">
-              <AvatarImage src={player.image} />
-              <AvatarFallback className="hidden">FP</AvatarFallback>
-            </Avatar>
-            <h1 className="text-gray-700 font-bold text-base">{player.name}</h1>
-          </div>
-          <h3 className="font-bold absolute right-2 text-xl">
-            {playerRating ? playerRating : 0}
-          </h3>
-          {/* <Badge
+      {isActive ? (
+        <div className="">
+          <p className="absolute top-[50px] left-3 text-base font-semibold">
+            {player?.name}
+          </p>
+          <span className="absolute left-[68px] top-6 font-semibold">
+            {playerRating}
+          </span>
+        </div>
+      ) : (
+        <Card
+          ref={drag}
+          onClick={onPlayerClick}
+          onDoubleClick={handleDoubleClick}
+          className="w-full  cursor-pointer h-24  flex justify-center items-center   bg-white shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out"
+        >
+          <CardContent className=" flex w-[100%] relative items-center  justify-center  ">
+            <div className="  flex flex-col absolute bottom-3 -left-[30%] items-center  w-full">
+              <Badge
+                className={`${
+                  positionColors[player.position as keyof typeof positionColors]
+                }  text-white px-1.5`}
+              >
+                {player.position}
+              </Badge>
+            </div>
+            <div className="flex flex-col w-16 absolute left-8 h-24 items-center  justify-end  ">
+              <Avatar className=" w-10 h-10 ">
+                <AvatarImage src={player.image} />
+                <AvatarFallback className="hidden">FP</AvatarFallback>
+              </Avatar>
+              <h1 className="text-gray-700 font-bold text-base">
+                {player.name}
+              </h1>
+            </div>
+            <h3 className="font-bold absolute right-2 text-xl">
+              {playerRating ? playerRating : 0}
+            </h3>
+            {/* <Badge
             className="items-center whitespace-nowrap py-2"
             variant="outline"
           >
@@ -235,8 +237,9 @@ const Player: React.FC<IPlayer> = ({
             </svg>
             {player.attackScore}
           </Badge> */}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </>
   );
 };

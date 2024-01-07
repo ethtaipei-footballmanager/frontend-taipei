@@ -10,6 +10,8 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { IoIosArrowBack } from "react-icons/io";
 import Player from "./Player";
 import PlayerDetails from "./PlayerDetails";
+import SelectFormation from "./SelectFormation";
+import { calculateStarRating, renderStars } from "./TeamCard";
 import Grid from "./grid-ui/Grid";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -45,55 +47,55 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
 
   // const [opponentTotalDefense, setOpponentTotalDefense] = useState(0);
   // const [opponentTotalAttack, setOpponentTotalAttack] = useState(0);
-  const [selectedFormation, setSelectedFormation] = useState("4-3-3");
+  const [selectedFormation, setSelectedFormation] = useState("4-4-2");
+  const [formationSplitted, setFormationSplitted] = useState(
+    selectedFormation.split("-")
+  );
   const [grid, setGrid] = useState<(PlayerType | null)[]>(
     Array.from({ length: 16 }, () => null)
   );
-  const formationParts = selectedFormation.split("-");
+
   const activePlayersCount = activePlayers.filter(Boolean).length;
 
-  const movePlayer = (playerId: number, slot: number) => {
-    setCurrentPlayers((prevCurrentPlayers: PlayerType[]) => {
-      const newCurrentPlayers = [
-        ...prevCurrentPlayers,
-        benchPlayers![playerId],
-      ];
-      return newCurrentPlayers;
-    });
-
+  const movePlayer = (playerId: number, gridIndex: number, slot: number) => {
     setGrid((prevGrid) => {
       const newGrid = [...prevGrid];
-      const playerIndexOnField = activePlayers.findIndex(
+      const playerIndexOnBench = benchPlayers.findIndex(
         (p) => p?.id === playerId
       );
-      const playerIndexOnBench = benchPlayers!.findIndex(
-        (p) => p.id === playerId
+
+      // Remove the player from the bench
+      setBenchPlayers((prevPlayers) =>
+        prevPlayers.filter((p) => p.id !== playerId)
       );
 
-      if (playerIndexOnBench !== -1) {
-        // Remove the player from the bench
-        setBenchPlayers((prevPlayers) =>
-          prevPlayers.filter((p) => p.id !== playerId)
-        );
+      // Add the player to the field
+      setActivePlayers((prevPlayers) => {
+        const updatedPlayers = [...prevPlayers];
+        const formationColumns = formationSplitted[gridIndex]
+          .split("-")
+          .map(Number)[0];
 
-        // Add the player to the field
-        setActivePlayers((prevPlayers) => {
-          const updatedPlayers = [...prevPlayers];
-          const formationColumns = selectedFormation.split("-").map(Number)[0];
-          const rowIndex = Math.floor(slot / formationColumns);
-          const colIndex = slot % formationColumns;
-          updatedPlayers[rowIndex * formationColumns + colIndex] =
-            benchPlayers[playerIndexOnBench];
-          return updatedPlayers;
-        });
-      }
+        // Calculate row and column indices dynamically based on the grid index
+        const rowIndex = Math.floor(slot / formationColumns);
+        const colIndex = slot % formationColumns;
+
+        updatedPlayers[gridIndex] = benchPlayers[playerIndexOnBench];
+        return updatedPlayers;
+      });
+
       newGrid[slot] = benchPlayers[playerIndexOnBench];
 
       // Update the newGrid with the correct player object
-
       return newGrid;
     });
   };
+
+  useEffect(() => {
+    console.log("format", selectedFormation.split("-"));
+
+    setFormationSplitted(selectedFormation.split("-"));
+  }, [selectedFormation]);
 
   const removePlayer = (playerId: number) => {
     setGrid((prevGrid) => {
@@ -205,6 +207,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
     setTotalAttack(newTotalAttack);
     setTotalDefense(newTotalDefense);
   }, [activePlayers]);
+  console.log("selected", selectedFormation);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -212,38 +215,38 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
         <div className=" relative  grid grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
           <div className="col-span-4  h-80 relative">
             <Image className="absolute z-0" src="/field.svg" fill alt="field" />
-            <div className="grid grid-rows-4 items-start justify-center h-[100%] z-10">
+            <div className="grid grid-rows-4 mr-7 items-start justify-center h-[100%] z-10">
               {/* Separate columns for each position group */}
 
               <div className="row-span-1">
                 <Grid
-                  formation={formationParts[2]}
+                  formation={formationSplitted[2]}
                   grid={grid.slice(
-                    Number(formationParts[0]) + Number(formationParts[1]),
-                    Number(formationParts[0]) +
-                      Number(formationParts[1]) +
-                      Number(formationParts[2])
+                    Number(formationSplitted[0]) + Number(formationSplitted[1]),
+                    Number(formationSplitted[0]) +
+                      Number(formationSplitted[1]) +
+                      Number(formationSplitted[2])
                   )}
-                  movePlayer={movePlayer}
+                  movePlayer={(playerId, slot) => movePlayer(playerId, 3, slot)}
                   removePlayer={removePlayer}
                 />
               </div>
               <div className="row-span-1">
                 <Grid
-                  formation={formationParts[1]}
+                  formation={formationSplitted[1]}
                   grid={grid.slice(
-                    Number(formationParts[0]),
-                    Number(formationParts[0]) + Number(formationParts[1])
+                    Number(formationSplitted[0]),
+                    Number(formationSplitted[0]) + Number(formationSplitted[1])
                   )}
-                  movePlayer={movePlayer}
+                  movePlayer={(playerId, slot) => movePlayer(playerId, 2, slot)}
                   removePlayer={removePlayer}
                 />
               </div>
               <div className="row-span-1">
                 <Grid
-                  formation={formationParts[0]}
-                  grid={grid.slice(0, Number(formationParts[0]))}
-                  movePlayer={movePlayer}
+                  formation={formationSplitted[0]}
+                  grid={grid.slice(0, Number(formationSplitted[0]))}
+                  movePlayer={(playerId, slot) => movePlayer(playerId, 1, slot)}
                   removePlayer={removePlayer}
                 />
               </div>
@@ -251,19 +254,12 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                 <Grid
                   formation={"1"}
                   grid={grid.slice(0, 1)} // Adjust the range based on your data
-                  movePlayer={movePlayer}
+                  movePlayer={(playerId, slot) => movePlayer(playerId, 0, slot)}
                   removePlayer={removePlayer}
                 />
               </div>
             </div>
           </div>
-
-          {/* <div className="absolute left-4 top-4">
-            <SelectFormation
-              selectedFormation={selectedFormation}
-              setSelectedFormation={setSelectedFormation}
-            />
-          </div> */}
 
           {/* <div className="mt-4 "> */}
           {/* {grid.map((player, index) => {
@@ -304,6 +300,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   alt={teams[selectedTeam].name}
                   className=""
                 />
+
                 {/* <div className="-ml-4">
                   {renderStars(
                     calculateStarRating(
@@ -312,6 +309,20 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                     )
                   )}
                 </div> */}
+                <div className="flex w-full justify-between">
+                  <SelectFormation
+                    selectedFormation={selectedFormation}
+                    setSelectedFormation={setSelectedFormation}
+                  />
+                  <div className="mr-10">
+                    {renderStars(
+                      calculateStarRating(
+                        teams[selectedTeam].attack,
+                        teams[selectedTeam].defense
+                      )
+                    )}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -360,15 +371,17 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
               Change your password here.
               </TabsContent>
             </Tabs> */}
-          <ScrollArea className=" overflow-y-auto h-[calc(80vh_-_40px)] ">
-            <div className="w-full grid grid-cols-5 gap-2  h-[calc(80vh_-_40px)] p-5">
+          <ScrollArea className=" overflow-y-auto h-[calc(80vh_-_40px)] p-5">
+            <div className="w-full grid grid-cols-5 gap-2  h-[calc(80vh_-_40px)] p-2 ">
               {benchPlayers!.map((player) => {
                 return (
                   <Player
                     key={player.name}
                     onPlayerClick={() => setSelectedPlayer(player.id)}
                     player={player}
-                    movePlayer={movePlayer}
+                    movePlayer={(playerId, slot) =>
+                      movePlayer(playerId, 1, slot)
+                    }
                     isActive={false}
                   />
                 );

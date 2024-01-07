@@ -23,6 +23,7 @@ const Grid: React.FC<IGrid> = ({
       {grid.map((player, index) => (
         <GridSlot
           isDisabled={false}
+          formationPart={formation}
           key={index}
           slot={index}
           player={player}

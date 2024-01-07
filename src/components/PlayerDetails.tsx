@@ -130,7 +130,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           </div>
           <div className="flex items-center justify-between">
             <p>Stamina:</p>
-            <Badge className="items-center bg-yellow-500 hover:fill-white hover:text-white text-black">
+            <Badge className="items-center bg-yellow-500 hover:fill-white text-white hover:text-white ">
               {/* <IoBatteryCharging className="mr-1 h-4 w-4" /> */}
               <BsBatteryFull className="mr-1 h-4 w-4 fill-current" />
               {playerDetails.stamina}
