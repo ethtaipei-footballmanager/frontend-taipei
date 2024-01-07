@@ -1,8 +1,7 @@
-"use client";
-
 import React from "react";
 import { useDrop } from "react-dnd";
 import { PlayerType } from "../Game";
+import JerseySVG from "../Jersey";
 import Player from "../Player";
 
 interface IGridSlot {
@@ -32,15 +31,21 @@ const GridSlot: React.FC<IGridSlot> = ({
     [isDisabled]
   );
 
-  // console.log("48", player);
+  const jerseyColor = player?.position === "GK" ? "rgba(255,0,0,1)" : "#164f6b";
 
   return (
     <div
       ref={drop}
-      className={` flex w-full h-full ${
+      className={`w-12 h-12 relative flex flex-col ${
         isDisabled ? "cursor-not-allowed" : ""
       }`}
     >
+      <div>
+        <span className="w-12 h-12">
+          <JerseySVG fillColor={jerseyColor} />
+        </span>
+        <p className="-mt-3">{player?.name}</p>
+      </div>
       {player && !isDisabled && (
         <Player
           removePlayer={removePlayer}

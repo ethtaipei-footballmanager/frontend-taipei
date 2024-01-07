@@ -16,9 +16,9 @@ module.exports = {
       },
     },
     extend: {
-      backgroundImage: {
-        field: "url('/field_3.jpeg')",
-      },
+      // backgroundImage: {
+      //   field: "url('/field.svg')",
+      // },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

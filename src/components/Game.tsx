@@ -1,16 +1,22 @@
 "use client";
 
+import { calculateAttribute, getPositionRole } from "@/utils";
 import { teams } from "@/utils/team-data";
 import { csv } from "d3";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { IoIosArrowBack } from "react-icons/io";
 import Player from "./Player";
-import SelectFormation from "./SelectFormation";
+import PlayerDetails from "./PlayerDetails";
 import Grid from "./grid-ui/Grid";
 import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
+import { ScrollArea } from "./ui/scroll-area";
 interface IGame {
   selectedTeam: number;
+  setIsGameStarted: (val: boolean) => void;
 }
 
 export type PlayerType = {
@@ -18,23 +24,32 @@ export type PlayerType = {
   name: string;
   team: string;
   image: string;
+  position: string;
+  speed: number;
+  power: number;
+  stamina: number;
+  technique: number;
+  goalkeeping: number;
   attackScore: number;
   defenseScore: number;
 };
 
-const Game: React.FC<IGame> = ({ selectedTeam }) => {
+const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
   const [currentPlayers, setCurrentPlayers] = useState<PlayerType[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
+  const [playerData, setPlayerData] = useState<PlayerType>();
   const [totalAttack, setTotalAttack] = useState(0);
   const [totalDefense, setTotalDefense] = useState(0);
+
   // const [opponentTotalDefense, setOpponentTotalDefense] = useState(0);
   // const [opponentTotalAttack, setOpponentTotalAttack] = useState(0);
   const [selectedFormation, setSelectedFormation] = useState("4-3-3");
   const [grid, setGrid] = useState<(PlayerType | null)[]>(
     Array.from({ length: 16 }, () => null)
   );
-
+  const formationParts = selectedFormation.split("-");
   const activePlayersCount = activePlayers.filter(Boolean).length;
 
   const movePlayer = (playerId: number, slot: number) => {
@@ -122,24 +137,57 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       const teamPlayers = data
         .filter((player) => player.team_id === teams[selectedTeam].id) // Filter by selectedTeam
         .map((player) => ({
-          id: parseInt(player.id),
+          id: parseInt(player.player_uid),
           name: player.player_name,
           team: player.team,
+          position: getPositionRole(Number(player.position)),
           goalkeeper: player.goalkeeper,
           image: `/player_a.svg`,
-          speed: player.speed,
-          power: player.power,
-          stamina: player.stamina,
-          technique: player.technique,
-          goalkeeping: player.goalkeeping,
-          attackScore: Number(player.attack),
-          defenseScore: Number(player.defense),
+          speed: calculateAttribute(player.speed),
+          power: calculateAttribute(player.power),
+          stamina: calculateAttribute(player.stamina),
+          technique: calculateAttribute(player.technique),
+          goalkeeping: calculateAttribute(player.goalkeeping),
+          attackScore: calculateAttribute(player.attack),
+          defenseScore: calculateAttribute(player.defense),
         }))
         .sort((a, b) => a.id - b.id);
+      console.log("player0", teamPlayers[0]);
 
       setBenchPlayers(teamPlayers);
+      setSelectedPlayer(teamPlayers[0].id);
+      setPlayerData(teamPlayers[0]);
     });
   }, []);
+
+  useEffect(() => {
+    csv("/players.csv").then((data) => {
+      console.log("123", data, selectedPlayer);
+      // Filter the data for the selected team and set the players state
+      const player = data
+        .filter((player) => Number(player.player_uid) === selectedPlayer) // Filter by selectedTeam
+        .map((player) => ({
+          id: parseInt(player.player_uid),
+          name: player.player_name,
+          team: player.team,
+          position: getPositionRole(Number(player.position)),
+          goalkeeper: player.goalkeeper,
+          image: `/player_a.svg`,
+          speed: calculateAttribute(player.speed),
+          power: calculateAttribute(player.power),
+          stamina: calculateAttribute(player.stamina),
+          technique: calculateAttribute(player.technique),
+          goalkeeping: calculateAttribute(player.goalkeeping),
+          attackScore: calculateAttribute(player.attack),
+          defenseScore: calculateAttribute(player.defense),
+        }));
+      console.log("player", player[0]);
+
+      setPlayerData(player[0]);
+    });
+  }, [selectedPlayer]);
+
+  console.log("selected", selectedPlayer);
 
   useEffect(() => {
     // Calculate total attack and defense whenever activePlayers changes
@@ -160,14 +208,62 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-row px-16 py-8 bg-white h-[90vh] overflow-hidden w-full gap-4">
-        <div className=" relative bg-field grid grid-cols-4  bg-cover  object-contain bg-center max-h-[85vh]  bg-no-repeat w-full   ">
-          <div className="absolute left-4 top-4">
+      <div className="grid grid-rows-2 px-20 py-8 bg-white h-[90vh] overflow-hidden w-full ">
+        <div className=" relative  grid grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
+          <div className="col-span-4  h-80 relative">
+            <Image className="absolute z-0" src="/field.svg" fill alt="field" />
+            <div className="grid grid-rows-4 items-start justify-center h-[100%] z-10">
+              {/* Separate columns for each position group */}
+
+              <div className="row-span-1">
+                <Grid
+                  formation={formationParts[2]}
+                  grid={grid.slice(
+                    Number(formationParts[0]) + Number(formationParts[1]),
+                    Number(formationParts[0]) +
+                      Number(formationParts[1]) +
+                      Number(formationParts[2])
+                  )}
+                  movePlayer={movePlayer}
+                  removePlayer={removePlayer}
+                />
+              </div>
+              <div className="row-span-1">
+                <Grid
+                  formation={formationParts[1]}
+                  grid={grid.slice(
+                    Number(formationParts[0]),
+                    Number(formationParts[0]) + Number(formationParts[1])
+                  )}
+                  movePlayer={movePlayer}
+                  removePlayer={removePlayer}
+                />
+              </div>
+              <div className="row-span-1">
+                <Grid
+                  formation={formationParts[0]}
+                  grid={grid.slice(0, Number(formationParts[0]))}
+                  movePlayer={movePlayer}
+                  removePlayer={removePlayer}
+                />
+              </div>
+              <div className="row-span-1 ">
+                <Grid
+                  formation={"1"}
+                  grid={grid.slice(0, 1)} // Adjust the range based on your data
+                  movePlayer={movePlayer}
+                  removePlayer={removePlayer}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* <div className="absolute left-4 top-4">
             <SelectFormation
               selectedFormation={selectedFormation}
               setSelectedFormation={setSelectedFormation}
             />
-          </div>
+          </div> */}
 
           {/* <div className="mt-4 "> */}
           {/* {grid.map((player, index) => {
@@ -183,15 +279,54 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
               />
             );
           })} */}
-          <Grid
-            formation={selectedFormation}
-            grid={grid}
-            movePlayer={movePlayer}
-            removePlayer={removePlayer}
-          />
+
           {/* </div> */}
         </div>
-        <div className="flex flex-col w-2/5 h-auto bg-black px-4 rounded-md">
+        <div className="col-start-3 col-span-1 row-start-1 row-span-2 flex flex-col gap-6">
+          <Card className="border-gray-200 bg-[#f5f5f5] border-2">
+            <CardContent className="py-2">
+              <div className="absolute left-4">
+                <Button variant={"outline"} size={"icon"} className="">
+                  <IoIosArrowBack
+                    onClick={() => setIsGameStarted(false)}
+                    className="w-6 h-6"
+                  />
+                </Button>
+              </div>
+              <div className="flex items-center justify-center flex-col">
+                <h1 className="text-2xl font-bold">
+                  {teams[selectedTeam].name}
+                </h1>
+                <Image
+                  width={64}
+                  height={64}
+                  src={`/${teams[selectedTeam].image}.svg`}
+                  alt={teams[selectedTeam].name}
+                  className=""
+                />
+                {/* <div className="-ml-4">
+                  {renderStars(
+                    calculateStarRating(
+                      teams[selectedTeam].attack,
+                      teams[selectedTeam].defense
+                    )
+                  )}
+                </div> */}
+              </div>
+            </CardContent>
+          </Card>
+          {playerData && (
+            <div className="">
+              <PlayerDetails playerDetails={playerData!} />
+            </div>
+          )}
+          <div className="w-full flex justify-center">
+            <Button className="w-1/2" variant={"outline"}>
+              Start Game
+            </Button>
+          </div>
+        </div>
+        <div className="row-start-2 flex flex-col w-full h-auto mt-12 border-gray-200 bg-[#f5f5f5] border-2 px-4 rounded-md">
           {activePlayersCount === 11 && (
             <div className="absolute right-24 top-36">
               <Button
@@ -205,26 +340,41 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
               </Button>
             </div>
           )}
-          <div className="flex flex-col py-4 px-4 whitespace-nowrap">
+          {/* <div className="flex flex-col px-4 whitespace-nowrap">
             <h1 className="text-xl tracking-tighter">
               Current Attack : {totalAttack}
             </h1>
             <h1 className="text-xl tracking-tighter">
               Current Defence : {totalDefense}
             </h1>
-          </div>
-          <div className="w-full grid grid-cols-2 gap-2 overflow-y-auto h-[calc(100vh_-_40px)] p-5">
-            {benchPlayers!.map((player) => {
-              return (
-                <Player
-                  key={player.id}
-                  player={player}
-                  movePlayer={movePlayer}
-                  isActive={false}
-                />
-              );
-            })}
-          </div>
+          </div> */}
+          {/* <Tabs defaultValue="account" className="w-[400px]">
+              <TabsList>
+              <TabsTrigger value="account">Account</TabsTrigger>
+              <TabsTrigger value="password">Password</TabsTrigger>
+              </TabsList>
+              <TabsContent value="account">
+              Make changes to your account here.
+              </TabsContent>
+              <TabsContent value="password">
+              Change your password here.
+              </TabsContent>
+            </Tabs> */}
+          <ScrollArea className=" overflow-y-auto h-[calc(80vh_-_40px)] ">
+            <div className="w-full grid grid-cols-5 gap-2  h-[calc(80vh_-_40px)] p-5">
+              {benchPlayers!.map((player) => {
+                return (
+                  <Player
+                    key={player.name}
+                    onPlayerClick={() => setSelectedPlayer(player.id)}
+                    player={player}
+                    movePlayer={movePlayer}
+                    isActive={false}
+                  />
+                );
+              })}
+            </div>
+          </ScrollArea>
         </div>
       </div>
     </DndProvider>

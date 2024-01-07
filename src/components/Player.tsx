@@ -1,50 +1,99 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { calculateAttribute } from "@/utils";
+import React, { useEffect, useState } from "react";
 import { useDrag } from "react-dnd";
 import { PlayerType } from "./Game";
-
+import { Badge } from "./ui/badge";
 interface IPlayer {
   player: PlayerType;
   movePlayer: (val0: number, val1: number) => void;
   removePlayer?: (val0: number) => void;
+  onPlayerClick?: () => void;
   isActive: boolean;
 }
 
+interface PlayerAttributes {
+  attack: number;
+  defense: number;
+  speed: number;
+  power: number;
+  stamina: number;
+  technique: number;
+  goalkeeping: number;
+}
+
+// Define a type for attribute weights
+type AttributeWeights = {
+  [key in keyof PlayerAttributes]: number;
+};
+
+const calculateOverallRating = (attributes: PlayerAttributes): number => {
+  // Define weights for each attribute based on their importance in overall rating
+  const weights: AttributeWeights = {
+    attack: 0.25,
+    defense: 0.2,
+    speed: 0.1,
+    power: 0.1,
+    stamina: 0.1,
+    technique: 0.15,
+    goalkeeping: 0.1,
+  };
+
+  // Map attributes to the 0-99 scale using calculateAttribute
+  const scaledAttributes: PlayerAttributes = {} as PlayerAttributes;
+  Object.keys(attributes).forEach((attribute) => {
+    scaledAttributes[attribute as keyof PlayerAttributes] = calculateAttribute(
+      attributes[attribute as keyof PlayerAttributes]
+    );
+  });
+
+  // Calculate the weighted sum of scaled attribute values
+  const weightedSum = Object.keys(scaledAttributes).reduce(
+    (sum, attribute) =>
+      sum +
+      scaledAttributes[attribute as keyof PlayerAttributes] *
+        weights[attribute as keyof PlayerAttributes],
+    0
+  );
+
+  // Define the maximum overall rating (99)
+  const maxOverallRating = 99;
+
+  // Normalize the overall rating to a scale of 0 to maxOverallRating
+  const overallRating = Math.min(
+    maxOverallRating,
+    Math.max(
+      0,
+      (weightedSum /
+        Object.values(weights).reduce((sum, weight) => sum + weight, 0)) *
+        maxOverallRating
+    )
+  );
+
+  // Round the overall rating to two decimal places
+  return Math.round(overallRating * 100) / 100;
+};
 type DropResult = {
   slot?: number;
 };
 
-function mapValue(
-  value: number,
-  fromMin: number,
-  fromMax: number,
-  toMin: number,
-  toMax: number
-): number {
-  // Check if the value is within the specified range
-  if (value < fromMin || value > fromMax) {
-    throw new Error("Value is outside the specified range.");
-  }
-
-  // Perform the linear mapping
-  const fromRange = fromMax - fromMin;
-  const toRange = toMax - toMin;
-
-  const scaledValue = (value - fromMin) * (toRange / fromRange) + toMin;
-
-  // Round the result to the nearest integer
-  return Math.round(scaledValue);
-}
+const positionColors = {
+  ATT: "bg-red-500", // Replace 'forward' with the actual position and 'bg-red-500' with the desired color
+  MID: "bg-green-500",
+  DEF: "bg-blue-500",
+  GK: "bg-yellow-500",
+};
 
 const Player: React.FC<IPlayer> = ({
   player,
   movePlayer,
   removePlayer,
   isActive,
+  onPlayerClick,
 }) => {
+  const [playerRating, setPlayerRating] = useState(0);
   const [, drag] = useDrag(() => ({
     type: "player",
     item: { id: player.id },
@@ -56,12 +105,29 @@ const Player: React.FC<IPlayer> = ({
       }
     },
   }));
-  console.log("player", player.image);
+  console.log("player", player);
 
   const handleDoubleClick = () => {
     console.log("doulbe");
     if (removePlayer) removePlayer(player.id);
   };
+
+  useEffect(() => {
+    const overallRating = calculateOverallRating({
+      attack: player.attackScore,
+      defense: player.defenseScore,
+      speed: player.speed,
+      power: player.power,
+      stamina: player.stamina,
+      technique: player.technique,
+      goalkeeping: player.goalkeeping,
+    });
+    setPlayerRating(overallRating);
+  }, []);
+  console.log(
+    "positionColors",
+    positionColors[player.position as keyof typeof positionColors]
+  );
 
   return (
     // <Card
@@ -73,7 +139,6 @@ const Player: React.FC<IPlayer> = ({
     //   <div
     //     ref={drag}
     //     className={`flex relative  ${
-    //       !isActive
     //         ? " w-full h-full items-center justify-between"
     //         : "w-full h-full"
     //     } `}
@@ -100,24 +165,34 @@ const Player: React.FC<IPlayer> = ({
     //     </div>
     //   </div>
     // </Card>
-    <Card className="w-full relative h-32 flex justify-end items-end mx-auto bg-white shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out">
-      <CardHeader className="w-full flex  flex-grow">
-        <div className="flex  items-end absolute left-1 top-4  justify-end  ">
-          <Avatar className=" w-10 h-10 ">
-            <AvatarImage src={player.image} />
-            <AvatarFallback className="hidden">FP</AvatarFallback>
-          </Avatar>
-        </div>
-      </CardHeader>
-      <CardContent className="-mt-10 -ml-2  flex  w-[100%]  h-full items-end  justify-start flex-col ">
-        <div className=" absolute left-4 top-2 flex flex-col  items-center flex-grow w-full">
-          <h1 className="text-gray-700 font-bold text-xl">{player.name}</h1>
-          <p className="mt-2 text-gray-600 text-sm whitespace-nowrap">
-            Forward
-          </p>
-        </div>
-        <div className="flex absolute bottom-0 left-3 items-center gap-2 mx-auto  justify-between  py-4 ">
-          <Badge
+    <>
+      <Card
+        ref={drag}
+        onClick={onPlayerClick}
+        onDoubleClick={handleDoubleClick}
+        className="w-full  cursor-pointer h-24  flex justify-center items-center   bg-white shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out"
+      >
+        <CardContent className=" flex w-[100%] relative items-center  justify-center  ">
+          <div className="  flex flex-col absolute bottom-3 -left-[30%] items-center  w-full">
+            <Badge
+              className={`${
+                positionColors[player.position as keyof typeof positionColors]
+              }  text-white px-1.5`}
+            >
+              {player.position}
+            </Badge>
+          </div>
+          <div className="flex flex-col w-16 absolute left-8 h-24 items-center  justify-end  ">
+            <Avatar className=" w-10 h-10 ">
+              <AvatarImage src={player.image} />
+              <AvatarFallback className="hidden">FP</AvatarFallback>
+            </Avatar>
+            <h1 className="text-gray-700 font-bold text-base">{player.name}</h1>
+          </div>
+          <h3 className="font-bold absolute right-2 text-xl">
+            {playerRating ? playerRating : 0}
+          </h3>
+          {/* <Badge
             className="items-center whitespace-nowrap py-2"
             variant="outline"
           >
@@ -135,7 +210,7 @@ const Player: React.FC<IPlayer> = ({
             >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
             </svg>
-            {mapValue(player.defenseScore, 0, 255, 0, 99)}
+            {player.defenseScore}
           </Badge>
           <Badge
             className="items-center whitespace-nowrap py-2"
@@ -158,16 +233,11 @@ const Player: React.FC<IPlayer> = ({
               <line x1="16" x2="20" y1="16" y2="20" />
               <line x1="19" x2="21" y1="21" y2="19" />
             </svg>
-            {mapValue(player.attackScore, 0, 255, 0, 99)}
-          </Badge>
-        </div>
-      </CardContent>
-      {/* <CardFooter>
-        <div className="flex justify-center px-4 py-2">
-          <Button variant="link">View More</Button>
-        </div>
-      </CardFooter> */}
-    </Card>
+            {player.attackScore}
+          </Badge> */}
+        </CardContent>
+      </Card>
+    </>
   );
 };
 export default Player;

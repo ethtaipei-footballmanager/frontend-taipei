@@ -11,7 +11,7 @@ const Navbar = () => {
   const [isWalletModal, setIsWalletModal] = useState(false);
 
   return (
-    <nav className=" w-screen z-10 flex bg-slate-400 dark:bg-black text-white justify-between items-center py-3 px-6">
+    <nav className=" w-screen z-10 flex bg-slate-400 dark:bg-black text-white justify-between items-center py-1 px-6">
       <div>
         <Link href="/" className="">
           {/* <Button variant="default">Home</Button> */}
