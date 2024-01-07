@@ -84,9 +84,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
         return updatedPlayers;
       });
 
-      newGrid[slot] = benchPlayers[playerIndexOnBench];
-
       // Update the newGrid with the correct player object
+      newGrid[slot + gridIndex] = benchPlayers[playerIndexOnBench];
+
       return newGrid;
     });
   };
@@ -215,11 +215,12 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
         <div className=" relative  grid grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
           <div className="col-span-4  h-80 relative">
             <Image className="absolute z-0" src="/field.svg" fill alt="field" />
-            <div className="grid grid-rows-4 mr-7 items-start justify-center h-[100%] z-10">
+            <div className="grid grid-rows-4  items-start justify-center h-[100%] z-10">
               {/* Separate columns for each position group */}
 
               <div className="row-span-1">
                 <Grid
+                  isGoalkeeper={false}
                   formation={formationSplitted[2]}
                   grid={grid.slice(
                     Number(formationSplitted[0]) + Number(formationSplitted[1]),
@@ -233,6 +234,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
               </div>
               <div className="row-span-1">
                 <Grid
+                  isGoalkeeper={false}
                   formation={formationSplitted[1]}
                   grid={grid.slice(
                     Number(formationSplitted[0]),
@@ -244,6 +246,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
               </div>
               <div className="row-span-1">
                 <Grid
+                  isGoalkeeper={false}
                   formation={formationSplitted[0]}
                   grid={grid.slice(0, Number(formationSplitted[0]))}
                   movePlayer={(playerId, slot) => movePlayer(playerId, 1, slot)}
@@ -252,6 +255,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
               </div>
               <div className="row-span-1 ">
                 <Grid
+                  isGoalkeeper={true}
                   formation={"1"}
                   grid={grid.slice(0, 1)} // Adjust the range based on your data
                   movePlayer={(playerId, slot) => movePlayer(playerId, 0, slot)}
@@ -331,14 +335,14 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
               <PlayerDetails playerDetails={playerData!} />
             </div>
           )}
-          <div className="w-full flex justify-center">
+          {/* <div className="w-full flex justify-center">
             <Button className="w-1/2" variant={"outline"}>
               Start Game
             </Button>
-          </div>
+          </div> */}
         </div>
         <div className="row-start-2 flex flex-col w-full h-auto mt-12 border-gray-200 bg-[#f5f5f5] border-2 px-4 rounded-md">
-          {activePlayersCount === 11 && (
+          {/* {activePlayersCount === 11 && (
             <div className="absolute right-24 top-36">
               <Button
                 variant="outline"
@@ -350,7 +354,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                 Start Game
               </Button>
             </div>
-          )}
+          )} */}
           {/* <div className="flex flex-col px-4 whitespace-nowrap">
             <h1 className="text-xl tracking-tighter">
               Current Attack : {totalAttack}
@@ -387,6 +391,13 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                 );
               })}
             </div>
+            {/* {activePlayersCount !== 11 && (
+              <div className="w-full flex justify-center">
+                <Button className="w-1/2" variant={"outline"}>
+                  Start Game
+                </Button>
+              </div>
+            )} */}
           </ScrollArea>
         </div>
       </div>

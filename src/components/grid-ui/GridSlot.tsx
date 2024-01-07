@@ -8,6 +8,7 @@ interface IGridSlot {
   formationPart: string;
   slot: number;
   isDisabled: boolean;
+  isGoalkeeper: boolean;
   movePlayer: (val0: number, val1: number) => void;
   removePlayer: (val0: number) => void;
 }
@@ -17,10 +18,11 @@ const GridSlot: React.FC<IGridSlot> = ({
   player,
   movePlayer,
   isDisabled,
+  isGoalkeeper,
   formationPart,
   removePlayer,
 }) => {
-  console.log("log", slot);
+  console.log("log", slot, formationPart);
 
   const [{ isOver }, drop] = useDrop(
     () => ({
@@ -33,12 +35,12 @@ const GridSlot: React.FC<IGridSlot> = ({
     }),
     [isDisabled]
   );
-  const jerseyColor = player?.position === "GK" ? "rgba(255,0,0,1)" : "#164f6b";
+  const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : "#164f6b";
 
   return (
     <div
       ref={drop}
-      className={`w-12 h-12 relative flex flex-col ${
+      className={`w-20 h-20 relative flex flex-col ${
         isDisabled ? "cursor-not-allowed" : ""
       }`}
     >

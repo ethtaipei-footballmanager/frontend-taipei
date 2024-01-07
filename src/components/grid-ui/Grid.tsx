@@ -5,6 +5,7 @@ import GridSlot from "./GridSlot";
 
 interface IGrid {
   formation: string;
+  isGoalkeeper: boolean;
   grid: (PlayerType | null)[];
   movePlayer: (playerId: number, slot: number) => void;
   removePlayer: (playerId: number) => void;
@@ -15,6 +16,7 @@ const Grid: React.FC<IGrid> = ({
   grid,
   movePlayer,
   removePlayer,
+  isGoalkeeper,
 }) => {
   return (
     <div
@@ -27,6 +29,7 @@ const Grid: React.FC<IGrid> = ({
           key={index}
           slot={index}
           player={player}
+          isGoalkeeper={isGoalkeeper}
           movePlayer={movePlayer}
           removePlayer={removePlayer}
         />

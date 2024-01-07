@@ -95,7 +95,6 @@ const Player: React.FC<IPlayer> = ({
       }
     },
   }));
-  console.log("player", player);
 
   const handleDoubleClick = () => {
     console.log("doulbe");
@@ -114,10 +113,6 @@ const Player: React.FC<IPlayer> = ({
     });
     setPlayerRating(overallRating);
   }, []);
-  console.log(
-    "positionColors",
-    positionColors[player.position as keyof typeof positionColors]
-  );
 
   return (
     // <Card
@@ -157,11 +152,11 @@ const Player: React.FC<IPlayer> = ({
     // </Card>
     <>
       {isActive ? (
-        <div className="">
-          <p className="absolute top-[50px] left-3 text-base font-semibold">
+        <div className="absolute top-[50px]  w-[100%] flex items-center justify-center">
+          <p className=" text-base font-semibold tracking-tight">
             {player?.name}
           </p>
-          <span className="absolute left-[68px] top-6 font-semibold">
+          <span className="absolute left-[68px] bottom-6 tracking-tighter text-2xl font-semibold">
             {playerRating}
           </span>
         </div>
