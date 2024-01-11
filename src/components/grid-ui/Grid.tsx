@@ -5,9 +5,11 @@ import GridSlot from "./GridSlot";
 
 interface IGrid {
   formation: string;
+  rowIndex: number;
+  selectedPlayer: number;
   isGoalkeeper: boolean;
   grid: (PlayerType | null)[];
-  movePlayer: (playerId: number, slot: number) => void;
+  movePlayer: (val0: number, val1: number, val2: number) => void;
   removePlayer: (playerId: number) => void;
 }
 
@@ -16,8 +18,19 @@ const Grid: React.FC<IGrid> = ({
   grid,
   movePlayer,
   removePlayer,
+  selectedPlayer,
   isGoalkeeper,
+  rowIndex,
 }) => {
+  const handleGridSlotClick = (slot: number) => {
+    // Handle the click event
+    if (grid[slot] === null) {
+      movePlayer(selectedPlayer, rowIndex, slot);
+    } else {
+      removePlayer(selectedPlayer || 0);
+    }
+  };
+
   return (
     <div
       className={`w-[90vh] justify-items-center items-center content-center grid grid-cols-${formation}`}
@@ -27,11 +40,13 @@ const Grid: React.FC<IGrid> = ({
           isDisabled={false}
           formationPart={formation}
           key={index}
+          rowIndex={rowIndex}
+          selectedPlayer={selectedPlayer}
           slot={index}
           player={player}
           isGoalkeeper={isGoalkeeper}
-          movePlayer={movePlayer}
-          removePlayer={removePlayer}
+          movePlayer={() => handleGridSlotClick(index)}
+          removePlayer={() => removePlayer(player?.id || 0)}
         />
       ))}
     </div>

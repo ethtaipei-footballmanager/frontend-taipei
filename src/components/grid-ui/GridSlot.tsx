@@ -1,15 +1,17 @@
 import React from "react";
-import { useDrop } from "react-dnd";
 import { PlayerType } from "../Game";
 import JerseySVG from "../Jersey";
 import Player from "../Player";
+
 interface IGridSlot {
   player: PlayerType | null;
   formationPart: string;
   slot: number;
   isDisabled: boolean;
+  rowIndex: number;
+  selectedPlayer: number;
   isGoalkeeper: boolean;
-  movePlayer: (val0: number, val1: number) => void;
+  movePlayer: (val0: number, val1: number, val2: number) => void;
   removePlayer: (val0: number) => void;
 }
 
@@ -20,26 +22,23 @@ const GridSlot: React.FC<IGridSlot> = ({
   isDisabled,
   isGoalkeeper,
   formationPart,
+  selectedPlayer,
   removePlayer,
+  rowIndex,
 }) => {
-  console.log("log", slot, formationPart);
-
-  const [{ isOver }, drop] = useDrop(
-    () => ({
-      accept: "player",
-      canDrop: () => !isDisabled,
-      drop: () => ({ slot }),
-      collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
-      }),
-    }),
-    [isDisabled]
-  );
   const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : "#164f6b";
 
   return (
     <div
-      ref={drop}
+      onClick={() => {
+        if (!player) {
+          console.log("clicked", slot, rowIndex);
+
+          movePlayer(selectedPlayer, rowIndex, slot);
+        } else {
+          removePlayer(player.id || 0);
+        }
+      }}
       className={`w-20 h-20 relative flex flex-col ${
         isDisabled ? "cursor-not-allowed" : ""
       }`}
@@ -48,6 +47,7 @@ const GridSlot: React.FC<IGridSlot> = ({
         <span className="w-20 absolute h-20">
           <JerseySVG fillColor={jerseyColor} />
         </span>
+        <p className="text-xl -mt-4">{`${slot}, ${rowIndex}`}</p>
         {player && !isDisabled && (
           <Player
             removePlayer={removePlayer}

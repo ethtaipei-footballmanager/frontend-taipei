@@ -3,12 +3,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateAttribute } from "@/utils";
 import React, { useEffect, useState } from "react";
-import { useDrag } from "react-dnd";
 import { PlayerType } from "./Game";
 import { Badge } from "./ui/badge";
 interface IPlayer {
   player: PlayerType;
-  movePlayer: (val0: number, val1: number) => void;
+  movePlayer: (val0: number, val1: number, val2: number) => void;
   removePlayer?: (val0: number) => void;
   onPlayerClick?: () => void;
   isActive: boolean;
@@ -84,17 +83,6 @@ const Player: React.FC<IPlayer> = ({
   onPlayerClick,
 }) => {
   const [playerRating, setPlayerRating] = useState(0);
-  const [, drag] = useDrag(() => ({
-    type: "player",
-    item: { id: player.id },
-    // canDrag: false,
-    end: (item, monitor) => {
-      const dropResult: DropResult | null = monitor.getDropResult();
-      if (item && dropResult!.slot) {
-        movePlayer(item.id, dropResult!.slot);
-      }
-    },
-  }));
 
   const handleDoubleClick = () => {
     console.log("doulbe");
@@ -162,7 +150,6 @@ const Player: React.FC<IPlayer> = ({
         </div>
       ) : (
         <Card
-          ref={drag}
           onClick={onPlayerClick}
           onDoubleClick={handleDoubleClick}
           className="w-full  cursor-pointer h-24  flex justify-center items-center   bg-white shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out"
@@ -171,6 +158,8 @@ const Player: React.FC<IPlayer> = ({
             <div className="  flex flex-col absolute bottom-3 -left-[30%] items-center  w-full">
               <Badge
                 className={`${
+                  positionColors[player.position as keyof typeof positionColors]
+                } hover:${
                   positionColors[player.position as keyof typeof positionColors]
                 }  text-white px-1.5`}
               >
