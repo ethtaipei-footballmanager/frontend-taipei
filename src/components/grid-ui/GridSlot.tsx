@@ -47,7 +47,6 @@ const GridSlot: React.FC<IGridSlot> = ({
         <span className="w-20 absolute h-20">
           <JerseySVG fillColor={jerseyColor} />
         </span>
-        <p className="text-xl -mt-4">{`${slot}, ${rowIndex}`}</p>
         {player && !isDisabled && (
           <Player
             removePlayer={removePlayer}

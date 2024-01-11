@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { IoIosArrowBack } from "react-icons/io";
+import { toast } from "sonner";
 import Player from "./Player";
 import PlayerDetails from "./PlayerDetails";
 import SelectFormation from "./SelectFormation";
@@ -54,45 +55,49 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   // const [grid, setGrid] = useState<(PlayerType | null)[]>(
   //   Array.from({ length: 11 }, () => null)
   // );
-  const [grid, setGrid] = useState<any>([[], [], [], []]);
+  const [grid, setGrid] = useState<any>([
+    Array.from({ length: 1 }, () => null),
+    Array.from({ length: Number(formationSplitted[0]) ?? 4 }, () => null),
+    Array.from({ length: Number(formationSplitted[1]) ?? 4 }, () => null),
+    Array.from({ length: Number(formationSplitted[2]) ?? 2 }, () => null),
+  ]);
 
   const activePlayersCount = activePlayers.filter(Boolean).length;
+  console.log("formationSplitted", formationSplitted[2]);
 
-  const calculateIndex = (gridIndex: number, slot: number) => {
-    if (gridIndex === 0) {
-      // Goalkeeper case
-      return 0;
-    }
-
-    const formationColumns = formationSplitted[gridIndex - 1]
-      .split("-")
-      .map(Number)[0];
-    return slot + (gridIndex - 1) * formationColumns;
-  };
   const movePlayer = (playerId: number, gridIndex: number, slot: number) => {
+    console.log("Moving player with ID:", playerId);
+    console.log("To grid index:", gridIndex);
+    console.log("To slot:", slot);
+
     setGrid((prevGrid: any) => {
       const newGrid = [...prevGrid];
-      console.log("🚀 ~ setGrid ~ newGrid:", newGrid);
+      console.log("Previous Grid:", prevGrid);
+
       const playerIndexOnBench = benchPlayers.findIndex(
         (p) => p?.id === playerId
       );
-      console.log("🚀 ~ setGrid ~ playerIndexOnBench:", playerIndexOnBench);
+      console.log("Player Index on Bench:", playerIndexOnBench);
 
       // Remove the player from the bench
       setBenchPlayers((prevPlayers) =>
         prevPlayers.filter((p) => p.id !== playerId)
       );
-
-      // Add the player to the field
       setActivePlayers((prevPlayers) => {
         const updatedPlayers = [...prevPlayers];
-        console.log("🚀 ~ setActivePlayers ~ updatedPlayers:", updatedPlayers);
+        const existingPlayerIndex = updatedPlayers.findIndex(
+          (p) => p?.id === benchPlayers[playerIndexOnBench]?.id
+        );
 
-        updatedPlayers[gridIndex] = benchPlayers[playerIndexOnBench];
+        if (existingPlayerIndex === -1) {
+          updatedPlayers.push(benchPlayers[playerIndexOnBench]);
+        }
+
         return updatedPlayers;
       });
 
       newGrid[gridIndex][slot] = benchPlayers[playerIndexOnBench];
+      console.log("New Grid:", newGrid, activePlayers);
 
       return newGrid;
     });
@@ -141,6 +146,16 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   //     });
   //   }
   // };
+
+  const startGame = async () => {
+    console.log("active", activePlayers);
+
+    if (activePlayers.length !== 11) {
+      toast.info("Please select 11 players");
+    } else {
+      toast.info("You have selected 11 ");
+    }
+  };
 
   const removePlayer = (playerId: number) => {
     setGrid((prevGrid: any) => {
@@ -269,13 +284,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   rowIndex={3}
                   isGoalkeeper={false}
                   formation={formationSplitted[2]}
-                  grid={grid.slice(
-                    Number(formationSplitted[0]) + Number(formationSplitted[1]),
-                    Number(formationSplitted[0]) +
-                      Number(formationSplitted[1]) +
-                      Number(formationSplitted[2])
-                  )}
-                  movePlayer={(playerId, slot) => movePlayer(playerId, 3, slot)}
+                  grid={grid[3]}
+                  movePlayer={movePlayer}
                   removePlayer={removePlayer}
                 />
               </div>
@@ -285,11 +295,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   rowIndex={2}
                   isGoalkeeper={false}
                   formation={formationSplitted[1]}
-                  grid={grid.slice(
-                    Number(formationSplitted[0]),
-                    Number(formationSplitted[0]) + Number(formationSplitted[1])
-                  )}
-                  movePlayer={(playerId, slot) => movePlayer(playerId, 2, slot)}
+                  grid={grid[2]}
+                  movePlayer={movePlayer}
                   removePlayer={removePlayer}
                 />
               </div>
@@ -299,8 +306,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   rowIndex={1}
                   isGoalkeeper={false}
                   formation={formationSplitted[0]}
-                  grid={grid.slice(0, Number(formationSplitted[0]))}
-                  movePlayer={(playerId, slot) => movePlayer(playerId, 1, slot)}
+                  grid={grid[1]}
+                  movePlayer={movePlayer}
                   removePlayer={removePlayer}
                 />
               </div>
@@ -310,8 +317,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   rowIndex={0}
                   isGoalkeeper={true}
                   formation={"1"}
-                  grid={grid.slice(0, 1)} // Adjust the range based on your data
-                  movePlayer={(playerId, slot) => movePlayer(playerId, 0, slot)}
+                  grid={grid[0]} // Adjust the range based on your data
+                  movePlayer={movePlayer}
                   removePlayer={removePlayer}
                 />
               </div>
@@ -389,7 +396,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
             </div>
           )}
           <div className="w-full -mt-2 flex justify-center">
-            <Button className="w-1/2" variant={"outline"}>
+            <Button onClick={startGame} className="w-1/2" variant={"outline"}>
               Start Game
             </Button>
           </div>
