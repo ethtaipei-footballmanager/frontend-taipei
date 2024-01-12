@@ -11,6 +11,7 @@ interface IGrid {
   grid: (PlayerType | null)[];
   movePlayer: (val0: number, val1: number, val2: number) => void;
   removePlayer: (playerId: number) => void;
+  isSelecting: boolean;
 }
 
 const Grid: React.FC<IGrid> = ({
@@ -21,6 +22,7 @@ const Grid: React.FC<IGrid> = ({
   selectedPlayer,
   isGoalkeeper,
   rowIndex,
+  isSelecting,
 }) => {
   const handleGridSlotClick = (slot: number) => {
     // Handle the click event
@@ -37,6 +39,7 @@ const Grid: React.FC<IGrid> = ({
     >
       {grid.map((player, index) => (
         <GridSlot
+          isSelecting={isSelecting}
           isDisabled={false}
           formationPart={formation}
           key={index}

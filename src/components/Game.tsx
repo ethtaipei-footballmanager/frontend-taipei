@@ -37,6 +37,19 @@ export type PlayerType = {
   defenseScore: number;
 };
 
+const initializeGrid = (formation: string): any[] => {
+  const [defenders, midfielders, forwards] = formation.split("-").map(Number);
+
+  const initialGrid = [
+    Array.from({ length: 1 }, () => null), // Goalkeeper
+    Array.from({ length: defenders || 4 }, () => null), // Defenders
+    Array.from({ length: midfielders || 4 }, () => null), // Midfielders
+    Array.from({ length: forwards || 2 }, () => null), // Forwards
+  ];
+
+  return initialGrid;
+};
+
 const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
@@ -45,22 +58,20 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [playerData, setPlayerData] = useState<PlayerType>();
   const [totalAttack, setTotalAttack] = useState(0);
   const [totalDefense, setTotalDefense] = useState(0);
-
+  const [isSelecting, setIsSelecting] = useState(false);
   // const [opponentTotalDefense, setOpponentTotalDefense] = useState(0);
   // const [opponentTotalAttack, setOpponentTotalAttack] = useState(0);
   const [selectedFormation, setSelectedFormation] = useState("4-4-2");
   const [formationSplitted, setFormationSplitted] = useState(
     selectedFormation.split("-")
   );
-  // const [grid, setGrid] = useState<(PlayerType | null)[]>(
-  //   Array.from({ length: 11 }, () => null)
-  // );
-  const [grid, setGrid] = useState<any>([
-    Array.from({ length: 1 }, () => null),
-    Array.from({ length: Number(formationSplitted[0]) ?? 4 }, () => null),
-    Array.from({ length: Number(formationSplitted[1]) ?? 4 }, () => null),
-    Array.from({ length: Number(formationSplitted[2]) ?? 2 }, () => null),
-  ]);
+  const [grid, setGrid] = useState<any>(initializeGrid(selectedFormation));
+  // const [grid, setGrid] = useState<any>([
+  //   Array.from({ length: 1 }, () => null),
+  //   Array.from({ length: Number(formationSplitted[0]) ?? 4 }, () => null),
+  //   Array.from({ length: Number(formationSplitted[1]) ?? 4 }, () => null),
+  //   Array.from({ length: Number(formationSplitted[2]) ?? 2 }, () => null),
+  // ]);
 
   const activePlayersCount = activePlayers.filter(Boolean).length;
   console.log("formationSplitted", formationSplitted[2]);
@@ -101,12 +112,15 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
 
       return newGrid;
     });
+    setIsSelecting(false);
   };
 
   useEffect(() => {
     console.log("format", selectedFormation.split("-"));
 
     setFormationSplitted(selectedFormation.split("-"));
+
+    setGrid(initializeGrid(selectedFormation));
   }, [selectedFormation]);
 
   // const handleGridSlotClick = (gridIndex: number, slot: number) => {
@@ -285,6 +299,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   isGoalkeeper={false}
                   formation={formationSplitted[2]}
                   grid={grid[3]}
+                  isSelecting={isSelecting}
                   movePlayer={movePlayer}
                   removePlayer={removePlayer}
                 />
@@ -296,6 +311,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   isGoalkeeper={false}
                   formation={formationSplitted[1]}
                   grid={grid[2]}
+                  isSelecting={isSelecting}
                   movePlayer={movePlayer}
                   removePlayer={removePlayer}
                 />
@@ -305,6 +321,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   selectedPlayer={selectedPlayer!}
                   rowIndex={1}
                   isGoalkeeper={false}
+                  isSelecting={isSelecting}
                   formation={formationSplitted[0]}
                   grid={grid[1]}
                   movePlayer={movePlayer}
@@ -317,6 +334,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   rowIndex={0}
                   isGoalkeeper={true}
                   formation={"1"}
+                  isSelecting={isSelecting}
                   grid={grid[0]} // Adjust the range based on your data
                   movePlayer={movePlayer}
                   removePlayer={removePlayer}
@@ -444,6 +462,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                     onPlayerClick={() => {
                       setMovingPlayer(player);
                       setSelectedPlayer(player.id);
+                      setIsSelecting(true);
                     }}
                     player={player}
                     movePlayer={(playerId, slot) =>
