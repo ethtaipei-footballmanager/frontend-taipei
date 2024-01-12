@@ -15,6 +15,8 @@ interface IGridSlot {
   isSelecting: boolean;
   movePlayer: (val0: number, val1: number, val2: number) => void;
   removePlayer: (val0: number) => void;
+  setIsSelecting: (val: boolean) => void;
+  replacePlayer: (val: PlayerType) => void;
 }
 
 const GridSlot: React.FC<IGridSlot> = ({
@@ -28,6 +30,8 @@ const GridSlot: React.FC<IGridSlot> = ({
   removePlayer,
   rowIndex,
   isSelecting,
+  setIsSelecting,
+  replacePlayer,
 }) => {
   const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : "#164f6b";
   console.log("player30", player);
@@ -35,22 +39,31 @@ const GridSlot: React.FC<IGridSlot> = ({
   return (
     <div
       onClick={() => {
+        setIsSelecting(true);
         if (!player) {
           console.log("clicked", slot, rowIndex);
 
           movePlayer(selectedPlayer, rowIndex, slot);
-        } else {
-          removePlayer(player.id || 0);
         }
       }}
       className={`w-20 h-20 relative flex hover:scale-105 transition duration-300 ease-in flex-col ${
         isDisabled ? "cursor-not-allowed" : ""
-      } ${isSelecting ? "border border-gray-300/50" : ""}`}
+      } ${isSelecting ? " p-2 " : ""}`}
     >
       {isSelecting && (
-        <div className="absolute flex justify-between w-full top-0">
-          <FaExchangeAlt className="hover:text-white stroke-current" />
-          <GiCancel className="hover:scale-105 transition duration-300 ease-in" />
+        <div className="absolute flex justify-between mx-auto w-[90%] top-0 left-2">
+          <FaExchangeAlt
+            onClick={() => {
+              if (player) {
+                replacePlayer(player as PlayerType);
+              }
+            }}
+            className="hover:text-white stroke-current"
+          />
+          <GiCancel
+            onClick={() => removePlayer(player?.id as number)}
+            className="hover:scale-105 transition duration-300 ease-in"
+          />
         </div>
       )}
       <div>

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { IoIosArrowBack } from "react-icons/io";
+import { useKeyPressEvent } from "react-use";
 import { toast } from "sonner";
 import Player from "./Player";
 import PlayerDetails from "./PlayerDetails";
@@ -55,13 +56,16 @@ const initializeGrid = (formation: string, existingGrid: any[]): any[] => {
       slotIndex++
     ) {
       if (existingGrid[rowIndex][slotIndex] !== null) {
-        initialGrid[rowIndex][slotIndex] = existingGrid[rowIndex][slotIndex];
+        initialGrid[rowIndex][slotIndex] = {
+          ...existingGrid[rowIndex][slotIndex],
+        };
       }
     }
   }
 
   return initialGrid;
 };
+
 const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
@@ -71,6 +75,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [totalAttack, setTotalAttack] = useState(0);
   const [totalDefense, setTotalDefense] = useState(0);
   const [isSelecting, setIsSelecting] = useState(false);
+  const [selectedReplacementPlayer, setSelectedReplacementPlayer] =
+    useState<PlayerType | null>(null);
   // const [opponentTotalDefense, setOpponentTotalDefense] = useState(0);
   // const [opponentTotalAttack, setOpponentTotalAttack] = useState(0);
   const [selectedFormation, setSelectedFormation] = useState("4-4-2");
@@ -78,6 +84,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
     selectedFormation.split("-")
   );
   const [grid, setGrid] = useState<any>(initializeGrid(selectedFormation, []));
+  useKeyPressEvent("Escape", () => setIsSelecting(false));
   // const [grid, setGrid] = useState<any>([
   //   Array.from({ length: 1 }, () => null),
   //   Array.from({ length: Number(formationSplitted[0]) ?? 4 }, () => null),
@@ -124,7 +131,13 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
 
       return newGrid;
     });
+
     setIsSelecting(false);
+  };
+
+  const replacePlayer = (player: PlayerType) => {
+    setSelectedReplacementPlayer(player);
+    setIsSelecting(true);
   };
 
   useEffect(() => {
@@ -134,44 +147,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
 
     setGrid((prevGrid: any) => initializeGrid(selectedFormation, prevGrid));
   }, [selectedFormation]);
-
-  // const handleGridSlotClick = (gridIndex: number, slot: number) => {
-  //   if (movingPlayer) {
-  //     setGrid((prevGrid) => {
-  //       const newGrid = [...prevGrid];
-  //       const playerIndexOnBench = benchPlayers.findIndex(
-  //         (p) => p?.id === movingPlayer.id
-  //       );
-
-  //       // Remove the player from the bench
-  //       setBenchPlayers((prevPlayers) =>
-  //         prevPlayers.filter((p) => p.id !== movingPlayer.id)
-  //       );
-
-  //       // Add the player to the field
-  //       setActivePlayers((prevPlayers) => {
-  //         const updatedPlayers = [...prevPlayers];
-  //         const formationColumns = formationSplitted[gridIndex]
-  //           .split("-")
-  //           .map(Number)[0];
-
-  //         // Calculate row and column indices dynamically based on the grid index
-  //         const rowIndex = Math.floor(slot / formationColumns);
-  //         const colIndex = slot % formationColumns;
-
-  //         updatedPlayers[gridIndex] = movingPlayer;
-  //         return updatedPlayers;
-  //       });
-
-  //       // Update the newGrid with the correct player object
-  //       newGrid[slot + gridIndex] = movingPlayer;
-
-  //       setSelectedPlayer(null); // Clear the selected player after placing it
-
-  //       return newGrid;
-  //     });
-  //   }
-  // };
 
   const startGame = async () => {
     console.log("active", activePlayers);
@@ -192,29 +167,56 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
 
       // Check if the player is on the field
       if (playerIndexOnField !== -1) {
+        // Clear the slot in the grid
+        const [rowIndex, slotIndex] = findPlayerLocation(newGrid, playerId);
+        if (rowIndex !== -1 && slotIndex !== -1) {
+          newGrid[rowIndex][slotIndex] = null;
+        }
+
         // Remove the player from the field
         setActivePlayers((prevPlayers: any) =>
-          prevPlayers.map((p: PlayerType, index: number) => {
-            if (index === playerIndexOnField) {
-              return p;
-            }
-          })
+          prevPlayers.filter(
+            (_: any, index: number) => index !== playerIndexOnField
+          )
         );
 
         // Check if the player is not already on the bench
         const isPlayerOnBench = benchPlayers.some((p) => p.id === playerId);
         if (!isPlayerOnBench) {
           // Add the player back to the bench with sorted order
-          setBenchPlayers((prevPlayers) =>
-            [...prevPlayers, activePlayers[playerIndexOnField]].sort(
-              (a, b) => a.id - b.id
-            )
-          );
+          setBenchPlayers((prevPlayers) => {
+            const updatedBenchPlayers = [...prevPlayers];
+
+            // Ensure the player is not already on the bench
+            const isPlayerOnBench = updatedBenchPlayers.some(
+              (p) => p.id === playerId
+            );
+            if (!isPlayerOnBench) {
+              updatedBenchPlayers.push(activePlayers[playerIndexOnField]);
+            }
+
+            return updatedBenchPlayers.sort((a, b) => a.id - b.id);
+          });
         }
       }
 
       return newGrid;
     });
+  };
+
+  const findPlayerLocation = (
+    grid: any[],
+    playerId: number
+  ): [number, number] => {
+    for (let rowIndex = 0; rowIndex < grid.length; rowIndex++) {
+      const slotIndex = grid[rowIndex].findIndex(
+        (player: PlayerType) => player?.id === playerId
+      );
+      if (slotIndex !== -1) {
+        return [rowIndex, slotIndex];
+      }
+    }
+    return [-1, -1]; // Player not found on the grid
   };
 
   useEffect(() => {
@@ -302,8 +304,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
           <div className="col-span-4  h-80 relative">
             <Image className="absolute z-0" src="/field.svg" fill alt="field" />
             <div className="grid grid-rows-4  items-start justify-center h-[100%] z-10">
-              {/* Separate columns for each position group */}
-
               <div className="row-span-1">
                 <Grid
                   selectedPlayer={selectedPlayer!}
@@ -311,9 +311,11 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   isGoalkeeper={false}
                   formation={formationSplitted[2]}
                   grid={grid[3]}
+                  setIsSelecting={setIsSelecting}
                   isSelecting={isSelecting}
                   movePlayer={movePlayer}
                   removePlayer={removePlayer}
+                  replacePlayer={replacePlayer}
                 />
               </div>
               <div className="row-span-1">
@@ -323,9 +325,11 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   isGoalkeeper={false}
                   formation={formationSplitted[1]}
                   grid={grid[2]}
+                  setIsSelecting={setIsSelecting}
                   isSelecting={isSelecting}
                   movePlayer={movePlayer}
                   removePlayer={removePlayer}
+                  replacePlayer={replacePlayer}
                 />
               </div>
               <div className="row-span-1">
@@ -335,9 +339,11 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   isGoalkeeper={false}
                   isSelecting={isSelecting}
                   formation={formationSplitted[0]}
+                  setIsSelecting={setIsSelecting}
                   grid={grid[1]}
                   movePlayer={movePlayer}
                   removePlayer={removePlayer}
+                  replacePlayer={replacePlayer}
                 />
               </div>
               <div className="row-span-1 ">
@@ -347,30 +353,15 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                   isGoalkeeper={true}
                   formation={"1"}
                   isSelecting={isSelecting}
+                  setIsSelecting={setIsSelecting}
                   grid={grid[0]} // Adjust the range based on your data
                   movePlayer={movePlayer}
+                  replacePlayer={replacePlayer}
                   removePlayer={removePlayer}
                 />
               </div>
             </div>
           </div>
-
-          {/* <div className="mt-4 "> */}
-          {/* {grid.map((player, index) => {
-            const isDisabled = index === 0 || index === 8; // Disables the top left and bottom left slots in a 3x4 grid
-            return (
-              <GridSlot
-                key={index}
-                slot={index}
-                player={player}
-                movePlayer={movePlayer}
-                isDisabled={isDisabled}
-                removePlayer={removePlayer}
-              />
-            );
-          })} */}
-
-          {/* </div> */}
         </div>
         <div className="col-start-3 col-span-1 row-start-1 row-span-2 flex flex-col gap-6">
           <Card className="border-gray-200 bg-[#f5f5f5] border-2">
@@ -432,19 +423,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
           </div>
         </div>
         <div className="row-start-2 flex flex-col w-full h-auto mt-12 border-gray-200 bg-[#f5f5f5] border-2 px-4 rounded-md">
-          {/* {activePlayersCount === 11 && (
-            <div className="absolute right-24 top-36">
-              <Button
-                variant="outline"
-                className="text-black"
-                // onClick={
-                //   location.pathname === "create-game" ? startGame : joinGame
-                // }
-              >
-                Start Game
-              </Button>
-            </div>
-          )} */}
           {/* <div className="flex flex-col px-4 whitespace-nowrap">
             <h1 className="text-xl tracking-tighter">
               Current Attack : {totalAttack}
@@ -453,18 +431,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
               Current Defence : {totalDefense}
             </h1>
           </div> */}
-          {/* <Tabs defaultValue="account" className="w-[400px]">
-              <TabsList>
-              <TabsTrigger value="account">Account</TabsTrigger>
-              <TabsTrigger value="password">Password</TabsTrigger>
-              </TabsList>
-              <TabsContent value="account">
-              Make changes to your account here.
-              </TabsContent>
-              <TabsContent value="password">
-              Change your password here.
-              </TabsContent>
-            </Tabs> */}
+
           <ScrollArea className=" overflow-y-auto h-[calc(80vh_-_40px)] p-5">
             <div className="w-full grid grid-cols-5 gap-2  h-[calc(80vh_-_40px)] p-2 ">
               {benchPlayers!.map((player) => {

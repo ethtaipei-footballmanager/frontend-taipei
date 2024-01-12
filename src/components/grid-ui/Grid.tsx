@@ -12,6 +12,8 @@ interface IGrid {
   movePlayer: (val0: number, val1: number, val2: number) => void;
   removePlayer: (playerId: number) => void;
   isSelecting: boolean;
+  setIsSelecting: (val: boolean) => void;
+  replacePlayer: (val: PlayerType) => void;
 }
 
 const Grid: React.FC<IGrid> = ({
@@ -23,6 +25,8 @@ const Grid: React.FC<IGrid> = ({
   isGoalkeeper,
   rowIndex,
   isSelecting,
+  setIsSelecting,
+  replacePlayer,
 }) => {
   const handleGridSlotClick = (slot: number) => {
     // Handle the click event
@@ -47,9 +51,11 @@ const Grid: React.FC<IGrid> = ({
           selectedPlayer={selectedPlayer}
           slot={index}
           player={player}
+          setIsSelecting={setIsSelecting}
           isGoalkeeper={isGoalkeeper}
           movePlayer={() => handleGridSlotClick(index)}
           removePlayer={() => removePlayer(player?.id || 0)}
+          replacePlayer={replacePlayer}
         />
       ))}
     </div>
