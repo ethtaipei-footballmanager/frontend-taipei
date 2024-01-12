@@ -37,7 +37,7 @@ export type PlayerType = {
   defenseScore: number;
 };
 
-const initializeGrid = (formation: string): any[] => {
+const initializeGrid = (formation: string, existingGrid: any[]): any[] => {
   const [defenders, midfielders, forwards] = formation.split("-").map(Number);
 
   const initialGrid = [
@@ -47,9 +47,21 @@ const initializeGrid = (formation: string): any[] => {
     Array.from({ length: forwards || 2 }, () => null), // Forwards
   ];
 
+  // Copy existing players to the new grid
+  for (let rowIndex = 0; rowIndex < existingGrid.length; rowIndex++) {
+    for (
+      let slotIndex = 0;
+      slotIndex < existingGrid[rowIndex].length;
+      slotIndex++
+    ) {
+      if (existingGrid[rowIndex][slotIndex] !== null) {
+        initialGrid[rowIndex][slotIndex] = existingGrid[rowIndex][slotIndex];
+      }
+    }
+  }
+
   return initialGrid;
 };
-
 const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
@@ -65,7 +77,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [formationSplitted, setFormationSplitted] = useState(
     selectedFormation.split("-")
   );
-  const [grid, setGrid] = useState<any>(initializeGrid(selectedFormation));
+  const [grid, setGrid] = useState<any>(initializeGrid(selectedFormation, []));
   // const [grid, setGrid] = useState<any>([
   //   Array.from({ length: 1 }, () => null),
   //   Array.from({ length: Number(formationSplitted[0]) ?? 4 }, () => null),
@@ -120,7 +132,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
 
     setFormationSplitted(selectedFormation.split("-"));
 
-    setGrid(initializeGrid(selectedFormation));
+    setGrid((prevGrid: any) => initializeGrid(selectedFormation, prevGrid));
   }, [selectedFormation]);
 
   // const handleGridSlotClick = (gridIndex: number, slot: number) => {
