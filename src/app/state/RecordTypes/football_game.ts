@@ -239,7 +239,8 @@ export type GameState =
   | "opponent:6"
   | "winner:4"
   | "loser:4"
-  | "challenger:7"; // Added this state for calculating outcome
+  | "challenger:7" // Added this state for calculating outcome
+  | "opponent:7"; 
 
 export const getGameState = (game: GameNotification): GameState => {
   const challenger_or_opponent =
@@ -319,6 +320,8 @@ export const getGameAction = (gameState: GameState): GameAction => {
       return undefined;
     case "challenger:7":
       return "Calculate";
+    case "opponent:7":
+      return "Ping";
   }
 };
 
@@ -355,5 +358,5 @@ export const parseGameRecord = (
 // game_state
 // 0field - StakeRenegedNotification
 // 1field - ChallengerWagerNotification, OpponentWagerNotification
-// 2field - WaitingRevealNotification, RevealAnswerNotification, GameFinishReqNotification
+// 2field - WaitingRevealNotification, CalculatedOutcomeNotification, RevealAnswerNotification, GameFinishReqNotification
 // 3field - GameFinishedNotification
