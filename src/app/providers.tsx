@@ -10,7 +10,7 @@ export function Providers({ children }) {
         dAppName="Super Leo Lig"
         dAppDescription="Zk Football Manager game"
         dAppUrl="https://localhost:3000/"
-        dAppIconURL="https://wheresalex.puzzle.online/alex_head.png"
+        dAppIconURL="http://localhost:3000/logo_mini.png"
       >
         {children}
       </PuzzleWalletProvider>

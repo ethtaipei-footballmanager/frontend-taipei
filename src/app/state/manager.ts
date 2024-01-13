@@ -56,7 +56,7 @@ export type SubmitWagerInputs = {
 // used for submit wager and accept game
 export type AcceptGameInputs = {
   game_record: RecordWithPlaintext;
-  opponent_answer: "0field" | "1field";
+  opponent_answer: string;
   piece_stake_challenger: RecordWithPlaintext;
   piece_claim_challenger: RecordWithPlaintext;
   piece_stake_opponent: RecordWithPlaintext;
