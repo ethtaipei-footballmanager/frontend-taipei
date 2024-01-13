@@ -1,13 +1,15 @@
 "use client";
+import { useNewGameStore } from "@/app/state/store";
 import { teams } from "@/utils/team-data";
 import { motion } from "framer-motion";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 import { EffectCoverflow, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { z } from "zod";
 import TeamCard from "./TeamCard";
 import { Button } from "./ui/button";
 import {
@@ -44,15 +46,62 @@ function getRandomNumber(): number {
   return Math.floor(Math.random() * 1000) + 1;
 }
 
+const opponentSchema = z.string().min(1, "Opponent address must not be empty");
+const wagerAmountSchema = z
+  .number()
+  .refine(
+    (value) => !isNaN(Number(value)),
+    "Wager amount must be a valid number"
+  )
+  .refine(
+    (value) => Number(value) >= 0 && Number(value) <= 1000,
+    "Wager amount must be between 0 and 1000"
+  );
+
 const TeamSelection: React.FC<ITeamSelection> = ({
   selectedTeam,
   setSelectedTeam,
   setIsGameStarted,
 }) => {
   const [bet, setBet] = useState(1);
+  const [opponent, setOpponent] = useState("");
   const swiperRef = useRef<any>();
+  const [opponentError, setOpponentError] = useState<string | null>(null);
+  const [betError, setBetError] = useState<string | null>(null);
 
-  console.log("bet", bet);
+  const { setInputs, inputs } = useNewGameStore();
+
+  const handleOpponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOpponent(e.target.value);
+  };
+  useEffect(() => {
+    const wagerAmountResult = wagerAmountSchema.safeParse(bet);
+    console.log("🚀 ~ useEffect ~ wagerAmountResult:", wagerAmountResult);
+    const opponentResult = opponentSchema.safeParse(opponent);
+    console.log("🚀 ~ useEffect ~ opponentResult:", opponentResult);
+
+    if (!wagerAmountResult.success) {
+      setBetError("Wager amount must be a valid number");
+    } else {
+      setBetError(null);
+    }
+
+    if (!opponentResult.success) {
+      setOpponentError("Opponent address must not be empty");
+    } else {
+      setOpponentError(null);
+    }
+
+    // Update inputs only if both values are valid
+    if (wagerAmountResult.success && opponentResult.success) {
+      setInputs({
+        challenger_wager_amount: wagerAmountResult.data.toString(),
+        opponent: opponentResult.data,
+      });
+    }
+  }, [bet, opponent]);
+
+  console.log("bet", bet, inputs);
 
   return (
     <div className="flex flex-col h-fit items-center gap-16 mt-16 justify-around ">
@@ -144,9 +193,17 @@ const TeamSelection: React.FC<ITeamSelection> = ({
           <DialogHeader>
             <DialogTitle>Start Game</DialogTitle>
             <DialogDescription>
-              Enter how much you are wagering for the game
+              Enter how much you are wagering for the game and your opponent
             </DialogDescription>
           </DialogHeader>
+          <Input
+            type="text"
+            onChange={(e) => handleOpponentChange(e)}
+            placeholder="Opponent address"
+          />
+          {opponentError && (
+            <p className="text-red-500 text-sm">{opponentError}</p>
+          )}
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 relative items-center gap-4">
               <Label htmlFor="amount" className="text-right">
@@ -160,6 +217,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                 className="col-span-3 outline-none  ring-offset-0"
                 value={bet}
               />
+              {betError && <p className="text-red-500 text-sm">{betError}</p>}
               <p className="absolute text-xs tracking-tighter right-4">
                 Puzzle Token
               </p>

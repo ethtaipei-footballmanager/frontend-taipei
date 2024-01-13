@@ -22,6 +22,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+
+export const truncateAddress = (address: string) => {
+  if (address && address.length <= 6) return address; // No need to truncate if the address is too short
+
+  const prefix = address.slice(0, 4); // Typically "0x"
+  const suffix = address.slice(-4); // The last 4 characters
+
+  return `${prefix}...${suffix}`;
+};
 interface IConnectWallet {
   setIsWalletModal: (val: boolean) => void;
 }
@@ -76,9 +85,11 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
               className="tracking-wider text-base text-black dark:text-white font-semibold flex gap-2.5"
             >
               {address && (
-                <Identicon string={shortenAddress(address)} size={20} />
+                <>
+                  <Identicon string={address} size={20} />
+                  {truncateAddress(address)}
+                </>
               )}
-              {address && shortenAddress(address)}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -86,7 +97,7 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
               <Identicon string={shortenAddress(account?.address!)} size={32} />
 
               <DialogTitle className="font-bold tracking-lighter dark:text-white  text-[#25292e] text-[18px] ">
-                {shortenAddress(account?.address!)}
+                {truncateAddress(account?.address!)}
               </DialogTitle>
 
               <DialogDescription>

@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import ConnectWallet from "./ConnectWallet";
+
 const Navbar = () => {
   const { account, error, loading } = useAccount();
   const [isWalletModal, setIsWalletModal] = useState(false);

@@ -24,7 +24,7 @@ import {
   transitionFees,
 } from "../app/state/manager";
 
-import { Step, useNewGameStore } from "./store.js";
+import { Step, useNewGameStore } from "../app/state/store";
 import { Button } from "./ui/button";
 
 const messageToSign = "1234567field";

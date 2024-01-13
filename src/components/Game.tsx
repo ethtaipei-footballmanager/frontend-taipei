@@ -1,5 +1,6 @@
 "use client";
 
+import { useNewGameStore } from "@/app/state/store";
 import { calculateAttribute, getPositionRole } from "@/utils";
 import { teams } from "@/utils/team-data";
 import { csv } from "d3";
@@ -75,6 +76,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [totalAttack, setTotalAttack] = useState(0);
   const [totalDefense, setTotalDefense] = useState(0);
   const [isSelecting, setIsSelecting] = useState(false);
+  const { setInputs, inputs } = useNewGameStore();
+  console.log("🚀 ~ inputs:", inputs);
+
   const [selectedReplacementPlayer, setSelectedReplacementPlayer] =
     useState<PlayerType | null>(null);
   // const [opponentTotalDefense, setOpponentTotalDefense] = useState(0);
