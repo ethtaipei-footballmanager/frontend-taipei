@@ -161,7 +161,9 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
           {account ? "" : "Connect Wallet"}
         </Button>
       )}
-      <ThemeToggle />
+      <div className="hidden  lg:inline-flex">
+        <ThemeToggle />
+      </div>
     </div>
   );
 };

@@ -1,7 +1,6 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { RecordWithPlaintext } from "@puzzlehq/sdk";
-import { useNewGameStore } from '@state/startGameStore';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import {
   GameAction,
   GameNotification,
@@ -10,8 +9,9 @@ import {
   getGameState,
   parseGameRecord,
 } from "./RecordTypes/football_game";
+import { useNewGameStore } from "./store";
 
-import _ from 'lodash';
+import _ from "lodash";
 
 const parsePuzzlePieces = (records: RecordWithPlaintext[]) => {
   if (records.length > 0) {
@@ -144,7 +144,6 @@ const validStates = {
   ]),
 };
 
-
 export const useGameStore = create<GameStore>()(
   persist(
     (set, get) => ({
@@ -180,26 +179,26 @@ export const useGameStore = create<GameStore>()(
 
         const gameNotificationsByGameAddress = _.groupBy(
           allGameNotifications,
-          'recordData.game_multisig'
+          "recordData.game_multisig"
         );
         const gameNotifications = _.values(gameNotificationsByGameAddress).map(
           (notifications) => {
             if (notifications.length === 1) return notifications[0];
             else {
               const reneged = notifications.find(
-                (n) => n.recordData.game_state === '0field'
+                (n) => n.recordData.game_state === "0field"
               );
               if (reneged) return reneged;
               const sorted = _.orderBy(
                 notifications,
-                'recordData.game_state',
-                'desc'
+                "recordData.game_state",
+                "desc"
               );
               return sorted[0];
             }
           }
         );
-        console.log('gameNotifications', gameNotifications);
+        console.log("gameNotifications", gameNotifications);
 
         const { yourTurn, theirTurn, finished } = gameNotifications.reduce<{
           yourTurn: Game[];
@@ -234,18 +233,18 @@ export const useGameStore = create<GameStore>()(
           },
           { yourTurn: [], theirTurn: [], finished: [] }
         );
-        console.log('yourTurn', yourTurn);
-        console.log('theirTurn', theirTurn);
+        console.log("yourTurn", yourTurn);
+        console.log("theirTurn", theirTurn);
 
         set({ yourTurn, theirTurn, finished });
       },
       setCurrentGame: (game?: Game) => {
         set({ currentGame: game });
         switch (game?.gameAction) {
-          case 'Submit Wager':
+          case "Submit Wager":
             useAcceptGameStore.getState().setStep(Step._01_SubmitWager);
             break;
-          case 'Accept':
+          case "Accept":
             useAcceptGameStore.getState().setStep(Step._02_AcceptGame);
             break;
         }
@@ -260,7 +259,7 @@ export const useGameStore = create<GameStore>()(
       },
     }),
     {
-      name: 'game-manager',
+      name: "game-manager",
     }
   )
 );

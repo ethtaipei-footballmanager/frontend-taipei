@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 
 const games = [
@@ -49,20 +48,20 @@ const Games = () => {
   const router = useRouter();
 
   return (
-    <section className="w-screen px-4 ">
-      <div className="flex w-full justify-center mt-3 ">
+    <section className="w-screen p-4 overflow-y-auto">
+      {/* <div className="flex w-full justify-center mt-3 ">
         <div className="flex w-full  max-w-sm items-center space-x-2">
           <Input type="text" className="text-black" placeholder="Room ID" />
           <Button onClick={() => router.push(`/game-room/3`)}>Join Room</Button>
         </div>
-      </div>
-      <div className="grid grid-cols-3 gap-6  mt-4  mx-8">
+      </div> */}
+      <div className="grid grid-cols-1  place-items-center lg:grid-cols-2 xl:grid-cols-3 gap-6  mt-4  mx-8">
         {games.map((game) => (
           <Card
             key={game.id}
             className="  max-w-md shadow-lg rounded-xl overflow-hidden"
           >
-            <div className="flex flex-col sm:flex-row justify-between p-6 space-y-6 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row justify-center items-center lg:justify-between p-6 space-y-6 sm:space-y-0">
               <div className="flex items-center ">
                 <img
                   alt="Team A Logo"

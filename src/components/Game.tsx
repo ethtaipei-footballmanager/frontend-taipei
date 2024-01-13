@@ -1,16 +1,30 @@
 "use client";
 
 import { useNewGameStore } from "@/app/state/store";
-import { calculateAttribute, getPositionRole } from "@/utils";
+import { calculateAttribute, getPositionRole, isValidPlacement } from "@/utils";
 import { teams } from "@/utils/team-data";
+import {
+  EventType,
+  createSharedState,
+  requestCreateEvent,
+  requestSignature,
+  useAccount,
+  useBalance,
+} from "@puzzlehq/sdk";
 import { csv } from "d3";
+import jsyaml from "js-yaml";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import { IoIosArrowBack } from "react-icons/io";
 import { useKeyPressEvent } from "react-use";
 import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
+import {
+  GAME_FUNCTIONS,
+  GAME_PROGRAM_ID,
+  ProposeGameInputs,
+  transitionFees,
+} from "../app/state/manager";
 import Player from "./Player";
 import PlayerDetails from "./PlayerDetails";
 import SelectFormation from "./SelectFormation";
@@ -19,6 +33,7 @@ import Grid from "./grid-ui/Grid";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
+
 interface IGame {
   selectedTeam: number;
   setIsGameStarted: (val: boolean) => void;
@@ -66,8 +81,12 @@ const initializeGrid = (formation: string, existingGrid: any[]): any[] => {
 
   return initialGrid;
 };
+const messageToSign = "1234567field";
 
 const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
+  const { account } = useAccount();
+  const { balances } = useBalance({});
+  const balance = balances?.[0]?.public ?? 0;
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
@@ -76,6 +95,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [totalAttack, setTotalAttack] = useState(0);
   const [totalDefense, setTotalDefense] = useState(0);
   const [isSelecting, setIsSelecting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { setInputs, inputs } = useNewGameStore();
   console.log("🚀 ~ inputs:", inputs);
 
@@ -95,6 +116,82 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   //   Array.from({ length: Number(formationSplitted[1]) ?? 4 }, () => null),
   //   Array.from({ length: Number(formationSplitted[2]) ?? 2 }, () => null),
   // ]);
+
+  const createProposeGameEvent = async () => {
+    setIsLoading(true);
+    // setConfirmStep(ConfirmStep.Signing);
+    // setError(undefined);
+    const signature = await requestSignature({ message: messageToSign });
+    console.log("🚀 ~ createProposeGameEvent ~ signature:", signature);
+
+    if (signature.error || !signature.messageFields || !signature.signature) {
+      setIsLoading(false);
+      return;
+    }
+    const sharedStateResponse = await createSharedState();
+    if (sharedStateResponse.error) {
+      setIsLoading(false);
+      return;
+    } else if (sharedStateResponse.data) {
+      const game_multisig_seed = sharedStateResponse.data.seed;
+      const game_multisig = sharedStateResponse.data.address;
+
+      setInputs({ ...inputs, game_multisig_seed, game_multisig });
+      if (
+        inputs?.opponent &&
+        inputs?.wager_record &&
+        inputs?.challenger_wager_amount &&
+        inputs?.challenger_answer &&
+        inputs?.challenger &&
+        signature &&
+        signature.messageFields &&
+        signature.signature &&
+        account
+      ) {
+        const fields = Object(jsyaml.load(signature.messageFields));
+        const activePlayerIds = activePlayers.map((player) => {
+          return `${player.id}u8`;
+        });
+        console.log(
+          "🚀 ~ activePlayerIds ~ activePlayerIds:",
+          activePlayerIds,
+          toString()
+        );
+        const proposalInputs: ProposeGameInputs = {
+          wager_record: inputs.wager_record,
+          challenger_wager_amount: inputs.challenger_wager_amount + "u64",
+          sender: account?.address,
+          challenger: account?.address,
+          opponent: inputs.opponent,
+          game_multisig: game_multisig,
+          challenger_message_1: fields.field_1,
+          challenger_message_2: fields.field_2,
+          challenger_message_3: fields.field_3,
+          challenger_message_4: fields.field_4,
+          challenger_message_5: fields.field_5,
+          challenger_sig: signature.signature,
+          challenger_nonce: messageToSign, /// todo - make this random
+          challenger_answer: activePlayerIds.toString(),
+          game_multisig_seed,
+          uuid: uuidv4(),
+        };
+        const response = await requestCreateEvent({
+          type: EventType.Execute,
+          programId: GAME_PROGRAM_ID,
+          functionId: GAME_FUNCTIONS.propose_game,
+          fee: transitionFees.propose_game,
+          inputs: Object.values(proposalInputs),
+        });
+        if (response.error) {
+        } else if (!response.eventId) {
+        } else {
+          console.log("success", response.eventId);
+          // setEventId(response.eventId);
+          //   setSearchParams({ eventId: response.eventId });
+        }
+      }
+    }
+  };
 
   const activePlayersCount = activePlayers.filter(Boolean).length;
   console.log("formationSplitted", formationSplitted[2]);
@@ -149,30 +246,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
     setIsSelecting(false);
   };
 
-  const isValidPlacement = (playerPosition: string, gridIndex: number) => {
-    // Your logic for position validation goes here
-    // For example, you can check if the player's position is valid for the selected gridIndex and slot
-    // You might have specific rules for each position and gridIndex/slot combination
-
-    // Example validation logic:
-    console.log("params", playerPosition, gridIndex);
-
-    if (playerPosition === "GK" && gridIndex !== 0) {
-      return false;
-    } else if (playerPosition === "DEF" && gridIndex !== 1) {
-      return false;
-    } else if (playerPosition === "MID" && gridIndex !== 2) {
-      return false;
-    } else if (playerPosition === "ATT" && gridIndex !== 3) {
-      return false;
-    }
-
-    // Add more validation rules as needed
-
-    // If all validation rules pass, return true
-    return true;
-  };
-
   const replacePlayer = (playerId: number) => {
     const playerToReplace = activePlayers.find(
       (player) => player?.id === playerId
@@ -197,6 +270,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
     if (activePlayers.length !== 11) {
       toast.info("Please select 11 players");
     } else {
+      const createGame = await createProposeGameEvent();
+      console.log("🚀 ~ startGame ~ createGame:", createGame);
       toast.info("You have selected 11 ");
     }
   };
@@ -341,95 +416,93 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   console.log("selected", selectedFormation);
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="grid grid-rows-2 px-20 py-8 bg-white h-[90vh] overflow-hidden w-full ">
-        <div className=" relative  grid grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
-          <div className="col-span-4  h-80 relative">
-            <Image className="absolute z-0" src="/field.svg" fill alt="field" />
-            <div className="grid grid-rows-4  items-start justify-center h-[100%] z-10">
-              <div className="row-span-1">
-                <Grid
-                  selectedPlayer={selectedPlayer!}
-                  rowIndex={3}
-                  isGoalkeeper={false}
-                  formation={formationSplitted[2]}
-                  grid={grid[3]}
-                  setIsSelecting={setIsSelecting}
-                  isSelecting={isSelecting}
-                  movePlayer={movePlayer}
-                  removePlayer={removePlayer}
-                  replacePlayer={replacePlayer}
-                />
-              </div>
-              <div className="row-span-1">
-                <Grid
-                  selectedPlayer={selectedPlayer!}
-                  rowIndex={2}
-                  isGoalkeeper={false}
-                  formation={formationSplitted[1]}
-                  grid={grid[2]}
-                  setIsSelecting={setIsSelecting}
-                  isSelecting={isSelecting}
-                  movePlayer={movePlayer}
-                  removePlayer={removePlayer}
-                  replacePlayer={replacePlayer}
-                />
-              </div>
-              <div className="row-span-1">
-                <Grid
-                  selectedPlayer={selectedPlayer!}
-                  rowIndex={1}
-                  isGoalkeeper={false}
-                  isSelecting={isSelecting}
-                  formation={formationSplitted[0]}
-                  setIsSelecting={setIsSelecting}
-                  grid={grid[1]}
-                  movePlayer={movePlayer}
-                  removePlayer={removePlayer}
-                  replacePlayer={replacePlayer}
-                />
-              </div>
-              <div className="row-span-1 ">
-                <Grid
-                  selectedPlayer={selectedPlayer!}
-                  rowIndex={0}
-                  isGoalkeeper={true}
-                  formation={"1"}
-                  isSelecting={isSelecting}
-                  setIsSelecting={setIsSelecting}
-                  grid={grid[0]} // Adjust the range based on your data
-                  movePlayer={movePlayer}
-                  replacePlayer={replacePlayer}
-                  removePlayer={removePlayer}
-                />
-              </div>
+    // <DndProvider backend={HTML5Backend}>
+    <div className="grid grid-rows-2 px-20 py-8 bg-white h-[90vh] overflow-hidden w-full ">
+      <div className=" relative  grid grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
+        <div className="col-span-4  h-80 relative">
+          <Image className="absolute z-0" src="/field.svg" fill alt="field" />
+          <div className="grid grid-rows-4  items-start justify-center h-[100%] z-10">
+            <div className="row-span-1">
+              <Grid
+                selectedPlayer={selectedPlayer!}
+                rowIndex={3}
+                isGoalkeeper={false}
+                formation={formationSplitted[2]}
+                grid={grid[3]}
+                setIsSelecting={setIsSelecting}
+                isSelecting={isSelecting}
+                movePlayer={movePlayer}
+                removePlayer={removePlayer}
+                replacePlayer={replacePlayer}
+              />
+            </div>
+            <div className="row-span-1">
+              <Grid
+                selectedPlayer={selectedPlayer!}
+                rowIndex={2}
+                isGoalkeeper={false}
+                formation={formationSplitted[1]}
+                grid={grid[2]}
+                setIsSelecting={setIsSelecting}
+                isSelecting={isSelecting}
+                movePlayer={movePlayer}
+                removePlayer={removePlayer}
+                replacePlayer={replacePlayer}
+              />
+            </div>
+            <div className="row-span-1">
+              <Grid
+                selectedPlayer={selectedPlayer!}
+                rowIndex={1}
+                isGoalkeeper={false}
+                isSelecting={isSelecting}
+                formation={formationSplitted[0]}
+                setIsSelecting={setIsSelecting}
+                grid={grid[1]}
+                movePlayer={movePlayer}
+                removePlayer={removePlayer}
+                replacePlayer={replacePlayer}
+              />
+            </div>
+            <div className="row-span-1 ">
+              <Grid
+                selectedPlayer={selectedPlayer!}
+                rowIndex={0}
+                isGoalkeeper={true}
+                formation={"1"}
+                isSelecting={isSelecting}
+                setIsSelecting={setIsSelecting}
+                grid={grid[0]} // Adjust the range based on your data
+                movePlayer={movePlayer}
+                replacePlayer={replacePlayer}
+                removePlayer={removePlayer}
+              />
             </div>
           </div>
         </div>
-        <div className="col-start-3 col-span-1 row-start-1 row-span-2 flex flex-col gap-6">
-          <Card className="border-gray-200 bg-[#f5f5f5] border-2">
-            <CardContent className="py-2">
-              <div className="absolute left-4">
-                <Button variant={"outline"} size={"icon"} className="">
-                  <IoIosArrowBack
-                    onClick={() => setIsGameStarted(false)}
-                    className="w-6 h-6"
-                  />
-                </Button>
-              </div>
-              <div className="flex items-center justify-center flex-col">
-                <h1 className="text-2xl font-bold">
-                  {teams[selectedTeam].name}
-                </h1>
-                <Image
-                  width={64}
-                  height={64}
-                  src={`/${teams[selectedTeam].image}.svg`}
-                  alt={teams[selectedTeam].name}
-                  className=""
+      </div>
+      <div className="col-start-3 col-span-1 row-start-1 row-span-2 flex flex-col gap-6">
+        <Card className="shadow">
+          <CardContent className="py-2">
+            <div className="absolute left-4 top-[90px]">
+              <Button variant={"outline"} size={"icon"} className="">
+                <IoIosArrowBack
+                  onClick={() => setIsGameStarted(false)}
+                  className="w-6 h-6"
                 />
+              </Button>
+            </div>
+            <div className="flex items-center justify-center flex-col">
+              <h1 className="text-2xl font-bold">{teams[selectedTeam].name}</h1>
+              <Image
+                width={64}
+                height={64}
+                src={`/${teams[selectedTeam].image}.svg`}
+                alt={teams[selectedTeam].name}
+                className=""
+              />
 
-                {/* <div className="-ml-4">
+              {/* <div className="-ml-4">
                   {renderStars(
                     calculateStarRating(
                       teams[selectedTeam].attack,
@@ -437,36 +510,36 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                     )
                   )}
                 </div> */}
-                <div className="flex w-full justify-between">
-                  <SelectFormation
-                    selectedFormation={selectedFormation}
-                    setSelectedFormation={setSelectedFormation}
-                  />
-                  <div className="mr-10">
-                    {renderStars(
-                      calculateStarRating(
-                        teams[selectedTeam].attack,
-                        teams[selectedTeam].defense
-                      )
-                    )}
-                  </div>
+              <div className="flex w-full justify-between">
+                <SelectFormation
+                  selectedFormation={selectedFormation}
+                  setSelectedFormation={setSelectedFormation}
+                />
+                <div className="mr-10">
+                  {renderStars(
+                    calculateStarRating(
+                      teams[selectedTeam].attack,
+                      teams[selectedTeam].defense
+                    )
+                  )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-          {playerData && (
-            <div className="">
-              <PlayerDetails playerDetails={playerData!} />
             </div>
-          )}
-          <div className="w-full -mt-2 flex justify-center">
-            <Button onClick={startGame} className="w-1/2" variant={"outline"}>
-              Start Game
-            </Button>
+          </CardContent>
+        </Card>
+        {playerData && (
+          <div className="">
+            <PlayerDetails playerDetails={playerData!} />
           </div>
+        )}
+        <div className="w-full -mt-2 flex justify-center">
+          <Button onClick={startGame} className="w-1/2" variant={"outline"}>
+            Start Game
+          </Button>
         </div>
-        <div className="row-start-2 flex flex-col w-full h-auto mt-12 border-gray-200 bg-[#f5f5f5] border-2 px-4 rounded-md">
-          {/* <div className="flex flex-col px-4 whitespace-nowrap">
+      </div>
+      <div className="row-start-2 flex flex-col w-full h-[270px] mt-12 border-gray-200 bg-[#f5f5f5] border-2 px-4 rounded-md">
+        {/* <div className="flex flex-col px-4 whitespace-nowrap">
             <h1 className="text-xl tracking-tighter">
               Current Attack : {totalAttack}
             </h1>
@@ -475,37 +548,35 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
             </h1>
           </div> */}
 
-          <ScrollArea className=" overflow-y-auto h-[calc(80vh_-_40px)] p-5">
-            <div className="w-full grid grid-cols-5 gap-2  h-[calc(80vh_-_40px)] p-2 ">
-              {benchPlayers!.map((player) => {
-                return (
-                  <Player
-                    key={player.name}
-                    onPlayerClick={() => {
-                      setMovingPlayer(player);
-                      setSelectedPlayer(player.id);
-                      setIsSelecting(true);
-                    }}
-                    player={player}
-                    movePlayer={(playerId, slot) =>
-                      movePlayer(playerId, 1, slot)
-                    }
-                    isActive={false}
-                  />
-                );
-              })}
-            </div>
-            {/* {activePlayersCount !== 11 && (
+        <ScrollArea className=" overflow-y-auto h-64 p-5">
+          <div className="w-full grid grid-cols-5 gap-2  h-64 p-6 ">
+            {benchPlayers!.map((player) => {
+              return (
+                <Player
+                  key={player.name}
+                  onPlayerClick={() => {
+                    setMovingPlayer(player);
+                    setSelectedPlayer(player.id);
+                    setIsSelecting(true);
+                  }}
+                  player={player}
+                  movePlayer={(playerId, slot) => movePlayer(playerId, 1, slot)}
+                  isActive={false}
+                />
+              );
+            })}
+          </div>
+          {/* {activePlayersCount !== 11 && (
               <div className="w-full flex justify-center">
                 <Button className="w-1/2" variant={"outline"}>
                   Start Game
                 </Button>
               </div>
             )} */}
-          </ScrollArea>
-        </div>
+        </ScrollArea>
       </div>
-    </DndProvider>
+    </div>
+    // </DndProvider>
   );
 };
 export default Game;

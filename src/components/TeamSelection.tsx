@@ -1,9 +1,10 @@
 "use client";
 import { useNewGameStore } from "@/app/state/store";
 import { teams } from "@/utils/team-data";
-import { motion } from "framer-motion";
+import { useAccount, zodAddress } from "@puzzlehq/sdk";
 import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { toast } from "sonner";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
@@ -46,7 +47,7 @@ function getRandomNumber(): number {
   return Math.floor(Math.random() * 1000) + 1;
 }
 
-const opponentSchema = z.string().min(1, "Opponent address must not be empty");
+const opponentSchema = zodAddress;
 const wagerAmountSchema = z
   .number()
   .refine(
@@ -68,7 +69,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const swiperRef = useRef<any>();
   const [opponentError, setOpponentError] = useState<string | null>(null);
   const [betError, setBetError] = useState<string | null>(null);
-
+  const { account } = useAccount();
   const { setInputs, inputs } = useNewGameStore();
 
   const handleOpponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +88,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     }
 
     if (!opponentResult.success) {
-      setOpponentError("Opponent address must not be empty");
+      setOpponentError("Opponent address must be valid aleo account");
     } else {
       setOpponentError(null);
     }
@@ -100,6 +101,14 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       });
     }
   }, [bet, opponent]);
+
+  const handleStartGame = () => {
+    if (account?.address) {
+      setIsGameStarted(true);
+    } else {
+      toast.info("Please connect your Puzzle Wallet to play");
+    }
+  };
 
   console.log("bet", bet, inputs);
 
@@ -205,9 +214,9 @@ const TeamSelection: React.FC<ITeamSelection> = ({
             <p className="text-red-500 text-sm">{opponentError}</p>
           )}
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 relative items-center gap-4">
+            <div className="flex w-full relative items-center gap-4">
               <Label htmlFor="amount" className="text-right">
-                Amount
+                Wager
               </Label>
               <Input
                 id="amount"
@@ -247,8 +256,8 @@ const TeamSelection: React.FC<ITeamSelection> = ({
               </span> */}
             </div>
           </div>
-          <div className="flex justify-around  items-center ">
-            <Button
+          <div className="flex w-full justify-center  items-center ">
+            {/* <Button
               variant="outline"
               className="relative w-48 overflow-hidden bg-gradient-to-r from-blue-300 via-fuchsia-400 to-yellow-600"
               onClick={() => {
@@ -276,9 +285,10 @@ const TeamSelection: React.FC<ITeamSelection> = ({
               >
                 Feeling Lucky!
               </motion.span>
-            </Button>
+            </Button> */}
             <Button
-              onClick={() => setIsGameStarted(true)}
+              onClick={handleStartGame}
+              className="w-full"
               variant={"outline"}
               type="submit"
             >

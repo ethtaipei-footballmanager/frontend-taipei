@@ -1,4 +1,5 @@
 import React from "react";
+import { CgArrowsExchangeAlt } from "react-icons/cg";
 import { GiCancel } from "react-icons/gi";
 import { PlayerType } from "../Game";
 import JerseySVG from "../Jersey";
@@ -34,7 +35,7 @@ const GridSlot: React.FC<IGridSlot> = ({
 }) => {
   const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : "#164f6b";
   console.log("player30", player);
-
+  // const isValid = isValidPlacement(selectedPlayer)
   return (
     <div
       onClick={() => {
@@ -59,16 +60,23 @@ const GridSlot: React.FC<IGridSlot> = ({
             }}
             className="hover:text-red-500 z-10 stroke-current"
           /> */}
-          <GiCancel
-            onClick={() => removePlayer(player?.id as number)}
-            className=" hover:text-red-500 z-10 stroke-current "
-          />
+          {player && (
+            <GiCancel
+              onClick={() => removePlayer(player?.id as number)}
+              className=" hover:text-red-500 ease-in-out transition-colors duration-150 z-10 stroke-current "
+            />
+          )}
         </div>
       )}
       <div>
         <span className="w-20 absolute h-20">
           <JerseySVG fillColor={jerseyColor} />
         </span>
+        {isSelecting && (
+          <span className=" absolute left-[32%] top-[25%]">
+            <CgArrowsExchangeAlt className="h-6 w-6" />
+          </span>
+        )}
 
         {player && !isDisabled && (
           <Player

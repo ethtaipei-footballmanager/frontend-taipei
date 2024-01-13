@@ -104,7 +104,7 @@ function ConfirmStartGame() {
 
         const proposalInputs: ProposeGameInputs = {
           wager_record: inputs.wager_record,
-          challenger_wager_amount: inputs.challenger_wager_amount + "u64",
+          challenger_wager_amount: inputs.challenger_wager_amount + "u8",
           sender: inputs.challenger,
           challenger: inputs.challenger,
           opponent: inputs.opponent,
@@ -168,9 +168,6 @@ function ConfirmStartGame() {
 
   return (
     <div className="flex h-full w-full flex-col justify-center gap-8">
-      <PageHeader bg="bg-primary-pink" text="REVIEW AND KICKOFF GAME" />
-      <Versus versus={opponent} />
-      <Wager wagerAmount={Number(amount)} />
       {answer && (
         <div className="flex flex-col gap-2">
           <SelectedAlexLocation answer={answer as Answer} win={undefined} />

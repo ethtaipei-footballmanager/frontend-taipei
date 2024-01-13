@@ -1,11 +1,102 @@
 "use client";
 
+import FAQ from "@/components/FAQ";
+import StadiumCanvas from "@/components/StadiumCanvas";
+import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
+import { CiTrophy } from "react-icons/ci";
+import { FaXTwitter } from "react-icons/fa6";
+import { IoFootballOutline, IoGameControllerOutline } from "react-icons/io5";
 export default function Home() {
   return (
-    <div className="bg-black h-[90vh]">
-      {/* <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
-        First zk powered Football Manager
-      </h1> */}
+    <div className="flex flex-col min-h-screen overflow-x-hidden bg-white dark:bg-gray-900">
+      <main className="flex-1">
+        <section className="w-full py-6 sm:py-12 md:py-24 xl:py-48    bg-white dark:bg-gray-800">
+          <div className="container xl:-mt-4 px-4 md:px-6">
+            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+              <div className="flex flex-col justify-center space-y-4">
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                    Welcome to the Ultimate On-chain Football Manager Game
+                  </h1>
+                  <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+                    Experience the thrill of football like never before.
+                    Challenge your friends, build your dream team and rise to
+                    the top of the league.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                  <Link
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
+                    href="/create-game"
+                  >
+                    Play Now
+                  </Link>
+                </div>
+              </div>
+              <StadiumCanvas />
+            </div>
+          </div>
+        </section>
+        <section>
+          <FAQ />
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Play, Compete, Earn
+                </h2>
+                <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+                  Our game offers a unique and immersive on-chain football
+                  experience. Challenge your friends on a zk powered football
+                  manager game and win!
+                </p>
+              </div>
+            </div>
+            <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
+              <Card>
+                <CardContent className="flex flex-col text-center items-center space-y-4">
+                  <IoGameControllerOutline className="h-10 mt-2 w-10" />
+                  <h3 className="text-xl font-bold">Compete</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Compete against players from around the world.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex flex-col text-center items-center space-y-4">
+                  <IoFootballOutline className="h-10 w-10 mt-2" />
+                  <h3 className="text-xl font-bold">Build Your Team</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Build your best team and tactic to beat your opponent
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex flex-col text-center items-center space-y-4">
+                  <CiTrophy className="h-10 w-10 mt-2" />
+                  <h3 className="text-xl font-bold">Win</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Play the first ZK Football Manager game and earn!
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          © 2024 Super Leo Lig. All rights reserved.
+        </p>
+        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
+          <a target="_blank" href="https://twitter.com/SuperLeoLig/">
+            <FaXTwitter />
+          </a>
+        </nav>
+      </footer>
     </div>
   );
 }

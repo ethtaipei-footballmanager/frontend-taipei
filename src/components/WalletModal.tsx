@@ -73,11 +73,11 @@ const WalletModal: React.FC<IWalletModal> = ({
     <div
       id="bg"
       ref={ref}
-      className="fixed inset-0 flex   items-center justify-center  backdrop-blur-sm  z-10 divide-y divide-gray-200 dark:bg-[#020917]/80 bg-white/80"
+      className="fixed inset-0 flex   items-center justify-center  backdrop-blur-sm dark:bg-[#020917]/40 bg-background/80 z-10 divide-y divide-gray-200 "
     >
       <div
         id="modal"
-        className="relative bg-[#f4f4f4] dark:bg-[#020817] rounded-xl shadow-2xl  drop-shadow-2xl w-96 border-2 h-72"
+        className="relative bg-[#f4f4f4] dark:bg-[#020817] rounded-xl shadow-xl w-96 border-2 h-72"
       >
         <AiOutlineClose
           className="absolute text-black right-6 top-4 cursor-pointer"

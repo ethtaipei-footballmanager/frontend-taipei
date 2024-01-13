@@ -15,6 +15,22 @@ export const getPositionRole = (positionCode: number): string => {
   }
 };
 
+export const isValidPlacement = (playerPosition: string, gridIndex: number) => {
+  console.log("params", playerPosition, gridIndex);
+
+  if (playerPosition === "GK" && gridIndex !== 0) {
+    return false;
+  } else if (playerPosition === "DEF" && gridIndex !== 1) {
+    return false;
+  } else if (playerPosition === "MID" && gridIndex !== 2) {
+    return false;
+  } else if (playerPosition === "ATT" && gridIndex !== 3) {
+    return false;
+  }
+
+  return true;
+};
+
 export const calculateAttribute = (value: number | string): number => {
   // Check if the value is within the specified range
   const parsedValue = Number(value);

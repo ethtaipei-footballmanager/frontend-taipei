@@ -240,7 +240,7 @@ export type GameState =
   | "winner:4"
   | "loser:4"
   | "challenger:7" // Added this state for calculating outcome
-  | "opponent:7"; 
+  | "opponent:7";
 
 export const getGameState = (game: GameNotification): GameState => {
   const challenger_or_opponent =
