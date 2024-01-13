@@ -1,5 +1,4 @@
 import React from "react";
-import { FaExchangeAlt } from "react-icons/fa";
 import { GiCancel } from "react-icons/gi";
 import { PlayerType } from "../Game";
 import JerseySVG from "../Jersey";
@@ -16,7 +15,7 @@ interface IGridSlot {
   movePlayer: (val0: number, val1: number, val2: number) => void;
   removePlayer: (val0: number) => void;
   setIsSelecting: (val: boolean) => void;
-  replacePlayer: (val: PlayerType) => void;
+  replacePlayer: (val: number) => void;
 }
 
 const GridSlot: React.FC<IGridSlot> = ({
@@ -46,23 +45,23 @@ const GridSlot: React.FC<IGridSlot> = ({
           movePlayer(selectedPlayer, rowIndex, slot);
         }
       }}
-      className={`w-20 h-20 relative flex hover:scale-105 transition duration-300 ease-in flex-col ${
+      className={`w-20 h-20 relative flex  flex-col ${
         isDisabled ? "cursor-not-allowed" : ""
-      } ${isSelecting ? " p-2 " : ""}`}
+      } ${isSelecting ? " " : ""}`}
     >
       {isSelecting && (
-        <div className="absolute flex justify-between mx-auto w-[90%] top-0 left-2">
-          <FaExchangeAlt
+        <div className="absolute flex justify-end mx-auto w-[90%] -top-1.5 left-1">
+          {/* <FaExchangeAlt
             onClick={() => {
               if (player) {
-                replacePlayer(player as PlayerType);
+                replacePlayer(player.id);
               }
             }}
-            className="hover:text-white stroke-current"
-          />
+            className="hover:text-red-500 z-10 stroke-current"
+          /> */}
           <GiCancel
             onClick={() => removePlayer(player?.id as number)}
-            className="hover:scale-105 transition duration-300 ease-in"
+            className=" hover:text-red-500 z-10 stroke-current "
           />
         </div>
       )}

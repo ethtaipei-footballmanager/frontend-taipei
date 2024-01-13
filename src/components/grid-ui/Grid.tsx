@@ -13,7 +13,7 @@ interface IGrid {
   removePlayer: (playerId: number) => void;
   isSelecting: boolean;
   setIsSelecting: (val: boolean) => void;
-  replacePlayer: (val: PlayerType) => void;
+  replacePlayer: (val: number) => void;
 }
 
 const Grid: React.FC<IGrid> = ({

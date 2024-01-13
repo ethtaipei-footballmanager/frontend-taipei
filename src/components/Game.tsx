@@ -100,13 +100,23 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
     console.log("To grid index:", gridIndex);
     console.log("To slot:", slot);
 
+    const playerIndexOnBench = benchPlayers.findIndex(
+      (p) => p?.id === playerId
+    );
+
+    // Validate if the player can be placed in the specified grid position
+    if (
+      !isValidPlacement(benchPlayers[playerIndexOnBench]?.position, gridIndex)
+    ) {
+      toast.error("Invalid placement for the player.");
+      setIsSelecting(false);
+      return;
+    }
+
     setGrid((prevGrid: any) => {
       const newGrid = [...prevGrid];
       console.log("Previous Grid:", prevGrid);
 
-      const playerIndexOnBench = benchPlayers.findIndex(
-        (p) => p?.id === playerId
-      );
       console.log("Player Index on Bench:", playerIndexOnBench);
 
       // Remove the player from the bench
@@ -135,9 +145,38 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
     setIsSelecting(false);
   };
 
-  const replacePlayer = (player: PlayerType) => {
-    setSelectedReplacementPlayer(player);
-    setIsSelecting(true);
+  const isValidPlacement = (playerPosition: string, gridIndex: number) => {
+    // Your logic for position validation goes here
+    // For example, you can check if the player's position is valid for the selected gridIndex and slot
+    // You might have specific rules for each position and gridIndex/slot combination
+
+    // Example validation logic:
+    console.log("params", playerPosition, gridIndex);
+
+    if (playerPosition === "GK" && gridIndex !== 0) {
+      return false;
+    } else if (playerPosition === "DEF" && gridIndex !== 1) {
+      return false;
+    } else if (playerPosition === "MID" && gridIndex !== 2) {
+      return false;
+    } else if (playerPosition === "ATT" && gridIndex !== 3) {
+      return false;
+    }
+
+    // Add more validation rules as needed
+
+    // If all validation rules pass, return true
+    return true;
+  };
+
+  const replacePlayer = (playerId: number) => {
+    const playerToReplace = activePlayers.find(
+      (player) => player?.id === playerId
+    );
+    if (playerToReplace) {
+      // Set the player to be replaced in the state
+      setSelectedReplacementPlayer(playerToReplace);
+    }
   };
 
   useEffect(() => {

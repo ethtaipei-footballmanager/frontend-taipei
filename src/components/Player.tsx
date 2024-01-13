@@ -140,7 +140,7 @@ const Player: React.FC<IPlayer> = ({
     // </Card>
     <>
       {isActive ? (
-        <div className="absolute top-[50px]  w-[100%] flex items-center justify-center">
+        <div className="absolute top-[50px] text-white w-[100%] flex items-center justify-center">
           <p className=" text-base font-semibold tracking-tight">
             {player?.name}
           </p>
