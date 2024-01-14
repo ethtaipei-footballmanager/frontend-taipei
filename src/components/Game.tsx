@@ -129,6 +129,10 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
       return;
     }
     const sharedStateResponse = await createSharedState();
+    console.log(
+      "🚀 ~ createProposeGameEvent ~ sharedStateResponse:",
+      sharedStateResponse
+    );
     if (sharedStateResponse.error) {
       setIsLoading(false);
       return;
@@ -137,12 +141,25 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
       const game_multisig = sharedStateResponse.data.address;
 
       setInputs({ ...inputs, game_multisig_seed, game_multisig });
+      console.log(
+        "144",
+        inputs?.opponent,
+        inputs?.wager_record,
+        inputs?.challenger_wager_amount,
+        inputs?.challenger_answer,
+        inputs?.challenger,
+        signature,
+        signature.messageFields,
+        signature.signature,
+        account
+      );
+
       if (
         inputs?.opponent &&
         inputs?.wager_record &&
         inputs?.challenger_wager_amount &&
-        inputs?.challenger_answer &&
-        inputs?.challenger &&
+        // inputs?.challenger_answer &&
+        // inputs?.challenger &&
         signature &&
         signature.messageFields &&
         signature.signature &&
@@ -175,6 +192,10 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
           game_multisig_seed,
           uuid: uuidv4(),
         };
+        console.log(
+          "🚀 ~ createProposeGameEvent ~ proposalInputs:",
+          proposalInputs
+        );
         const response = await requestCreateEvent({
           type: EventType.Execute,
           programId: GAME_PROGRAM_ID,
@@ -182,6 +203,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
           fee: transitionFees.propose_game,
           inputs: Object.values(proposalInputs),
         });
+        console.log("🚀 ~ createProposeGameEvent ~ response:", response);
         if (response.error) {
         } else if (!response.eventId) {
         } else {

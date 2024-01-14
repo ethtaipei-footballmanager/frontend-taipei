@@ -18,7 +18,12 @@ const StadiumCanvas = () => {
   return (
     <Canvas camera={{ position: [0, 0, 5] }}>
       <ambientLight />
-      <OrbitControls minDistance={100} maxDistance={200} enableDamping />
+      <OrbitControls
+        autoRotate
+        minDistance={100}
+        maxDistance={200}
+        enableDamping
+      />
       <Suspense fallback={null}>
         <Stadium />
       </Suspense>

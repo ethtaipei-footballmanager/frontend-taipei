@@ -1,6 +1,7 @@
 import { RecordWithPlaintext } from "@puzzlehq/sdk";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { useNewGameStore } from "../create-game/store";
 import {
   GameAction,
   GameNotification,
@@ -9,14 +10,15 @@ import {
   getGameState,
   parseGameRecord,
 } from "./RecordTypes/football_game";
-import { useNewGameStore } from "../create-game/store";
 
 import _ from "lodash";
+import { Step, useAcceptGameStore } from "../accept-game/store";
 
 const parsePuzzlePieces = (records: RecordWithPlaintext[]) => {
   if (records.length > 0) {
     let availableBalance = 0;
     let largestPiece = records[0];
+    console.log("🚀 ~ parsePuzzlePieces ~ largestPiece:", largestPiece);
     const totalBalance = records
       .filter((record) => !record.spent)
       .map((record) => {
@@ -64,7 +66,7 @@ type GameStore = {
   puzzleRecords: RecordWithPlaintext[];
   availableBalance: number;
   totalBalance: number;
-  largestPiece?: RecordWithPlaintext;
+  largestPiece?: RecordWithPlaintext | undefined;
   setRecords: (
     user: string,
     records: {
@@ -163,7 +165,12 @@ export const useGameStore = create<GameStore>()(
         const puzzleRecords = records.puzzleRecords;
         const { availableBalance, totalBalance, largestPiece } =
           parsePuzzlePieces(puzzleRecords);
-        set({ availableBalance, totalBalance, largestPiece });
+        set((state) => ({
+          ...state,
+          availableBalance,
+          totalBalance,
+          largestPiece,
+        }));
 
         const allGameNotifications: GameNotification[] =
           records.gameNotifications
@@ -252,9 +259,9 @@ export const useGameStore = create<GameStore>()(
       clearFlowStores: () => {
         useNewGameStore.getState().close();
         useAcceptGameStore.getState().close();
-        useRenegeStore.getState().close();
-        useClaimPrizeWinStore.getState().close();
-        useRevealAnswerStore.getState().close();
+        // useRenegeStore.getState().close();
+        // useClaimPrizeWinStore.getState().close();
+        // useRevealAnswerStore.getState().close();
         set({ currentGame: undefined });
       },
     }),

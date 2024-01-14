@@ -1,4 +1,5 @@
 "use client";
+import { useGameStore } from "@/app/state/gameStore";
 import { teams } from "@/utils/team-data";
 import { useAccount, zodAddress } from "@puzzlehq/sdk";
 import React, { useEffect, useRef, useState } from "react";
@@ -71,6 +72,12 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const [betError, setBetError] = useState<string | null>(null);
   const { account } = useAccount();
   const { setInputs, inputs } = useNewGameStore();
+  const [availableBalance, largestPiece] = useGameStore((state) => [
+    state.availableBalance,
+    state.largestPiece,
+  ]);
+  console.log("🚀 ~ availableBalance:", availableBalance);
+  console.log("🚀 ~ largestPiece:", largestPiece);
 
   const handleOpponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOpponent(e.target.value);
@@ -98,6 +105,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       setInputs({
         challenger_wager_amount: wagerAmountResult.data.toString(),
         opponent: opponentResult.data,
+        wager_record: largestPiece,
       });
     }
   }, [bet, opponent]);
@@ -226,11 +234,11 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                 className="col-span-3 outline-none  ring-offset-0"
                 value={bet}
               />
-              {betError && <p className="text-red-500 text-sm">{betError}</p>}
               <p className="absolute text-xs tracking-tighter right-4">
                 Puzzle Token
               </p>
             </div>
+            {betError && <p className="text-red-500 text-sm">{betError}</p>}
             <div className="relative">
               <Slider
                 className="mt-6"
