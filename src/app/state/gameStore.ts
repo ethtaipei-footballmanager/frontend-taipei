@@ -163,6 +163,7 @@ export const useGameStore = create<GameStore>()(
         const utilRecords = records.utilRecords;
 
         const puzzleRecords = records.puzzleRecords;
+        console.log("🚀 ~ puzzleRecords:", puzzleRecords);
         const { availableBalance, totalBalance, largestPiece } =
           parsePuzzlePieces(puzzleRecords);
         set((state) => ({

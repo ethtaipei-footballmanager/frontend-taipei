@@ -1,7 +1,12 @@
 "use client";
 import { useGameStore } from "@/app/state/gameStore";
 import { teams } from "@/utils/team-data";
-import { useAccount, zodAddress } from "@puzzlehq/sdk";
+import {
+  RecordsFilter,
+  getRecords,
+  useAccount,
+  zodAddress,
+} from "@puzzlehq/sdk";
 import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { toast } from "sonner";
@@ -76,6 +81,22 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     state.availableBalance,
     state.largestPiece,
   ]);
+  const filter: RecordsFilter = {
+    type: "all",
+  };
+  useEffect(() => {
+    const response = async () => {
+      const record = await getRecords({
+        filter,
+        address: account?.address,
+      });
+      console.log("🚀 ~ response ~ response:", record);
+
+      return record;
+    };
+    response();
+  }, []);
+
   console.log("🚀 ~ availableBalance:", availableBalance);
   console.log("🚀 ~ largestPiece:", largestPiece);
 

@@ -34,37 +34,15 @@ function AcceptGame() {
     state.initializeAcceptGame,
     state.setStep,
   ]);
-  const [
-    inputs,
-    eventIdSubmit,
-    setSubmitWagerInputs,
-    setEventIdSubmit,
-    setStep,
-  ] = useAcceptGameStore((state) => [
-    state.inputsSubmitWager,
-    state.eventIdSubmit,
-    state.setSubmitWagerInputs,
-    state.setEventIdSubmit,
-    state.setStep,
-  ]);
+
   const [currentGame, largestPiece] = useGameStore((state) => [
     state.currentGame,
     state.largestPiece,
   ]);
   const [confirmStep, setConfirmStep] = useState(ConfirmStep.Signing);
-  const navigate = useNavigate();
 
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
   const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
-
-  const { loading, error, event, setLoading, setError } = useEventHandling({
-    id: eventIdAccept,
-    address: msAddress,
-    multisig: true,
-    stepName: "Accept Game",
-    onSettled: () => setStep(Step._03_Confirmed),
-  });
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const { loading, error, event, setLoading, setError } = useEventHandling({
     id: eventIdSubmit,
@@ -130,10 +108,6 @@ function AcceptGame() {
   const opponent = currentGame?.gameNotification.recordData.challenger_address;
   const wager = (currentGame?.gameNotification.recordData.total_pot ?? 0) / 2;
   const opponent_wager_record = largestPiece;
-
-  const disabled = !opponent || !wager || !opponent_wager_record || !inputs;
-
-  const [buttonText, setButtonText] = useState("SUBMIT WAGER");
 
   useEffect(() => {
     if (!loading) {
