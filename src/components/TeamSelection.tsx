@@ -1,5 +1,4 @@
 "use client";
-import { useNewGameStore } from "@/app/state/store";
 import { teams } from "@/utils/team-data";
 import { useAccount, zodAddress } from "@puzzlehq/sdk";
 import React, { useEffect, useRef, useState } from "react";
@@ -11,6 +10,7 @@ import "swiper/css/pagination";
 import { EffectCoverflow, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { z } from "zod";
+import { useNewGameStore } from "../app/create-game/store";
 import TeamCard from "./TeamCard";
 import { Button } from "./ui/button";
 import {

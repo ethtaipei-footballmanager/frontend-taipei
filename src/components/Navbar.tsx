@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import ConnectWallet from "./ConnectWallet";
-import { ThemeToggle } from "./ToggleTheme";
 import { buttonVariants } from "./ui/button";
 const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -99,18 +98,17 @@ const Navbar = () => {
         <div
           className={
             isNavOpen
-              ? " justify-between items-center w-full md:flex md:w-auto md:order-1 -ml-8"
+              ? " justify-between mt-4 items-center w-full md:flex md:w-auto md:order-1 -ml-8"
               : "justify-between items-center w-full md:flex md:w-auto md:order-1 hidden"
           }
           id="navbar-sticky"
         >
-          <ul className="flex flex-col ml-8 w-full   rounded-lg border  md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0  bg-white dark:bg-black ">
-            <li className="block py-2 pr-4 pl-3  rounded   md:p-0 md:hover:text-white text-gray-400 hover:bg-gray-700 hover:text-white md:hover:bg-transparent border-gray-700">
+          <ul className="flex flex-col ml-8 w-full   rounded-lg border  md:flex-row md:space-x-4 lg:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0  bg-white dark:bg-black ">
+            <li>
               <Link
                 href="/games"
                 className={`text-black ${buttonVariants({
                   variant: "link",
-                  size: "lg",
                 })}`}
               >
                 Games
@@ -121,7 +119,6 @@ const Navbar = () => {
                 href="/leaderboard"
                 className={`text-black ${buttonVariants({
                   variant: "link",
-                  size: "lg",
                 })}`}
               >
                 Leaderboard
@@ -133,17 +130,11 @@ const Navbar = () => {
                 href="/create-game"
                 className={`text-black ${buttonVariants({
                   variant: "link",
-                  size: "lg",
                 })}`}
               >
                 Create Game
               </Link>
             </li>
-            {isNavOpen && (
-              <li>
-                <ThemeToggle />
-              </li>
-            )}
           </ul>
         </div>
       </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useNewGameStore } from "@/app/state/store";
 import { calculateAttribute, getPositionRole, isValidPlacement } from "@/utils";
 import { teams } from "@/utils/team-data";
 import {
@@ -19,6 +18,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import { useKeyPressEvent } from "react-use";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { useNewGameStore } from "../app/create-game/store";
 import {
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
