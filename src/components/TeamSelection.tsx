@@ -142,7 +142,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   console.log("bet", bet, inputs);
 
   return (
-    <div className="flex flex-col h-fit items-center gap-16 mt-16 justify-around ">
+    <div className="flex flex-col h-fit  items-center gap-16 mt-16 justify-around ">
       <Swiper
         onSnapIndexChange={
           (newIndex) =>
@@ -171,7 +171,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         initialSlide={teams.length / 2}
         // navigation={true}
         modules={[EffectCoverflow, Navigation]}
-        className="mySwiper h-full"
+        className="mySwiper max-w-md h-fit lg:max-w-3xl lg:h-full"
       >
         {/* {artists.map((artist) => (
           <SwiperSlide key={artist.id} className={SwiperSlideClass}>

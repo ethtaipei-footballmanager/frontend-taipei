@@ -162,6 +162,18 @@ const colorVariants: ColorVariants = {
     "bg-[#8e44ad] hover:bg-[#8e44ad] border-[#8e44ad]",
     "bg-[#596275] hover:bg-[#596275] border-[#596275]",
   ],
+  "3": [
+    "bg-[#8b4513] hover:bg-[#8b4513] border-[#8b4513]",
+    "bg-[#008000] hover:bg-[#008000] border-[#008000]",
+  ],
+  "4": [
+    "bg-[#00ff00] hover:bg-[#00ff00] border-[#00ff00]",
+    "bg-[#ffffff] hover:bg-[#ffffff] border-[#ffffff]",
+  ],
+  "5": [
+    "bg-[#ffd700] hover:bg-[#ffd700] border-[#ffd700]",
+    "bg-[#000000] hover:bg-[#000000] border-[#000000]",
+  ],
 };
 const TeamCard: React.FC<ITeamCard> = ({ team, selectedTeam, index }) => {
   const [starRating, setStarRating] = useState(() =>
