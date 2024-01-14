@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AcceptGameInputs, ProposeGameInputs } from "./manager";
+import { AcceptGameInputs, ProposeGameInputs } from "@state/manager";
 
 export enum Step {
   _01_NewGame,
@@ -19,7 +19,6 @@ type NewGameStore = {
   setEventId: (eventId: string) => void;
   setStep: (step: Step) => void;
   close: () => void;
-  setAcceptGameInputs: (inputs: Partial<AcceptGameInputs>) => void;
 };
 
 export const useNewGameStore = create<NewGameStore>()(
@@ -39,10 +38,6 @@ export const useNewGameStore = create<NewGameStore>()(
       },
       setInputs: (inputs: Partial<ProposeGameInputs>) => {
         set({ inputs });
-      },
-      setAcceptGameInputs: (inputsAcceptGame: Partial<AcceptGameInputs>) => {
-        set({ inputsAcceptGame });
-        set({ step: Step._02_AcceptGame });
       },
       setEventId: (eventId: string) => {
         set({ eventId });

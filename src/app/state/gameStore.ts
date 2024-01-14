@@ -9,7 +9,7 @@ import {
   getGameState,
   parseGameRecord,
 } from "./RecordTypes/football_game";
-import { useNewGameStore } from "./store";
+import { useNewGameStore } from "../create-game/store";
 
 import _ from "lodash";
 

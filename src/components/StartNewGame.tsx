@@ -16,7 +16,6 @@ import {
 } from "@puzzlehq/sdk";
 import jsyaml from "js-yaml";
 import { useEffect, useState } from "react";
-import { Answer } from "../app/state/RecordTypes/football_game";
 import {
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
@@ -24,7 +23,7 @@ import {
   transitionFees,
 } from "../app/state/manager";
 
-import { Step, useNewGameStore } from "../app/state/store";
+import { Step, useNewGameStore } from "../app/create-game/store";
 import { Button } from "./ui/button";
 
 const messageToSign = "1234567field";
@@ -116,11 +115,9 @@ function ConfirmStartGame() {
           challenger_message_5: fields.field_5,
           challenger_sig: signature.signature,
           challenger_nonce: messageToSign, /// todo - make this random
-          challenger_answer:
-            inputs.challenger_answer === Answer.InTheWeeds
-              ? "0field"
-              : "1field",
+          challenger_answer: inputs.challenger_answer,
           game_multisig_seed,
+          uuid: "23423522field" /// todo make this random
         };
         const response = await requestCreateEvent({
           type: EventType.Execute,
@@ -170,9 +167,8 @@ function ConfirmStartGame() {
     <div className="flex h-full w-full flex-col justify-center gap-8">
       {answer && (
         <div className="flex flex-col gap-2">
-          <SelectedAlexLocation answer={answer as Answer} win={undefined} />
           <div className="self-center whitespace-nowrap text-center text-sm font-extrabold tracking-tight text-primary-green">
-            You chose to hide Alex {answer}!
+            Formation confirmed!
           </div>
         </div>
       )}
