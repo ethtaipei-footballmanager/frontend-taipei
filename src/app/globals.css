@@ -110,7 +110,7 @@ canvas {
 
 .swiper-slide-next,
 .swiper-slide-prev {
-  opacity: 0.8;
+  opacity: 1;
 }
 
 /* Dark mode styles */
@@ -125,7 +125,7 @@ canvas {
 
 .dark .swiper-slide-next,
 .dark .swiper-slide-prev {
-  opacity: 0.975;
+  opacity: 1;
 }
 @layer base {
   * {
