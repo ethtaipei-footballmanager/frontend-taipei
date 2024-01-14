@@ -6,6 +6,7 @@ export const teams = [
     attack: 95,
     defense: 80,
     foundingYear: 1960,
+    jersey: "#3498db",
     colors: ["blue", "silver"],
     colorCodes: ["#3498db", "#bdc3c7"],
     achievements: [
@@ -21,6 +22,7 @@ export const teams = [
     id: "2",
     attack: 80,
     defense: 82,
+    jersey: "#3498db",
     foundingYear: 1995,
     colors: ["blue", "yellow"],
     colorCodes: ["#3498db", "#f39c12"],
@@ -38,6 +40,7 @@ export const teams = [
     attack: 90,
     defense: 78,
     foundingYear: 1988,
+    jersey: "#8e44ad",
     colors: ["purple", "slate"],
     colorCodes: ["#8e44ad", "#596275"],
     achievements: [
@@ -49,10 +52,11 @@ export const teams = [
   },
   {
     name: "Harvest Harts FC",
-    image: "team-f",
+    image: "team-d",
     id: "4",
     attack: 87,
     defense: 84,
+    jersey: "#8b4513",
     foundingYear: 1992,
     colors: ["brown", "green"],
     colorCodes: ["#8b4513", "#008000"],
@@ -67,8 +71,9 @@ export const teams = [
     attack: 92,
     defense: 79,
     foundingYear: 2000,
-    colors: ["green", "white"],
-    colorCodes: ["#00ff00", "#ffffff"],
+    jersey: "#00ff00",
+    colors: ["green", "red"],
+    colorCodes: ["#00ff00", "#c92d2d"],
     achievements: [
       "Speed and Precision",
       "Strategic Teamwork",
@@ -78,11 +83,12 @@ export const teams = [
   },
   {
     name: "Eagle Crest FC",
-    image: "team-d",
+    image: "team-f",
     id: "6",
     attack: 88,
     defense: 85,
     foundingYear: 1975,
+    jersey: "#ffd700",
     colors: ["gold", "black"],
     colorCodes: ["#ffd700", "#000000"],
     achievements: [

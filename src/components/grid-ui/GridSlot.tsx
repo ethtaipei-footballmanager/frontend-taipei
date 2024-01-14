@@ -17,6 +17,7 @@ interface IGridSlot {
   removePlayer: (val0: number) => void;
   setIsSelecting: (val: boolean) => void;
   replacePlayer: (val: number) => void;
+  jersey: string;
 }
 
 const GridSlot: React.FC<IGridSlot> = ({
@@ -32,9 +33,10 @@ const GridSlot: React.FC<IGridSlot> = ({
   isSelecting,
   setIsSelecting,
   replacePlayer,
+  jersey,
 }) => {
-  const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : "#164f6b";
-  console.log("player30", player);
+  const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : jersey;
+  console.log("player30", player, jersey, isGoalkeeper);
   // const isValid = isValidPlacement(selectedPlayer)
   return (
     <div
@@ -71,6 +73,11 @@ const GridSlot: React.FC<IGridSlot> = ({
       <div>
         <span className="w-20 absolute h-20">
           <JerseySVG fillColor={jerseyColor} />
+          {/* <Image
+            src={`/svg/${isGoalkeeper ? "jersey_gk.svg" : jersey}`}
+            alt="jersey"
+            fill
+          /> */}
         </span>
         {isSelecting && (
           <span className=" absolute left-[32%] top-[25%]">

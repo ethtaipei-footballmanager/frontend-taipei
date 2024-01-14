@@ -451,6 +451,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                 isGoalkeeper={false}
                 formation={formationSplitted[2]}
                 grid={grid[3]}
+                jersey={teams[selectedTeam].jersey}
                 setIsSelecting={setIsSelecting}
                 isSelecting={isSelecting}
                 movePlayer={movePlayer}
@@ -465,6 +466,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                 isGoalkeeper={false}
                 formation={formationSplitted[1]}
                 grid={grid[2]}
+                jersey={teams[selectedTeam].jersey}
                 setIsSelecting={setIsSelecting}
                 isSelecting={isSelecting}
                 movePlayer={movePlayer}
@@ -478,6 +480,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                 rowIndex={1}
                 isGoalkeeper={false}
                 isSelecting={isSelecting}
+                jersey={teams[selectedTeam].jersey}
                 formation={formationSplitted[0]}
                 setIsSelecting={setIsSelecting}
                 grid={grid[1]}
@@ -493,6 +496,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
                 isGoalkeeper={true}
                 formation={"1"}
                 isSelecting={isSelecting}
+                jersey={teams[selectedTeam].jersey}
                 setIsSelecting={setIsSelecting}
                 grid={grid[0]} // Adjust the range based on your data
                 movePlayer={movePlayer}

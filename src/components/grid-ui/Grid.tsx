@@ -14,6 +14,7 @@ interface IGrid {
   isSelecting: boolean;
   setIsSelecting: (val: boolean) => void;
   replacePlayer: (val: number) => void;
+  jersey: string;
 }
 
 const Grid: React.FC<IGrid> = ({
@@ -27,6 +28,7 @@ const Grid: React.FC<IGrid> = ({
   isSelecting,
   setIsSelecting,
   replacePlayer,
+  jersey,
 }) => {
   const handleGridSlotClick = (slot: number) => {
     // Handle the click event
@@ -51,6 +53,7 @@ const Grid: React.FC<IGrid> = ({
           selectedPlayer={selectedPlayer}
           slot={index}
           player={player}
+          jersey={jersey}
           setIsSelecting={setIsSelecting}
           isGoalkeeper={isGoalkeeper}
           movePlayer={() => handleGridSlotClick(index)}

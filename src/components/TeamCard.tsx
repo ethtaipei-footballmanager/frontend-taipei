@@ -168,7 +168,7 @@ const colorVariants: ColorVariants = {
   ],
   "4": [
     "bg-[#00ff00] hover:bg-[#00ff00] border-[#00ff00]",
-    "bg-[#ffffff] hover:bg-[#ffffff] border-[#ffffff]",
+    "bg-[#c92d2d] hover:bg-[#c92d2d] border-[#c92d2d]",
   ],
   "5": [
     "bg-[#ffd700] hover:bg-[#ffd700] border-[#ffd700]",
