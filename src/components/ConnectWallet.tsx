@@ -1,11 +1,5 @@
 "use client";
-import {
-  disconnect,
-  shortenAddress,
-  useAccount,
-  useBalance,
-  useConnect,
-} from "@puzzlehq/sdk";
+import { disconnect, useAccount, useBalance, useConnect } from "@puzzlehq/sdk";
 import { SessionTypes } from "@walletconnect/types";
 import React, { useEffect, useState } from "react";
 import { IoCopyOutline, IoLogOutOutline } from "react-icons/io5";
@@ -94,7 +88,7 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader className="flex gap-1 w-full flex-col justify-center items-center">
-              <Identicon string={shortenAddress(account?.address!)} size={32} />
+              <Identicon string={account?.address!} size={32} />
 
               <DialogTitle className="font-bold tracking-lighter dark:text-white  text-[#25292e] text-[18px] ">
                 {truncateAddress(account?.address!)}

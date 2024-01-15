@@ -217,7 +217,6 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const createAcceptGameEvent = async () => {
     if (
       !inputsAcceptGame?.game_record ||
-      !inputsAcceptGame?.opponent_answer ||
       !inputsAcceptGame.piece_stake_challenger ||
       !inputsAcceptGame.piece_claim_challenger ||
       !inputsAcceptGame.piece_stake_opponent ||
@@ -230,13 +229,21 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       const response_block_ht = await fetch(
         "https://jigsaw-dev.puzzle.online/api/aleoapi/latest/height"
       );
+      const activePlayerIds = activePlayers.map((player) => {
+        return `${player.id}u8`;
+      });
+      console.log(
+        "🚀 ~ activePlayerIds ~ activePlayerIds:",
+        activePlayerIds,
+        activePlayerIds.toString()
+      );
       const block_ht = Number(await response_block_ht.json());
       const acceptGameInputs: Omit<
         AcceptGameInputs,
         "opponent_answer_readable"
       > = {
         game_record: inputsAcceptGame.game_record,
-        opponent_answer: inputsAcceptGame.opponent_answer,
+        opponent_answer: activePlayerIds.toString(),
         piece_stake_challenger: inputsAcceptGame.piece_stake_challenger,
         piece_claim_challenger: inputsAcceptGame.piece_claim_challenger,
         piece_stake_opponent: inputsAcceptGame.piece_stake_opponent,
