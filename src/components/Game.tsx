@@ -1,5 +1,9 @@
 "use client";
 
+import { Step, useAcceptGameStore } from "@/app/accept-game/store";
+import { useGameStore } from "@/app/state/gameStore";
+import { useEventHandling } from "@/hooks/eventHandling";
+import { useMsRecords } from "@/hooks/msRecords";
 import { calculateAttribute, getPositionRole, isValidPlacement } from "@/utils";
 import { teams } from "@/utils/team-data";
 import {
@@ -13,13 +17,14 @@ import {
 import { csv } from "d3";
 import jsyaml from "js-yaml";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { IoIosArrowBack } from "react-icons/io";
 import { useKeyPressEvent } from "react-use";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { useNewGameStore } from "../app/create-game/store";
 import {
+  AcceptGameInputs,
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
   ProposeGameInputs,
@@ -33,10 +38,9 @@ import Grid from "./grid-ui/Grid";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
-
 interface IGame {
   selectedTeam: number;
-  setIsGameStarted: (val: boolean) => void;
+  // setIsGameStarted: (val: boolean) => void;
 }
 
 export type PlayerType = {
@@ -54,7 +58,10 @@ export type PlayerType = {
   defenseScore: number;
 };
 
-const initializeGrid = (formation: string, existingGrid: any[]): any[] => {
+export const initializeGrid = (
+  formation: string,
+  existingGrid: any[]
+): any[] => {
   const [defenders, midfielders, forwards] = formation.split("-").map(Number);
 
   const initialGrid = [
@@ -83,7 +90,7 @@ const initializeGrid = (formation: string, existingGrid: any[]): any[] => {
 };
 const messageToSign = "1234567field";
 
-const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
+const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const { account } = useAccount();
   const { balances } = useBalance({});
   const balance = balances?.[0]?.public ?? 0;
@@ -96,7 +103,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   const [totalDefense, setTotalDefense] = useState(0);
   const [isSelecting, setIsSelecting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [isChallenged, setIsChallenged] = useState(false);
+  const pathname = usePathname();
   const { setInputs, inputs } = useNewGameStore();
   console.log("🚀 ~ inputs:", inputs);
 
@@ -110,6 +118,155 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
   );
   const [grid, setGrid] = useState<any>(initializeGrid(selectedFormation, []));
   useKeyPressEvent("Escape", () => setIsSelecting(false));
+
+  const [
+    inputsAcceptGame,
+    eventIdAccept,
+    setAcceptGameInputs,
+    setEventIdAccept,
+    initializeAcceptGame,
+    setStep,
+  ] = useAcceptGameStore((state) => [
+    state.inputsAcceptGame,
+    state.eventIdAccept,
+    state.setAcceptGameInputs,
+    state.setEventIdAccept,
+    state.initializeAcceptGame,
+    state.setStep,
+  ]);
+  const [currentGame] = useGameStore((state) => [state.currentGame]);
+
+  const msAddress = currentGame?.gameNotification.recordData.game_multisig;
+  const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
+
+  const { loading, error, event, setLoading, setError } = useEventHandling({
+    id: eventIdAccept,
+    address: msAddress,
+    multisig: true,
+    stepName: "Accept Game",
+    onSettled: () => setStep(Step._03_Confirmed),
+  });
+
+  // const { balances: msBalances } = useBalance({
+  //   address: msAddress,
+  //   multisig: true,
+  // });
+  // const msPublicBalance =
+  //   msBalances && msBalances?.length > 0 ? msBalances[0].public : 0;
+
+  useEffect(() => {
+    if (!currentGame || !msPuzzleRecords || !msGameRecords) return;
+    const piece_stake_challenger = msPuzzleRecords?.find(
+      (r: any) =>
+        r.data.ix === "3u32.private" &&
+        r.data.challenger.replace(".private", "") ===
+          currentGame.gameNotification.recordData.challenger_address &&
+        r.data.staker.replace(".private", "") ===
+          currentGame.gameNotification.recordData.challenger_address
+    );
+    const piece_claim_challenger = msPuzzleRecords.find(
+      (r: any) =>
+        r.data.ix === "6u32.private" &&
+        r.data.challenger.replace(".private", "") ===
+          currentGame.gameNotification.recordData.challenger_address &&
+        r.data.claimer.replace(".private", "") ===
+          currentGame.gameNotification.recordData.challenger_address
+    );
+    const piece_stake_opponent = msPuzzleRecords.find(
+      (r) =>
+        r.data.ix === "3u32.private" &&
+        r.data.opponent.replace(".private", "") ===
+          currentGame.gameNotification.recordData.opponent_address &&
+        r.data.staker.replace(".private", "") ===
+          currentGame.gameNotification.recordData.opponent_address
+    );
+    const piece_claim_opponent = msPuzzleRecords.find(
+      (r) =>
+        r.data.ix === "6u32.private" &&
+        r.data.opponent.replace(".private", "") ===
+          currentGame.gameNotification.recordData.opponent_address &&
+        r.data.claimer.replace(".private", "") ===
+          currentGame.gameNotification.recordData.opponent_address
+    );
+
+    console.log("msGameRecords[0]", msGameRecords[0]);
+    console.log("piece_stake_challenger", piece_stake_challenger);
+    console.log("piece_claim_challenger", piece_claim_challenger);
+    console.log("piece_stake_opponent", piece_stake_opponent);
+    console.log("piece_claim_opponent", piece_claim_opponent);
+    if (
+      piece_claim_challenger === undefined ||
+      piece_claim_opponent === undefined ||
+      piece_stake_challenger === undefined ||
+      piece_stake_opponent === undefined ||
+      msGameRecords[0] === undefined
+    )
+      return;
+    initializeAcceptGame(
+      msGameRecords[0],
+      piece_stake_challenger,
+      piece_claim_challenger,
+      piece_stake_opponent,
+      piece_claim_opponent
+    );
+  }, [
+    currentGame?.gameNotification.recordData.game_multisig,
+    [msPuzzleRecords, msGameRecords].toString(),
+  ]);
+
+  const createAcceptGameEvent = async () => {
+    if (
+      !inputsAcceptGame?.game_record ||
+      !inputsAcceptGame?.opponent_answer ||
+      !inputsAcceptGame.piece_stake_challenger ||
+      !inputsAcceptGame.piece_claim_challenger ||
+      !inputsAcceptGame.piece_stake_opponent ||
+      !inputsAcceptGame.piece_claim_opponent
+    )
+      return;
+    setLoading(true);
+    setError(undefined);
+    try {
+      const response_block_ht = await fetch(
+        "https://jigsaw-dev.puzzle.online/api/aleoapi/latest/height"
+      );
+      const block_ht = Number(await response_block_ht.json());
+      const acceptGameInputs: Omit<
+        AcceptGameInputs,
+        "opponent_answer_readable"
+      > = {
+        game_record: inputsAcceptGame.game_record,
+        opponent_answer: inputsAcceptGame.opponent_answer,
+        piece_stake_challenger: inputsAcceptGame.piece_stake_challenger,
+        piece_claim_challenger: inputsAcceptGame.piece_claim_challenger,
+        piece_stake_opponent: inputsAcceptGame.piece_stake_opponent,
+        piece_claim_opponent: inputsAcceptGame.piece_claim_opponent,
+        block_ht: block_ht.toString() + "u32",
+      };
+      const response = await requestCreateEvent({
+        type: EventType.Execute,
+        programId: GAME_PROGRAM_ID,
+        functionId: GAME_FUNCTIONS.accept_game,
+        fee: transitionFees.accept_game,
+        inputs: Object.values(acceptGameInputs),
+        address: inputsAcceptGame.game_record.owner,
+      });
+      if (response.error) {
+        setError(response.error);
+        setLoading(false);
+      } else if (!response.eventId) {
+        setError("No eventId found!");
+        setLoading(false);
+      } else {
+        console.log("success", response.eventId);
+        setEventIdAccept(response.eventId);
+      }
+    } catch (e) {
+      setError((e as Error).message);
+      setLoading(false);
+    }
+  };
+
   // const [grid, setGrid] = useState<any>([
   //   Array.from({ length: 1 }, () => null),
   //   Array.from({ length: Number(formationSplitted[0]) ?? 4 }, () => null),
@@ -292,9 +449,14 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
     if (activePlayers.length !== 11) {
       toast.info("Please select 11 players");
     } else {
-      const createGame = await createProposeGameEvent();
-      console.log("🚀 ~ startGame ~ createGame:", createGame);
-      toast.info("You have selected 11 ");
+      if (isChallenged) {
+        const acceptGame = await createAcceptGameEvent();
+      } else {
+        const createGame = await createProposeGameEvent();
+      }
+
+      // console.log("🚀 ~ startGame ~ createGame:", createGame);
+      // toast.info("You have selected 11 ");
     }
   };
 
@@ -388,6 +550,11 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
       setSelectedPlayer(teamPlayers[0].id);
       setPlayerData(teamPlayers[0]);
     });
+    if (!pathname.includes("accept-game")) {
+      setIsChallenged(true);
+    } else {
+      setIsChallenged(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -510,14 +677,14 @@ const Game: React.FC<IGame> = ({ selectedTeam, setIsGameStarted }) => {
       <div className="col-start-3 col-span-1 row-start-1 row-span-2 flex flex-col gap-6">
         <Card className="shadow">
           <CardContent className="py-2">
-            <div className="absolute left-4 top-[90px]">
+            {/* <div className="absolute left-4 top-[90px]">
               <Button variant={"outline"} size={"icon"} className="">
                 <IoIosArrowBack
                   onClick={() => setIsGameStarted(false)}
                   className="w-6 h-6"
                 />
               </Button>
-            </div>
+            </div> */}
             <div className="flex items-center justify-center flex-col">
               <h1 className="text-2xl font-bold">{teams[selectedTeam].name}</h1>
               <Image

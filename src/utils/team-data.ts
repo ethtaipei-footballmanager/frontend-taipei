@@ -51,7 +51,7 @@ export const teams = [
     fanbase: "Serpentari",
   },
   {
-    name: "Harvest Harts FC",
+    name: "Eagle Crest FC",
     image: "team-d",
     id: "4",
     attack: 87,
@@ -82,7 +82,7 @@ export const teams = [
     fanbase: "Gallop Nation",
   },
   {
-    name: "Eagle Crest FC",
+    name: "Harvest Harts FC",
     image: "team-f",
     id: "6",
     attack: 88,

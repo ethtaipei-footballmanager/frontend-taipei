@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { AcceptGameInputs, SubmitWagerInputs } from '@state/manager';
-import { RecordWithPlaintext } from '@puzzlehq/sdk';
+import { RecordWithPlaintext } from "@puzzlehq/sdk";
+import { AcceptGameInputs, SubmitWagerInputs } from "@state/manager";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export enum Step {
   _01_SubmitWager,
@@ -15,6 +15,7 @@ type AcceptGameStore = {
   eventIdSubmit?: string;
   eventIdAccept?: string;
   step: Step;
+  acceptedSelectedTeam: number;
   setSubmitWagerInputs: (inputs: Partial<SubmitWagerInputs>) => void;
   setAcceptGameInputs: (inputs: Partial<AcceptGameInputs>) => void;
   setStep: (step: Step) => void;
@@ -32,6 +33,7 @@ type AcceptGameStore = {
   ) => void;
   setEventIdSubmit: (id: string) => void;
   setEventIdAccept: (id: string) => void;
+  setAcceptedSelectedTeam: (id: number) => void;
   close: () => void;
 };
 
@@ -43,6 +45,7 @@ export const useAcceptGameStore = create<AcceptGameStore>()(
       eventIdSubmit: undefined,
       eventIdAccept: undefined,
       step: Step._01_SubmitWager,
+      acceptedSelectedTeam: 1,
       setSubmitWagerInputs: (inputsSubmitWager: Partial<SubmitWagerInputs>) => {
         set({ inputsSubmitWager });
         set({ step: Step._01_SubmitWager });
@@ -53,6 +56,9 @@ export const useAcceptGameStore = create<AcceptGameStore>()(
       },
       setStep: (step: Step) => {
         set({ step });
+      },
+      setAcceptedSelectedTeam: (acceptedSelectedTeam: number) => {
+        set({ acceptedSelectedTeam });
       },
       initializeSubmitWager: (
         opponent_wager_record: RecordWithPlaintext,
@@ -108,7 +114,7 @@ export const useAcceptGameStore = create<AcceptGameStore>()(
       },
     }),
     {
-      name: 'accept-game',
+      name: "accept-game",
     }
   )
 );
