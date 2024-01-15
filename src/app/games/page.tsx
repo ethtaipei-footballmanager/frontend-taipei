@@ -5,36 +5,36 @@ import { useRouter } from "next/navigation";
 const games = [
   {
     id: 1,
-    homeTeam: "Fenerbahçe",
+    homeTeam: "Thunderhawks FC",
     homeLogo: "team-a.svg",
-    awayTeam: "Galatasaray",
+    awayTeam: "Phoenix United",
     awayLogo: "team-b.svg",
     score: "2-1",
     state: "completed",
   },
   {
     id: 2,
-    homeTeam: "Beşiktaş",
+    homeTeam: "Serpentara FC",
     homeLogo: "team-c.svg",
-    awayTeam: "Galatasaray",
-    awayLogo: "team-b.svg",
+    awayTeam: "Eagle Crest FC",
+    awayLogo: "team-d.svg",
     score: "2-1",
     state: "completed",
   },
   {
     id: 3,
-    homeTeam: "Galatasaray",
-    homeLogo: "team-b.svg",
-    awayTeam: "Fenerbahçe",
-    awayLogo: "team-a.svg",
+    homeTeam: "Gallop United",
+    homeLogo: "team-e.svg",
+    awayTeam: "Harvest Hart FC",
+    awayLogo: "team-f.svg",
     score: "0-2",
     state: "completed",
   },
   {
     id: 4,
-    homeTeam: "Fenerbahçe",
+    homeTeam: "Thunderhawks FC",
     homeLogo: "team-a.svg",
-    awayTeam: "Beşiktaş",
+    awayTeam: "Serpentara FC",
     awayLogo: "team-c.svg",
     score: "3-1",
     state: "completed",
@@ -58,10 +58,13 @@ const Games = () => {
         {games.map((game) => (
           <Card
             key={game.id}
-            className="  max-w-md shadow-lg rounded-xl overflow-hidden"
+            className="  max-w-md grid-span-1 w-full shadow-lg rounded-xl overflow-hidden"
           >
             <div className="flex flex-col sm:flex-row justify-center items-center lg:justify-between p-6 space-y-6 sm:space-y-0">
-              <div className="flex items-center ">
+              <div className="flex flex-col items-center ">
+                <span className="font-bold text-lg text-center">
+                  {game.homeTeam}
+                </span>
                 <img
                   alt="Team A Logo"
                   className="rounded-full"
@@ -73,18 +76,17 @@ const Games = () => {
                   }}
                   width="50"
                 />
-                <span className="font-bold text-lg">{game.homeTeam}</span>
               </div>
               <div className="text-center">
                 <p className="text-sm whitespace-nowrap text-gray-600 dark:text-gray-400">
-                  Premier League
+                  League
                 </p>
                 <p className="text-xl font-bold">{game.score}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm whitespace-nowrap text-gray-600 dark:text-gray-400">
                   {game.state === "completed" ? "Full Time" : "Ongoing"}
                 </p>
               </div>
-              <div className="flex items-center ">
+              <div className="flex flex-col items-center gap-1 text-center">
                 <span className="font-bold text-lg">{game.awayTeam}</span>
                 <img
                   alt="Team B Logo"
