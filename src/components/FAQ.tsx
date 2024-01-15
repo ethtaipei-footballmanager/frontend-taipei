@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function FAQ() {
   return (
-    <div className="flex justify-center bg-gray-200 items-center min-h-screen">
+    <div className="flex justify-center  items-center min-h-screen">
       <Card className="shadow-lg w-[550px]">
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold tracking-tighter">

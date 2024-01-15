@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden bg-white dark:bg-gray-900">
       <main className="flex-1">
-        <section className="w-full py-6 sm:py-12 md:py-24 xl:py-48    bg-white dark:bg-gray-800">
+        <section className="w-full py-6 sm:py-12 md:py-24 xl:py-48   dark:bg-black bg-[#E0F4FF] ">
           <div className="container xl:-mt-4 px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
@@ -38,10 +38,10 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section>
+        <section className="w-full py-12 dark:bg-black bg-[#FF8080]">
           <FAQ />
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-24 xl:py-48 bg-[#E0F4FF] dark:bg-black">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -87,13 +87,13 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+      <footer className="flex flex-col bg-[#FF8080] dark:bg-[#020817] gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+        <p className="text-xs text-white dark:text-gray-400">
           © 2024 Super Leo Lig. All rights reserved.
         </p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <a target="_blank" href="https://twitter.com/SuperLeoLig/">
-            <FaXTwitter />
+            <FaXTwitter className="text-white stroke-current" />
           </a>
         </nav>
       </footer>

@@ -23,7 +23,7 @@ const SelectFormation: React.FC<ISelectFormation> = ({
   };
   return (
     <Select onValueChange={handleChange} defaultValue="4-4-2">
-      <SelectTrigger className="w-[180px] text-black">
+      <SelectTrigger className="w-[180px] ">
         <SelectValue className="" placeholder="Select a formation" />
       </SelectTrigger>
       <SelectContent>

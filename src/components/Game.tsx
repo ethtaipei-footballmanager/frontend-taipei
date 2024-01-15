@@ -606,7 +606,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
 
   return (
     // <DndProvider backend={HTML5Backend}>
-    <div className="grid grid-rows-2 px-20 py-8 bg-white h-[90vh] overflow-hidden w-full ">
+    <div className="grid grid-rows-2 px-20 py-8  h-[90vh] overflow-hidden w-full ">
       <div className=" relative  grid grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
         <div className="col-span-4  h-80 relative">
           <Image className="absolute z-0" src="/field.svg" fill alt="field" />
@@ -731,7 +731,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           </Button>
         </div>
       </div>
-      <div className="row-start-2 flex flex-col w-full h-[270px] mt-12 border-gray-200 bg-[#f5f5f5] border-2 px-4 rounded-md">
+      <div className="row-start-2 flex flex-col w-full h-[270px] mt-12   border-2 px-4 rounded-md">
         {/* <div className="flex flex-col px-4 whitespace-nowrap">
             <h1 className="text-xl tracking-tighter">
               Current Attack : {totalAttack}

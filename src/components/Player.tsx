@@ -152,7 +152,7 @@ const Player: React.FC<IPlayer> = ({
         <Card
           onClick={onPlayerClick}
           onDoubleClick={handleDoubleClick}
-          className="w-full  cursor-pointer h-24  flex justify-center items-center   bg-white shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out"
+          className="w-full  cursor-pointer h-24  flex justify-center items-center    shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out"
         >
           <CardContent className=" flex w-[100%] relative items-center  justify-center  ">
             <div className="  flex flex-col absolute bottom-3 -left-[30%] items-center  w-full">
@@ -161,7 +161,7 @@ const Player: React.FC<IPlayer> = ({
                   positionColors[player.position as keyof typeof positionColors]
                 } hover:${
                   positionColors[player.position as keyof typeof positionColors]
-                }  text-white px-1.5`}
+                }  text-white dark:bg-opacity-60 px-1.5`}
               >
                 {player.position}
               </Badge>
@@ -171,11 +171,11 @@ const Player: React.FC<IPlayer> = ({
                 <AvatarImage src={player.image} />
                 <AvatarFallback className="hidden">FP</AvatarFallback>
               </Avatar>
-              <h1 className="text-gray-700 font-bold text-base">
+              <h1 className=" font-bold text-base dark:text-white/80">
                 {player.name}
               </h1>
             </div>
-            <h3 className="font-bold absolute right-2 text-xl">
+            <h3 className="font-bold absolute dark:text-white/80 right-2 text-xl">
               {playerRating ? playerRating : 0}
             </h3>
             {/* <Badge

@@ -96,7 +96,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p>Attack:</p>
-            <Badge className="items-center hover:bg-red-500 bg-red-500 text-white">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-red-500 bg-red-500 text-white">
               <LuSword className="mr-1 h-4 w-4" />
               {playerDetails.attackScore}
               {"\n                      "}
@@ -104,7 +104,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           </div>
           <div className="flex items-center justify-between">
             <p>Defense:</p>
-            <Badge className="items-center hover:bg-blue-500 bg-blue-500 text-white">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-blue-500 bg-blue-500 text-white">
               <MdShield className="mr-1 h-4 w-4" />
               {playerDetails.defenseScore}
               {"\n                      "}
@@ -112,7 +112,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           </div>
           <div className="flex items-center justify-between">
             <p>Speed:</p>
-            <Badge className="items-center hover:bg-green-500 bg-green-500 text-white">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-green-500 bg-green-500 text-white">
               <TbBrandSpeedtest className="mr-1 h-4 w-4" />
               {playerDetails.speed}
               {"\n                      "}
@@ -122,7 +122,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p>Power:</p>
-            <Badge className="items-center hover:bg-purple-500 bg-purple-500 text-white">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-purple-500 bg-purple-500 text-white">
               <FaDumbbell className="mr-1 h-4 w-4" />
               {playerDetails.power}
               {"\n                      "}
@@ -130,14 +130,14 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           </div>
           <div className="flex items-center justify-between">
             <p>Stamina:</p>
-            <Badge className="items-center hover:bg-yellow-500 bg-yellow-500 hover:fill-white text-white hover:text-white ">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-yellow-500 bg-yellow-500 hover:fill-white text-white hover:text-white ">
               {/* <IoBatteryCharging className="mr-1 h-4 w-4" /> */}
               <BsBatteryFull className="mr-1 h-4 w-4 fill-current" />
               {playerDetails.stamina}
               {"\n                      "}
             </Badge>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center dark:bg-opacity-60 justify-between">
             <p>Technique:</p>
             <Badge className="items-center hover:bg-pink-500 bg-pink-500 text-white">
               <FaBullseye className="mr-1 h-4 w-4" />

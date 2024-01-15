@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 
@@ -118,11 +117,11 @@ const Games = () => {
               </p>
             </div> */}
             </div>
-            <div className="px-6 py-2 border-t border-gray-100 dark:border-gray-700">
+            {/* <div className="px-6 py-2 border-t border-gray-100 dark:border-gray-700">
               <Button className="w-full" variant="outline">
                 {game.state === "completed" ? "View Match Statistics" : "Play"}
               </Button>
-            </div>
+            </div> */}
           </Card>
         ))}
       </div>

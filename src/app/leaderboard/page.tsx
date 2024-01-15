@@ -4,7 +4,6 @@ import { useState } from "react";
 // import { sdk } from "./sdk";
 
 // import './Leaderboard.css'; // Assuming you have a separate CSS file for the Leaderboard
-import GamesData from "@/components/GamesData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -132,14 +131,14 @@ const Leaderboard = () => {
             </div>
           </CardContent>
         </Card>
-        <div className="col-span-7  ">
+        {/* <div className="col-span-7  ">
           <div className="grid grid-cols-4 gap-2">
             <GamesData />
             <GamesData />
             <GamesData />
             <GamesData />
           </div>
-        </div>
+        </div> */}
         {/* <PlayerDetails /> */}
       </div>
     </section>
