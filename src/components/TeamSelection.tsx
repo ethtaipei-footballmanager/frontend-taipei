@@ -351,7 +351,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         <DialogTrigger asChild>
           <Button variant="outline">Pick Team</Button>
         </DialogTrigger>
-        {!isChallenged ? (
+        {isChallenged ? (
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Start Game</DialogTitle>

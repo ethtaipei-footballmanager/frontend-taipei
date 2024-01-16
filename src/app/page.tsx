@@ -34,6 +34,14 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
+              {/* <div className="w-1/2">
+                <Image
+                  src="/promo/promo8-removebg-preview.png"
+                  alt="player"
+                  height={900}
+                  width={800}
+                />
+              </div> */}
               <StadiumCanvas />
             </div>
           </div>
