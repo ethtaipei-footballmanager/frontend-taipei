@@ -69,6 +69,8 @@ export type RevealAnswerInputs = {
   challenger_answer_record: RecordWithPlaintext;
   joint_piece_stake: RecordWithPlaintext;
   challenger_claim_signature: RecordWithPlaintext;
+  game_outcome: string;
+  calculated_outcome_notification_record: RecordWithPlaintext;
 };
 
 export type FinishGameInputs = {

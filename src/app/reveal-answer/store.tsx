@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { RecordWithPlaintext } from '@puzzlehq/sdk';
-import { RevealAnswerInputs } from '@state/manager';
+import { RecordWithPlaintext } from "@puzzlehq/sdk";
+import { RevealAnswerInputs } from "@state/manager";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export enum Step {
   _01_Finish,
@@ -64,7 +64,7 @@ export const useRevealAnswerStore = create<RevealAnswerStore>()(
       },
     }),
     {
-      name: 'reveal-answer',
+      name: "reveal-answer",
     }
   )
 );
