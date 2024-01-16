@@ -182,8 +182,9 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       !acceptGameInputs?.opponent_wager_record ||
       !acceptGameInputs.key_record ||
       !acceptGameInputs.game_req_notification
-    )
+    ) {
       return;
+    }
     setLoading(true);
     setError(undefined);
     const signature = await requestSignature({ message: messageToSign });
@@ -350,7 +351,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         <DialogTrigger asChild>
           <Button variant="outline">Pick Team</Button>
         </DialogTrigger>
-        {isChallenged ? (
+        {!isChallenged ? (
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Start Game</DialogTitle>
@@ -359,14 +360,20 @@ const TeamSelection: React.FC<ITeamSelection> = ({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="flex w-full justify-center  items-center ">
+            <div className="flex w-full gap-2 justify-center  items-center ">
               <Button
                 onClick={createSubmitWagerEvent}
                 className="w-full"
                 variant={"outline"}
-                type="submit"
               >
                 Accept
+              </Button>
+              <Button
+                onClick={() => router.push("/")}
+                className="w-full"
+                variant={"outline"}
+              >
+                Reject
               </Button>
             </div>
           </DialogContent>

@@ -77,7 +77,7 @@ const Navbar = () => {
 
           <button
             type="button"
-            className="inline-flex items-center p-2 text-sm  rounded-lg md:hidden  focus:outline-none focus:ring-2  text-gray-400 hover:bg-gray-700 focus:ring-gray-600"
+            className="inline-flex items-center p-2 text-sm  rounded-lg lg:hidden  focus:outline-none focus:ring-2  text-gray-400 hover:bg-gray-700 focus:ring-gray-600"
             onClick={() => setIsNavOpen((prevState) => !prevState)}
           >
             <svg
@@ -98,8 +98,8 @@ const Navbar = () => {
         <div
           className={
             isNavOpen
-              ? " justify-between mt-4 items-center w-full md:flex md:w-auto md:order-1 -ml-8"
-              : "justify-between items-center w-full md:flex md:w-auto md:order-1 hidden"
+              ? " justify-between mt-4 items-center w-full lg:flex lg:w-auto lg:order-1 -ml-8"
+              : "justify-between items-center w-full lg:flex lg:w-auto lg:order-1 hidden"
           }
           id="navbar-sticky"
         >
@@ -112,6 +112,16 @@ const Navbar = () => {
                 })}`}
               >
                 Games
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/your-games"
+                className={`text-black ${buttonVariants({
+                  variant: "link",
+                })}`}
+              >
+                Your Games
               </Link>
             </li>
             <li>

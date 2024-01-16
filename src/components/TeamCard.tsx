@@ -292,7 +292,11 @@ const TeamCard: React.FC<ITeamCard> = ({ team, selectedTeam, index }) => {
                   <h3 className="text-sm font-semibold">Achievements</h3>
                   <ul>
                     {team.achievements.map((ach) => {
-                      return <li className="text-xs ">{ach}</li>;
+                      return (
+                        <li key={ach} className="text-xs ">
+                          {ach}
+                        </li>
+                      );
                     })}
                   </ul>
                 </div>
