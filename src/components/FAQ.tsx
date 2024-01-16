@@ -19,7 +19,7 @@ export default function FAQ() {
               <AccordionTrigger className="hover:no-underline font-semibold tracking-tight">
                 How to play Super Leo Lig?
               </AccordionTrigger>
-              <AccordionContent className="text-black/80">
+              <AccordionContent className="text-black/80 dark:text-white/70">
                 <p>
                   You can play <strong>Super Leo Lig</strong> by connecting your
                   Aleo account using the Puzzle Wallet. Download the wallet{" "}
@@ -38,7 +38,7 @@ export default function FAQ() {
               <AccordionTrigger className="hover:no-underline font-semibold tracking-tight">
                 How many players can play?
               </AccordionTrigger>
-              <AccordionContent className="text-black/80">
+              <AccordionContent className="text-black/80 dark:text-white/70 ">
                 Two players can play against each other after selecting their
                 teams and entering the wagers.
               </AccordionContent>
@@ -47,7 +47,7 @@ export default function FAQ() {
               <AccordionTrigger className="hover:no-underline font-semibold tracking-tight">
                 Are there any tournaments to compete in?
               </AccordionTrigger>
-              <AccordionContent className="text-black/80">
+              <AccordionContent className="text-black/80 dark:text-white/70">
                 Seasons and special tournaments are part of the roadmap.
               </AccordionContent>
             </AccordionItem>
@@ -55,7 +55,7 @@ export default function FAQ() {
               <AccordionTrigger className="hover:no-underline font-semibold tracking-tight">
                 Why is Super Leo Lig build on Aleo?
               </AccordionTrigger>
-              <AccordionContent className="text-black/80">
+              <AccordionContent className="text-black/80 dark:text-white/70">
                 Super Leo Lig is only available on Aleo, because Aleo enables
                 apps that are private by default. This enables users to commit
                 to their strategy, without revealing it to the opponent.
@@ -65,7 +65,7 @@ export default function FAQ() {
               <AccordionTrigger className="hover:no-underline font-semibold tracking-tight">
                 Am I able to buy/sell players for my team?
               </AccordionTrigger>
-              <AccordionContent className="text-black/80">
+              <AccordionContent className="text-black/80 dark:text-white/70">
                 In the future it will be possible. Players will be tokenized as
                 NFT&apos;s and tradeable on the market.
               </AccordionContent>
@@ -74,7 +74,7 @@ export default function FAQ() {
               <AccordionTrigger className="hover:no-underline font-semibold tracking-tight">
                 Will I get rugged if my opponent rage quits?
               </AccordionTrigger>
-              <AccordionContent className="text-black/80">
+              <AccordionContent className="text-black/80 dark:text-white/70">
                 No! Super Leo Lig uses the Puzzle SDK and wallet, which are
                 optimized for multiparty privacy games. Because Super Leo lig
                 implements the Puzzle SDK, all wagered amounts are stored in a

@@ -46,7 +46,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 dark:bg-black bg-[#FF8080]">
+        <section className="w-full py-12 dark:bg-black bg-[#3B3486]">
           <FAQ />
         </section>
         <section className="w-full py-12 md:py-24 xl:py-48 bg-[#E0F4FF] dark:bg-black">
@@ -95,7 +95,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="flex flex-col bg-[#FF8080] dark:bg-[#020817] gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+      <footer className="flex flex-col bg-[#3B3486] dark:bg-[#020817] gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-white dark:text-gray-400">
           © 2024 Super Leo Lig. All rights reserved.
         </p>
