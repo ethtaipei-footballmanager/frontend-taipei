@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { RecordWithPlaintext } from '@puzzlehq/sdk';
-import { CalculateOutcomeInputs } from '@state/manager';
+import { RecordWithPlaintext } from "@puzzlehq/sdk";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+// import { CalculateOutcomeInputs } from '@state/manager';
 
 export enum Step {
   _01_Finish,
@@ -9,13 +9,13 @@ export enum Step {
 }
 
 type CalculateOutcomeStore = {
-  calculateOutcomeAnswer?: Partial<CalculateOutcomeInputs>;
+  calculateOutcomeAnswer?: any;
   eventId?: string;
   step: Step;
   setStep: (step: Step) => void;
   initialize: (
     reveal_answer_notification_record: RecordWithPlaintext,
-    challenger_answer_record: RecordWithPlaintext,
+    challenger_answer_record: RecordWithPlaintext
   ) => void;
   setEventId: (eventId?: string) => void;
   close: () => void;
@@ -32,7 +32,7 @@ export const useCalculateOutcomeStore = create<CalculateOutcomeStore>()(
       },
       initialize: (
         reveal_answer_notification_record: RecordWithPlaintext,
-        challenger_answer_record: RecordWithPlaintext,
+        challenger_answer_record: RecordWithPlaintext
       ) => {
         set({
           calculateOutcomeAnswer: {
@@ -55,7 +55,7 @@ export const useCalculateOutcomeStore = create<CalculateOutcomeStore>()(
       },
     }),
     {
-      name: 'calculate-outcome',
+      name: "calculate-outcome",
     }
   )
 );
