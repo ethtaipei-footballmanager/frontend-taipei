@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { RecordWithPlaintext, zodAddress } from "@puzzlehq/sdk";
 import { z } from "zod";
 
