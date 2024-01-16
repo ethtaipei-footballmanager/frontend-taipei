@@ -21,7 +21,7 @@
 
 
 # Directories containing PNG files
-directories=("jerseys" "players")
+directories=("jerseys" "players", "logos")
 
 # Output directory for SVG files
 output_dir="svg"
