@@ -1,6 +1,6 @@
 import { RecordWithPlaintext } from "@puzzlehq/sdk";
 
-export const GAME_PROGRAM_ID = "football_game_v010.aleo";
+export const GAME_PROGRAM_ID = "football_game_v012.aleo";
 
 export const GAME_FUNCTIONS = {
   propose_game: "propose_game",
