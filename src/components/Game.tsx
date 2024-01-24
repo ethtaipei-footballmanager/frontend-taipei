@@ -2,6 +2,7 @@
 
 import { Step, useAcceptGameStore } from "@/app/accept-game/store";
 import { useGameStore } from "@/app/state/gameStore";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useEventHandling } from "@/hooks/eventHandling";
 import { useMsRecords } from "@/hooks/msRecords";
 import { calculateAttribute, getPositionRole, isValidPlacement } from "@/utils";
@@ -49,7 +50,7 @@ interface IGame {
   selectedTeam: number;
   // setIsGameStarted: (val: boolean) => void;
 }
-
+type Position = "GK" | "DEF" | "MID" | "ATT";
 export type PlayerType = {
   id: number;
   name: string;
@@ -111,6 +112,14 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const [selectedPlayer, setSelectedPlayer] = useState<SelectedPlayer | null>(
     null
   );
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState<
+    Record<Position, boolean>
+  >({
+    GK: true,
+    DEF: true,
+    MID: true,
+    ATT: true,
+  });
   const [movingPlayer, setMovingPlayer] = useState<PlayerType>();
   const [playerData, setPlayerData] = useState<PlayerType>();
   const [totalAttack, setTotalAttack] = useState(0);
@@ -149,7 +158,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
     state.setStep,
   ]);
   const [currentGame] = useGameStore((state) => [state.currentGame]);
-
+  const [filteredPlayers, setFilteredPlayers] = useState<PlayerType[]>([]);
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
   const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
 
@@ -168,6 +177,23 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   // const msPublicBalance =
   //   msBalances && msBalances?.length > 0 ? msBalances[0].public : 0;
 
+  const handleCheckboxChange = (position: Position) => {
+    if (
+      Object.values(selectedCheckboxes).filter(Boolean).length > 1 ||
+      !selectedCheckboxes[position]
+    ) {
+      setSelectedCheckboxes((prev) => ({
+        ...prev,
+        [position]: !prev[position],
+      }));
+    }
+  };
+  useEffect(() => {
+    const filteredPlayers = benchPlayers.filter(
+      (player) => selectedCheckboxes[player.position as Position]
+    );
+    setFilteredPlayers(filteredPlayers);
+  }, [selectedCheckboxes, benchPlayers]);
   useEffect(() => {
     if (!currentGame || !msPuzzleRecords || !msGameRecords) return;
     const piece_stake_challenger = msPuzzleRecords?.find(
@@ -767,8 +793,32 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           </div> */}
 
         <ScrollArea className=" overflow-y-auto h-64 p-5">
+          <div className="flex gap-4 w-full items-center justify-center">
+            {["GK", "DEF", "MID", "ATT"].map((position) => (
+              <div
+                key={position}
+                className="flex gap-1 items-center justify-center"
+              >
+                <Checkbox
+                  defaultChecked
+                  checked={selectedCheckboxes[position as Position]}
+                  id={position}
+                  title={position}
+                  onCheckedChange={() =>
+                    handleCheckboxChange(position as Position)
+                  }
+                />
+                <label
+                  htmlFor={position}
+                  className="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                />
+                {position}
+              </div>
+            ))}
+          </div>
+
           <div className="w-full grid grid-cols-5 gap-2  h-64 p-6 ">
-            {benchPlayers!.map((player) => {
+            {filteredPlayers!.map((player) => {
               return (
                 <Player
                   key={player.name}
