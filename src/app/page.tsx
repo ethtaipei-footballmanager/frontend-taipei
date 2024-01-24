@@ -3,11 +3,15 @@
 import FAQ from "@/components/FAQ";
 import StadiumCanvas from "@/components/StadiumCanvas";
 import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { CiTrophy } from "react-icons/ci";
 import { FaXTwitter } from "react-icons/fa6";
 import { IoFootballOutline, IoGameControllerOutline } from "react-icons/io5";
 export default function Home() {
+  const header = "Welcome to the Ultimate On-chain Football Manager Game".split(
+    " "
+  );
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden bg-white dark:bg-gray-900">
       <main className="flex-1">
@@ -17,7 +21,19 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                    Welcome to the Ultimate On-chain Football Manager Game
+                    {header.map((el, i) => (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{
+                          duration: 0.25,
+                          delay: i / 5,
+                        }}
+                        key={i}
+                      >
+                        {el}{" "}
+                      </motion.span>
+                    ))}
                   </h1>
                   <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
                     Experience the thrill of football like never before.

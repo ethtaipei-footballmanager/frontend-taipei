@@ -1,12 +1,12 @@
 "use client";
 
-import { PlayerType } from "../Game";
+import { PlayerType, SelectedPlayer } from "../Game";
 import GridSlot from "./GridSlot";
 
 interface IGrid {
   formation: string;
   rowIndex: number;
-  selectedPlayer: number;
+  selectedPlayer: SelectedPlayer;
   isGoalkeeper: boolean;
   grid: (PlayerType | null)[];
   movePlayer: (val0: number, val1: number, val2: number) => void;
@@ -33,9 +33,9 @@ const Grid: React.FC<IGrid> = ({
   const handleGridSlotClick = (slot: number) => {
     // Handle the click event
     if (grid[slot] === null) {
-      movePlayer(selectedPlayer, rowIndex, slot);
+      movePlayer(selectedPlayer.id, rowIndex, slot);
     } else {
-      removePlayer(selectedPlayer || 0);
+      removePlayer(selectedPlayer.id || 0);
     }
   };
 

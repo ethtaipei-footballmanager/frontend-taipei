@@ -1,7 +1,8 @@
+import { isValidPlacement } from "@/utils";
 import React from "react";
 import { CgArrowsExchangeAlt } from "react-icons/cg";
 import { GiCancel } from "react-icons/gi";
-import { PlayerType } from "../Game";
+import { PlayerType, SelectedPlayer } from "../Game";
 import JerseySVG from "../Jersey";
 import Player from "../Player";
 interface IGridSlot {
@@ -10,7 +11,7 @@ interface IGridSlot {
   slot: number;
   isDisabled: boolean;
   rowIndex: number;
-  selectedPlayer: number;
+  selectedPlayer: SelectedPlayer;
   isGoalkeeper: boolean;
   isSelecting: boolean;
   movePlayer: (val0: number, val1: number, val2: number) => void;
@@ -37,7 +38,7 @@ const GridSlot: React.FC<IGridSlot> = ({
 }) => {
   const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : jersey;
   console.log("player30", player, jersey, isGoalkeeper);
-  // const isValid = isValidPlacement(selectedPlayer)
+  const isValid = isValidPlacement(selectedPlayer?.position, rowIndex);
   return (
     <div
       onClick={() => {
@@ -45,7 +46,7 @@ const GridSlot: React.FC<IGridSlot> = ({
         if (!player) {
           console.log("clicked", slot, rowIndex);
 
-          movePlayer(selectedPlayer, rowIndex, slot);
+          movePlayer(selectedPlayer.id, rowIndex, slot);
         }
       }}
       className={`w-20 h-20 relative flex  flex-col ${
@@ -79,7 +80,7 @@ const GridSlot: React.FC<IGridSlot> = ({
             fill
           /> */}
         </span>
-        {isSelecting && (
+        {isSelecting && isValid && (
           <span className=" absolute left-[32%] top-[25%]">
             <CgArrowsExchangeAlt className="h-6 w-6" />
           </span>
@@ -87,6 +88,7 @@ const GridSlot: React.FC<IGridSlot> = ({
 
         {player && !isDisabled && (
           <Player
+            selectedPlayer={selectedPlayer}
             removePlayer={removePlayer}
             player={player}
             movePlayer={movePlayer}

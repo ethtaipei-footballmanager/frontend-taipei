@@ -37,6 +37,13 @@ import { calculateStarRating, renderStars } from "./TeamCard";
 import Grid from "./grid-ui/Grid";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { ScrollArea } from "./ui/scroll-area";
 interface IGame {
   selectedTeam: number;
@@ -56,6 +63,11 @@ export type PlayerType = {
   goalkeeping: number;
   attackScore: number;
   defenseScore: number;
+};
+
+export type SelectedPlayer = {
+  id: number;
+  position: string;
 };
 
 export const initializeGrid = (
@@ -96,7 +108,9 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const balance = balances?.[0]?.public ?? 0;
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
-  const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<SelectedPlayer | null>(
+    null
+  );
   const [movingPlayer, setMovingPlayer] = useState<PlayerType>();
   const [playerData, setPlayerData] = useState<PlayerType>();
   const [totalAttack, setTotalAttack] = useState(0);
@@ -554,7 +568,11 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       console.log("player0", teamPlayers[0]);
 
       setBenchPlayers(teamPlayers);
-      setSelectedPlayer(teamPlayers[0].id);
+      setSelectedPlayer({
+        id: teamPlayers[0].id,
+        position: teamPlayers[0].position,
+      });
+
       setPlayerData(teamPlayers[0]);
     });
     if (!pathname.includes("accept-game")) {
@@ -569,7 +587,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       console.log("123", data, selectedPlayer);
       // Filter the data for the selected team and set the players state
       const player = data
-        .filter((player) => Number(player.player_uid) === selectedPlayer) // Filter by selectedTeam
+        .filter((player) => Number(player.player_uid) === selectedPlayer!.id) // Filter by selectedTeam
         .map((player) => ({
           id: parseInt(player.player_uid),
           name: player.player_name,
@@ -754,9 +772,13 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
               return (
                 <Player
                   key={player.name}
+                  selectedPlayer={selectedPlayer!}
                   onPlayerClick={() => {
                     setMovingPlayer(player);
-                    setSelectedPlayer(player.id);
+                    setSelectedPlayer({
+                      id: player.id,
+                      position: player.position,
+                    });
                     setIsSelecting(true);
                   }}
                   player={player}
@@ -775,6 +797,21 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
             )} */}
         </ScrollArea>
       </div>
+      <Dialog defaultOpen>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader className="flex gap-1 w-full flex-col justify-center items-center">
+            <DialogTitle>How to play?</DialogTitle>
+            <DialogDescription>
+              <h1 className="font-semibold tracking-tighter text-[#868989] ">
+                Welcome to Super Leo Lig. To create your starting squad; click
+                on the player you want, then click on the spot in the field to
+                place him. When you have all 11 players, go ahead and start the
+                game. Good luck!
+              </h1>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
     // </DndProvider>
   );

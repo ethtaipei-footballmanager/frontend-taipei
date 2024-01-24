@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateAttribute } from "@/utils";
 import React, { useEffect, useState } from "react";
-import { PlayerType } from "./Game";
+import { PlayerType, SelectedPlayer } from "./Game";
 import { Badge } from "./ui/badge";
 interface IPlayer {
   player: PlayerType;
@@ -11,6 +11,7 @@ interface IPlayer {
   removePlayer?: (val0: number) => void;
   onPlayerClick?: () => void;
   isActive: boolean;
+  selectedPlayer: SelectedPlayer;
 }
 
 interface PlayerAttributes {
@@ -81,6 +82,7 @@ const Player: React.FC<IPlayer> = ({
   removePlayer,
   isActive,
   onPlayerClick,
+  selectedPlayer,
 }) => {
   const [playerRating, setPlayerRating] = useState(0);
 
@@ -152,9 +154,12 @@ const Player: React.FC<IPlayer> = ({
         <Card
           onClick={onPlayerClick}
           onDoubleClick={handleDoubleClick}
-          className="w-full  cursor-pointer h-24  flex justify-center items-center    shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out"
+          className={`w-full   cursor-pointer h-24  flex justify-center items-center    shadow-md rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 ease-in-out`}
         >
-          <CardContent className=" flex w-[100%] relative items-center  justify-center  ">
+          {selectedPlayer.id === player.id && (
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 to-red-400 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+          )}
+          <CardContent className="group  flex w-[100%] relative items-center  justify-center  ">
             <div className="  flex flex-col absolute bottom-3 -left-[30%] items-center  w-full">
               <Badge
                 className={`${

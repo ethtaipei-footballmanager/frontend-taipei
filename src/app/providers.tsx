@@ -9,8 +9,8 @@ export function Providers({ children }) {
       <PuzzleWalletProvider
         dAppName="Super Leo Lig"
         dAppDescription="Zk Football Manager game"
-        dAppUrl="https://localhost:3000/"
-        dAppIconURL="http://localhost:3000/logo_mini.png"
+        dAppUrl="https://superleolig.vercel.app/"
+        dAppIconURL="https://superleolig.vercel.app/logo.png"
       >
         {children}
       </PuzzleWalletProvider>
