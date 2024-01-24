@@ -49,9 +49,11 @@ const GridSlot: React.FC<IGridSlot> = ({
           movePlayer(selectedPlayer.id, rowIndex, slot);
         }
       }}
-      className={`w-20 h-20 relative flex  flex-col ${
-        isDisabled ? "cursor-not-allowed" : ""
-      } ${isSelecting ? " " : ""}`}
+      className={`w-20 h-20 relative ${
+        isValid && !player && "hover:scale-105 duration-200 transition"
+      }  flex  flex-col ${isDisabled ? "cursor-not-allowed" : ""} ${
+        isSelecting ? " " : ""
+      }`}
     >
       {isSelecting && (
         <div className="absolute flex justify-end mx-auto w-[90%] -top-1.5 left-1">
