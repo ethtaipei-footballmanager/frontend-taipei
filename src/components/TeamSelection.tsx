@@ -128,7 +128,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     onSettled: () => setStep(Step._02_AcceptGame),
   });
   const filter: RecordsFilter = {
-    type: "all",
+    type: "unspent",
   };
   useEffect(() => {
     const response = async () => {
