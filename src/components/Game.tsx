@@ -126,6 +126,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const [totalDefense, setTotalDefense] = useState(0);
   const [isSelecting, setIsSelecting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPlayed, setIsPlayed] = useState(false);
   const [isChallenged, setIsChallenged] = useState(false);
   const pathname = usePathname();
   const { setInputs, inputs } = useNewGameStore();
@@ -325,6 +326,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
     setIsLoading(true);
     // setConfirmStep(ConfirmStep.Signing);
     // setError(undefined);
+
     const signature = await requestSignature({ message: messageToSign });
     console.log("🚀 ~ createProposeGameEvent ~ signature:", signature);
 
@@ -497,8 +499,12 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       toast.info("Please select 11 players");
     } else {
       if (isChallenged) {
+        console.log("hey1");
+
         const acceptGame = await createAcceptGameEvent();
       } else {
+        console.log("hey2");
+
         const createGame = await createProposeGameEvent();
       }
 
@@ -601,7 +607,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
 
       setPlayerData(teamPlayers[0]);
     });
-    if (!pathname.includes("accept-game")) {
+    if (pathname.includes("accept-game")) {
       setIsChallenged(true);
     } else {
       setIsChallenged(false);
