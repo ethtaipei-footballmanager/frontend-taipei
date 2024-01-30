@@ -6,27 +6,12 @@ import { useGameStore } from "../state/gameStore";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import {
-  Event,
-  EventType,
-  EventsFilter,
-  GetEventsResponse,
-  getEvents,
-} from "@puzzlehq/sdk";
+import { getAllPuzzleWalletEvents } from "@/utils";
+import { Event } from "@puzzlehq/sdk";
 
-export const getAllPuzzleWalletEvents = async () => {
-  const filter: EventsFilter = {
-    type: EventType.Execute,
-    programId: "football_game_v012.aleo",
-  };
-  const events: GetEventsResponse = await getEvents(filter);
-  console.log("🚀 ~ getAllPuzzleWalletEvents ~ events:", events);
-  return events.events;
-};
+interface IYourGames {}
 
-interface IPage {}
-
-const Page: React.FC<IPage> = ({}) => {
+const YourGames: React.FC<IYourGames> = ({}) => {
   const [allEvents, setAllEvents] = useState<Event[] | undefined>();
   const getEvents = async () => {
     const walletEvents = await getAllPuzzleWalletEvents();
@@ -95,4 +80,4 @@ const Page: React.FC<IPage> = ({}) => {
     </div>
   );
 };
-export default Page;
+export default YourGames;

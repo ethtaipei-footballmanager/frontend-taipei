@@ -1,3 +1,10 @@
+import {
+  EventType,
+  EventsFilter,
+  GetEventsResponse,
+  getEvents,
+} from "@puzzlehq/sdk";
+
 export const getPositionRole = (positionCode: number): string => {
   console.log("jey", positionCode);
 
@@ -47,4 +54,13 @@ export const calculateAttribute = (value: number | string): number => {
 
   // Round the result to the nearest integer
   return Math.round(scaledValue);
+};
+export const getAllPuzzleWalletEvents = async () => {
+  const filter: EventsFilter = {
+    type: EventType.Execute,
+    programId: "football_game_v012.aleo",
+  };
+  const events: GetEventsResponse = await getEvents(filter);
+  console.log("🚀 ~ getAllPuzzleWalletEvents ~ events:", events);
+  return events.events;
 };
