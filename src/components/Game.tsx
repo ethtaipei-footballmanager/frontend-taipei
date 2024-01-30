@@ -201,33 +201,33 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       (r: any) =>
         r.data.ix === "3u32.private" &&
         r.data.challenger.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address &&
+        currentGame.gameNotification.recordData.challenger_address &&
         r.data.staker.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address
+        currentGame.gameNotification.recordData.challenger_address
     );
     const piece_claim_challenger = msPuzzleRecords.find(
       (r: any) =>
         r.data.ix === "6u32.private" &&
         r.data.challenger.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address &&
+        currentGame.gameNotification.recordData.challenger_address &&
         r.data.claimer.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address
+        currentGame.gameNotification.recordData.challenger_address
     );
     const piece_stake_opponent = msPuzzleRecords.find(
       (r) =>
         r.data.ix === "3u32.private" &&
         r.data.opponent.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address &&
+        currentGame.gameNotification.recordData.opponent_address &&
         r.data.staker.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address
+        currentGame.gameNotification.recordData.opponent_address
     );
     const piece_claim_opponent = msPuzzleRecords.find(
       (r) =>
         r.data.ix === "6u32.private" &&
         r.data.opponent.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address &&
+        currentGame.gameNotification.recordData.opponent_address &&
         r.data.claimer.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address
+        currentGame.gameNotification.recordData.opponent_address
     );
 
     console.log("msGameRecords[0]", msGameRecords[0]);
@@ -284,7 +284,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
         "opponent_answer_readable"
       > = {
         game_record: inputsAcceptGame.game_record,
-        opponent_answer: activePlayerIds.toString(),
+        opponent_answer: "[" + activePlayerIds.toString() + "]",
         piece_stake_challenger: inputsAcceptGame.piece_stake_challenger,
         piece_claim_challenger: inputsAcceptGame.piece_claim_challenger,
         piece_stake_opponent: inputsAcceptGame.piece_stake_opponent,
@@ -394,9 +394,9 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           challenger_message_5: fields.field_5,
           challenger_sig: signature.signature,
           challenger_nonce: messageToSign, /// todo - make this random
-          challenger_answer: activePlayerIds.toString(),
+          challenger_answer: "[" + activePlayerIds.toString() + "]",
           game_multisig_seed,
-          uuid: uuidv4(),
+          uuid: "12423423field",
         };
         console.log(
           "🚀 ~ createProposeGameEvent ~ proposalInputs:",
