@@ -396,7 +396,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           challenger_nonce: messageToSign, /// todo - make this random
           challenger_answer: "[" + activePlayerIds.toString() + "]",
           game_multisig_seed,
-          uuid: "12423423field",
+          uuid: "12423423field", // uuidv4(), TODO generate random uuid
         };
         console.log(
           "🚀 ~ createProposeGameEvent ~ proposalInputs:",
