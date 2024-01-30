@@ -80,7 +80,9 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
             >
               {address && (
                 <>
-                  <Identicon string={address} size={20} />
+                  <div className="hidden md:flex">
+                    <Identicon string={address} size={20} />
+                  </div>
                   {truncateAddress(address)}
                 </>
               )}
@@ -155,7 +157,9 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
           {account ? "" : "Connect Wallet"}
         </Button>
       )}
-      <ThemeToggle />
+      <div className="hidden md:flex">
+        <ThemeToggle />
+      </div>
     </div>
   );
 };

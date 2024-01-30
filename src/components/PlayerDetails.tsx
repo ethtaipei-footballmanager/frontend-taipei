@@ -140,7 +140,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           <div className="flex items-center dark:bg-opacity-60 justify-between">
             <p>Technique:</p>
             <Badge className="items-center hover:bg-pink-500 bg-pink-500 text-white">
-              <FaBullseye className="mr-1 h-4 w-4" />
+              <FaBullseye className="mr-1.5 h-4 w-4" />
               {playerDetails.technique}
               {"\n                      "}
             </Badge>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import ConnectWallet from "./ConnectWallet";
+import { ThemeToggle } from "./ToggleTheme";
 import { buttonVariants } from "./ui/button";
 const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -103,7 +104,7 @@ const Navbar = () => {
           }
           id="navbar-sticky"
         >
-          <ul className="flex flex-col ml-8 w-full   rounded-lg border  md:flex-row md:space-x-4 lg:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0  bg-white dark:bg-black ">
+          <ul className="flex flex-col ml-8 w-full relative   rounded-lg border  md:flex-row md:space-x-4 lg:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0  bg-white dark:bg-black ">
             <li>
               <Link
                 href="/games"
@@ -144,6 +145,12 @@ const Navbar = () => {
               >
                 Create Game
               </Link>
+            </li>
+            <li className="absolute md:hidden top-2 right-2 ">
+              {/* <Button variant={"link"} className={`text-black `}>
+                Change Theme
+              </Button> */}
+              <ThemeToggle />
             </li>
           </ul>
         </div>

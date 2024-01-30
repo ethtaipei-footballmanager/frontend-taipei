@@ -101,7 +101,7 @@ export const initializeGrid = (
 
   return initialGrid;
 };
-const messageToSign = "1234567field";
+const messageToSign = uuidv4();
 
 const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const { account } = useAccount();
@@ -664,8 +664,8 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   return (
     // <DndProvider backend={HTML5Backend}>
     <div className="grid grid-rows-2 px-20 py-8  h-[90vh] overflow-hidden w-full ">
-      <div className=" relative  grid grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
-        <div className="col-span-4  h-80 relative">
+      <div className=" relative  grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
+        <div className=" col-span-1 xl:col-span-4  h-80 relative">
           <Image className="absolute z-0" src="/field.svg" fill alt="field" />
           <div className="grid grid-rows-4  items-start justify-center h-[100%] z-10">
             <div className="row-span-1">
@@ -731,7 +731,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           </div>
         </div>
       </div>
-      <div className="col-start-3 col-span-1 row-start-1 row-span-2 flex flex-col gap-6">
+      <div className="col-start-1 xl:col-start-3 col-span-1 row-start-1 row-span-2 flex flex-col gap-6">
         <Card className="shadow">
           <CardContent className="py-2">
             {/* <div className="absolute left-4 top-[90px]">
