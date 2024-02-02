@@ -101,7 +101,8 @@ export const initializeGrid = (
 
   return initialGrid;
 };
-const messageToSign = uuidv4();
+const messageToSign = "Let's play Super Leo Lig";
+const nonce = '1234567field'; // todo make this random?
 
 const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const { account } = useAccount();
@@ -380,11 +381,18 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           activePlayerIds,
           toString()
         );
-        const dateTime = new Date().toISOString();
-        const numericSender = Array.from(account?.address)
-          .map(char => char.charCodeAt(0).toString())
-          .join('');
-        const matchID = dateTime + numericSender;
+
+
+        const dateTime = new Date().toISOString()
+          .replace(/\D/g, '');  // Removes all non-digit characters from the date string
+        const numericSender = account?.address
+          ? Array.from(account.address)
+            .map((char) => char.charCodeAt(0))
+            .reduce((acc, curr) => acc + curr, 0)
+            .toString()
+          : '0';
+        const matchID = dateTime + numericSender; // todo ensure its below max field value 
+
 
         const proposalInputs: ProposeGameInputs = {
           wager_record: inputs.wager_record,
@@ -399,10 +407,10 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           challenger_message_4: fields.field_4,
           challenger_message_5: fields.field_5,
           challenger_sig: signature.signature,
-          challenger_nonce: messageToSign, /// todo - make this random
+          challenger_nonce: nonce, /// todo - make this random
           challenger_answer: "[" + activePlayerIds.toString() + "]",
           game_multisig_seed,
-          uuid: matchID,
+          uuid: matchID + "field",
         };
         console.log(
           "🚀 ~ createProposeGameEvent ~ proposalInputs:",
