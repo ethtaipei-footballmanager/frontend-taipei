@@ -55,6 +55,7 @@ interface ITeamSelection {
 type Team = {
   name: string;
   attack: number;
+  // midfield: number;
   defense: number;
   image: string;
   foundingYear: number;
@@ -68,7 +69,7 @@ enum ConfirmStep {
   RequestingEvent,
 }
 
-const messageToSign = "1234567field";
+const messageToSign = "1234567field"; // TODO?
 
 const opponentSchema = zodAddress;
 const wagerAmountSchema = z
@@ -345,7 +346,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         </Button>
         {/* <div className="flex flex-row gap-1"> */}
         {/* </div> */}
-            
+
       </div>
       <Dialog>
         <DialogTrigger asChild>
