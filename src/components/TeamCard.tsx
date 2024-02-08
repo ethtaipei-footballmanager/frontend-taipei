@@ -51,7 +51,7 @@ type ColorVariants = {
 export const renderStars = (starRating: number) => {
   const fullStars = Math.floor(starRating);
   const hasHalfStar = starRating % 1 >= 0.5 ? 1 : 0;
-  const emptyStars = 5 - fullStars - hasHalfStar;
+  const emptyStars = 5 - fullStars;
 
   const stars = [];
 
