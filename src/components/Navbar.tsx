@@ -73,7 +73,7 @@ const Navbar = () => {
             <Image width={48} height={48} src={"/logo_2.png"} alt="logo" />
           </Link>
         </div>
-        <div className="flex md:order-2 gap-2">
+        <div className="flex lg:order-2 gap-2">
           <ConnectWallet setIsWalletModal={setIsWalletModal} />
 
           <button
@@ -104,7 +104,7 @@ const Navbar = () => {
           }
           id="navbar-sticky"
         >
-          <ul className="flex flex-col ml-8 w-full relative   rounded-lg border  md:flex-row md:space-x-4 lg:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0  bg-white dark:bg-black ">
+          <ul className="flex flex-col ml-8 w-full relative   rounded-lg border  lg:flex-row  lg:space-x-8 lg:mt-0 lg:text-sm lg:font-medium lg:border-0  bg-white dark:bg-black ">
             <li>
               <Link
                 href="/games"
