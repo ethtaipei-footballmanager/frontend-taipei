@@ -201,33 +201,33 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       (r: any) =>
         r.data.ix === "3u32.private" &&
         r.data.challenger.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address &&
+        currentGame.gameNotification.recordData.challenger_address &&
         r.data.staker.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address
+        currentGame.gameNotification.recordData.challenger_address
     );
     const piece_claim_challenger = msPuzzleRecords.find(
       (r: any) =>
         r.data.ix === "6u32.private" &&
         r.data.challenger.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address &&
+        currentGame.gameNotification.recordData.challenger_address &&
         r.data.claimer.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address
+        currentGame.gameNotification.recordData.challenger_address
     );
     const piece_stake_opponent = msPuzzleRecords.find(
       (r) =>
         r.data.ix === "3u32.private" &&
         r.data.opponent.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address &&
+        currentGame.gameNotification.recordData.opponent_address &&
         r.data.staker.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address
+        currentGame.gameNotification.recordData.opponent_address
     );
     const piece_claim_opponent = msPuzzleRecords.find(
       (r) =>
         r.data.ix === "6u32.private" &&
         r.data.opponent.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address &&
+        currentGame.gameNotification.recordData.opponent_address &&
         r.data.claimer.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address
+        currentGame.gameNotification.recordData.opponent_address
     );
 
     console.log("msGameRecords[0]", msGameRecords[0]);
@@ -384,11 +384,17 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
         const dateTime = new Date().toISOString().replace(/\D/g, ""); // Removes all non-digit characters from the date string
         const numericSender = account?.address
           ? Array.from(account.address)
-              .map((char) => char.charCodeAt(0))
-              .reduce((acc, curr) => acc + curr, 0)
-              .toString()
+            .map((char) => char.charCodeAt(0))
+            .reduce((acc, curr) => acc + curr, 0)
+            .toString()
           : "0";
         const matchID = dateTime + numericSender; // todo ensure its below max field value
+
+        console.log(
+          "🚀 ~ matchid:",
+          matchID,
+          toString()
+        );
 
         const proposalInputs: ProposeGameInputs = {
           wager_record: inputs.wager_record,
@@ -516,9 +522,9 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
         console.log("hey2");
 
         const createGame = await createProposeGameEvent();
+        console.log("🚀 ~ startGame ~ createGame:", createGame);
       }
 
-      // console.log("🚀 ~ startGame ~ createGame:", createGame);
       // toast.info("You have selected 11 ");
     }
   };

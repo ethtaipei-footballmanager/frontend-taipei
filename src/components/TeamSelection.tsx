@@ -79,7 +79,7 @@ const wagerAmountSchema = z
     "Wager amount must be a valid number"
   )
   .refine(
-    (value) => Number(value) >= 0 && Number(value) <= 1000,
+    (value) => Number(value) >= 0 && Number(value) <= 1000, // TODO change this to availableBalance?
     "Wager amount must be between 0 and 1000"
   );
 
@@ -304,7 +304,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
           </SwiperSlide>
         ))} */}
         {teams.map((team, index) => {
-          console.log("teams", team);
+          // console.log("teams", team);
           return (
             <SwiperSlide
               key={team.name}
@@ -383,7 +383,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
             <DialogHeader>
               <DialogTitle>Start Game</DialogTitle>
               <DialogDescription>
-                Enter how much you are wagering for the game and your opponent
+                Enter your opponent's Aleo address and how much you are wagering for the game
               </DialogDescription>
             </DialogHeader>
             <Input
@@ -419,22 +419,17 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                   defaultValue={[100]}
                   value={[bet]}
                   min={0}
-                  max={1000}
-                  step={10}
+                  max={availableBalance}
+                  step={1}
                 />
-
-                {/* <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-[26%] -translate-x-1/2 rtl:translate-x-1/2  -bottom-7">
-                250
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 -bottom-7">
-                500
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-3/4 -translate-x-1/2 rtl:translate-x-1/2 -bottom-7">
-                750
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-7">
-                1000
-              </span> */}
+                {/* Min label */}
+                <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-7">
+                  0
+                </span>
+                {/* Max label */}
+                <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-7">
+                  {availableBalance}
+                </span>
               </div>
             </div>
             <div className="flex w-full justify-center  items-center ">
