@@ -63,15 +63,15 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
     },
   ];
   return (
-    <Card className="border-2 relative border-gray-200 bg-[#f5f5f5]  rounded-lg shadow-md">
-      <CardHeader className="flex flex-row gap-4 justify-center items-center">
+    <Card className=" relative rounded-lg ">
+      <CardHeader className="flex  flex-row gap-4 justify-center items-center">
         <div className="flex flex-col items-center text-center">
           <Image alt="player" width={48} height={48} src="/player_b.svg" />
           <div>
-            <CardTitle className="text-lg font-bold text-gray-900">
+            <CardTitle className="text-lg font-bold ">
               {playerDetails.name}
             </CardTitle>
-            <CardDescription className="text-sm text-gray-600">
+            <CardDescription className="text-sm ">
               Position: {playerDetails.position}
             </CardDescription>
           </div>
@@ -92,11 +92,11 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           </ResponsiveContainer>
         </div>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-4 mt-2 text-gray-800">
+      <CardContent className="grid grid-cols-2 gap-4 mt-2 ">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p>Attack:</p>
-            <Badge className="items-center bg-red-500 text-white">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-red-500 bg-red-500 text-white">
               <LuSword className="mr-1 h-4 w-4" />
               {playerDetails.attackScore}
               {"\n                      "}
@@ -104,7 +104,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           </div>
           <div className="flex items-center justify-between">
             <p>Defense:</p>
-            <Badge className="items-center bg-blue-500 text-white">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-blue-500 bg-blue-500 text-white">
               <MdShield className="mr-1 h-4 w-4" />
               {playerDetails.defenseScore}
               {"\n                      "}
@@ -112,7 +112,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           </div>
           <div className="flex items-center justify-between">
             <p>Speed:</p>
-            <Badge className="items-center bg-green-500 text-white">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-green-500 bg-green-500 text-white">
               <TbBrandSpeedtest className="mr-1 h-4 w-4" />
               {playerDetails.speed}
               {"\n                      "}
@@ -122,7 +122,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p>Power:</p>
-            <Badge className="items-center bg-purple-500 text-white">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-purple-500 bg-purple-500 text-white">
               <FaDumbbell className="mr-1 h-4 w-4" />
               {playerDetails.power}
               {"\n                      "}
@@ -130,17 +130,17 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
           </div>
           <div className="flex items-center justify-between">
             <p>Stamina:</p>
-            <Badge className="items-center bg-yellow-500 hover:fill-white text-white hover:text-white ">
+            <Badge className="items-center dark:bg-opacity-60 hover:bg-yellow-500 bg-yellow-500 hover:fill-white text-white hover:text-white ">
               {/* <IoBatteryCharging className="mr-1 h-4 w-4" /> */}
               <BsBatteryFull className="mr-1 h-4 w-4 fill-current" />
               {playerDetails.stamina}
               {"\n                      "}
             </Badge>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center dark:bg-opacity-60 justify-between">
             <p>Technique:</p>
-            <Badge className="items-center bg-pink-500 text-white">
-              <FaBullseye className="mr-1 h-4 w-4" />
+            <Badge className="items-center hover:bg-pink-500 bg-pink-500 text-white">
+              <FaBullseye className="mr-1.5 h-4 w-4" />
               {playerDetails.technique}
               {"\n                      "}
             </Badge>

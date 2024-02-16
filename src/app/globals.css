@@ -66,6 +66,23 @@
   }
 }
 
+canvas {
+  height: 50vh;
+}
+
+@media screen and (max-width: 600px) {
+  canvas {
+    height: 30vh; /* Adjust the height for smaller screens */
+  }
+}
+
+/* Media query for screens between 601px and 1024px */
+@media screen and (min-width: 601px) and (max-width: 1024px) {
+  canvas {
+    height: 40vh; /* Adjust the height for medium-sized screens */
+  }
+}
+
 .swiper-container {
   width: 100%;
   padding-top: 50px;
@@ -93,7 +110,7 @@
 
 .swiper-slide-next,
 .swiper-slide-prev {
-  opacity: 0.8;
+  opacity: 1;
 }
 
 /* Dark mode styles */
@@ -108,7 +125,7 @@
 
 .dark .swiper-slide-next,
 .dark .swiper-slide-prev {
-  opacity: 0.975;
+  opacity: 1;
 }
 @layer base {
   * {

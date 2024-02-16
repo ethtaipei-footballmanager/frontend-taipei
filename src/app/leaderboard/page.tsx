@@ -4,7 +4,6 @@ import { useState } from "react";
 // import { sdk } from "./sdk";
 
 // import './Leaderboard.css'; // Assuming you have a separate CSS file for the Leaderboard
-import GamesData from "@/components/GamesData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -14,6 +13,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState();
@@ -22,7 +27,15 @@ const Leaderboard = () => {
   const calculateTotalPoints = (win: number, draw: number) => {
     return win * 3 + draw;
   };
-
+  const LEADERBOARD_SECTIONS = [
+    { title: "GP", description: "Games Played" },
+    { title: "W", description: "Wins" },
+    { title: "D", description: "Draws" },
+    { title: "L", description: "Losses" },
+    { title: "GF", description: "Goals For" },
+    { title: "GA", description: "Goals Against" },
+    { title: "P", description: "Points" },
+  ];
   //   useEffect(() => {
   //     const refresh = async () => {
   //       await refreshLeaderboard();
@@ -65,13 +78,23 @@ const Leaderboard = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="">Team</TableHead>
-                    <TableHead className="underline">GP</TableHead>
-                    <TableHead className="underline">W</TableHead>
-                    <TableHead className="underline">D</TableHead>
-                    <TableHead className="underline">L</TableHead>
-                    <TableHead className="underline">GF</TableHead>
-                    <TableHead className="underline">GA</TableHead>
-                    <TableHead className="underline">P</TableHead>
+                    {LEADERBOARD_SECTIONS.map((section) => {
+                      return (
+                        <TooltipProvider
+                          delayDuration={200}
+                          key={section.title}
+                        >
+                          <TableHead className="underline">
+                            <Tooltip>
+                              <TooltipTrigger>{section.title}</TooltipTrigger>
+                              <TooltipContent>
+                                {section.description}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableHead>
+                        </TooltipProvider>
+                      );
+                    })}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -132,14 +155,14 @@ const Leaderboard = () => {
             </div>
           </CardContent>
         </Card>
-        <div className="col-span-7  ">
+        {/* <div className="col-span-7  ">
           <div className="grid grid-cols-4 gap-2">
             <GamesData />
             <GamesData />
             <GamesData />
             <GamesData />
           </div>
-        </div>
+        </div> */}
         {/* <PlayerDetails /> */}
       </div>
     </section>

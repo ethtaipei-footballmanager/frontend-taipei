@@ -1,11 +1,5 @@
 "use client";
-import {
-  disconnect,
-  shortenAddress,
-  useAccount,
-  useBalance,
-  useConnect,
-} from "@puzzlehq/sdk";
+import { disconnect, useAccount, useBalance, useConnect } from "@puzzlehq/sdk";
 import { SessionTypes } from "@walletconnect/types";
 import React, { useEffect, useState } from "react";
 import { IoCopyOutline, IoLogOutOutline } from "react-icons/io5";
@@ -22,6 +16,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+
+export const truncateAddress = (address: string) => {
+  if (address && address.length <= 6) return address; // No need to truncate if the address is too short
+
+  const prefix = address.slice(0, 4); // Typically "0x"
+  const suffix = address.slice(-4); // The last 4 characters
+
+  return `${prefix}...${suffix}`;
+};
 interface IConnectWallet {
   setIsWalletModal: (val: boolean) => void;
 }
@@ -76,17 +79,21 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
               className="tracking-wider text-base text-black dark:text-white font-semibold flex gap-2.5"
             >
               {address && (
-                <Identicon string={shortenAddress(address)} size={20} />
+                <>
+                  <div className="hidden md:flex">
+                    <Identicon string={address} size={20} />
+                  </div>
+                  {truncateAddress(address)}
+                </>
               )}
-              {address && shortenAddress(address)}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader className="flex gap-1 w-full flex-col justify-center items-center">
-              <Identicon string={shortenAddress(account?.address!)} size={32} />
+              <Identicon string={account?.address!} size={32} />
 
               <DialogTitle className="font-bold tracking-lighter dark:text-white  text-[#25292e] text-[18px] ">
-                {shortenAddress(account?.address!)}
+                {truncateAddress(account?.address!)}
               </DialogTitle>
 
               <DialogDescription>
@@ -150,7 +157,9 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
           {account ? "" : "Connect Wallet"}
         </Button>
       )}
-      <ThemeToggle />
+      <div className="hidden md:flex">
+        <ThemeToggle />
+      </div>
     </div>
   );
 };

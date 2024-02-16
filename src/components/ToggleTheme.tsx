@@ -23,7 +23,7 @@ export function ThemeToggle() {
       {theme === "light" ? (
         <Button
           onClick={() => setTheme("dark")}
-          className="outline-none focus:ring-0"
+          className="outline-none focus:ring-0 hover:bg-gray-50"
           variant="ghost"
           size="sm"
         >
@@ -32,7 +32,12 @@ export function ThemeToggle() {
           <span className="sr-only">Toggle theme</span>
         </Button>
       ) : (
-        <Button onClick={() => setTheme("light")} variant="ghost" size="sm">
+        <Button
+          className="outline-none focus:ring-0 dark:hover:text-black hover:bg-gray-50"
+          onClick={() => setTheme("light")}
+          variant="ghost"
+          size="sm"
+        >
           {/* <Icons.moon className="w-6 h-6 dark:text-white" /> */}
           <LuMoon size={24} />
           <span className="sr-only">Toggle theme</span>

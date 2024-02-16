@@ -2,6 +2,7 @@
 
 import Game from "@/components/Game";
 import TeamSelection from "@/components/TeamSelection";
+import { useInitGame } from "@/hooks/initGame";
 import { useState } from "react";
 
 interface ICreateGame {}
@@ -9,11 +10,12 @@ interface ICreateGame {}
 const CreateGame: React.FC<ICreateGame> = ({}) => {
   const [selectedTeam, setSelectedTeam] = useState(1);
   const [isGameStarted, setIsGameStarted] = useState(false);
+  useInitGame();
 
   return (
     <div className="">
       {isGameStarted ? (
-        <Game selectedTeam={selectedTeam} setIsGameStarted={setIsGameStarted} />
+        <Game selectedTeam={selectedTeam} />
       ) : (
         <TeamSelection
           setSelectedTeam={setSelectedTeam}
