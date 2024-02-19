@@ -384,21 +384,6 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           toString()
         );
 
-        const dateTime = new Date().toISOString().replace(/\D/g, ""); // Removes all non-digit characters from the date string
-        const numericSender = account?.address
-          ? Array.from(account.address)
-            .map((char) => char.charCodeAt(0))
-            .reduce((acc, curr) => acc + curr, 0)
-            .toString()
-          : "0";
-        const matchID = dateTime + numericSender; // todo ensure its below max field value
-
-        console.log(
-          "🚀 ~ matchid:",
-          matchID,
-          toString()
-        );
-
         const proposalInputs: ProposeGameInputs = {
           wager_record: inputs.wager_record,
           challenger_wager_amount: inputs.challenger_wager_amount + "u64",
@@ -415,7 +400,6 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           challenger_nonce: nonce, /// todo - make this random
           challenger_answer: "[" + activePlayerIds.toString() + "]",
           game_multisig_seed,
-          uuid: matchID + "field",
         };
         console.log(
           "🚀 ~ createProposeGameEvent ~ proposalInputs:",
@@ -497,21 +481,6 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       ) {
         const fields = Object(jsyaml.load(signature.messageFields));
 
-        const dateTime = new Date().toISOString().replace(/\D/g, ""); // Removes all non-digit characters from the date string
-        const numericSender = account?.address
-          ? Array.from(account.address)
-            .map((char) => char.charCodeAt(0))
-            .reduce((acc, curr) => acc + curr, 0)
-            .toString()
-          : "0";
-        const matchID = dateTime + numericSender; // todo ensure its below max field value
-
-        console.log(
-          "🚀 ~ matchid:",
-          matchID,
-          toString()
-        );
-
         const proposalInputs: ProposeGameInputs = {
           wager_record: inputs.wager_record,
           challenger_wager_amount: inputs.challenger_wager_amount + "u64",
@@ -528,7 +497,6 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           challenger_nonce: nonce, /// todo - make this random
           challenger_answer: "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
           game_multisig_seed,
-          uuid: matchID + "field",
         };
         console.log(
           "🚀 ~ createProposeGameEvent ~ proposalInputs:",

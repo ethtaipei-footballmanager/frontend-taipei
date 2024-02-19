@@ -40,7 +40,6 @@ export type ProposeGameInputs = {
   challenger_nonce: string;
   challenger_answer: string;
   game_multisig_seed: string;
-  uuid: string;
 };
 
 export type SubmitWagerInputs = {
