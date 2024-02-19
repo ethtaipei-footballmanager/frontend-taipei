@@ -14,7 +14,7 @@ export const useGameRecords = () => {
   });
   console.log("🚀 ~ useGameRecords ~ records:", records);
   const gameNotifications = records?.filter(
-    (record) => record.programId === "football_game_v012.aleo"
+    (record) => record.programId === "football_game_v013.aleo"
   );
   const puzzleRecords = records?.filter(
     (record) => record.programId === "puzzle_pieces_v016.aleo"
