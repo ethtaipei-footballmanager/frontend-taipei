@@ -4,7 +4,7 @@ export const useMsRecords = (address?: string) => {
   const { records } = useRecords({
     filter: {
       programIds: [
-        "football_game_v012.aleo",
+        "football_game_v013.aleo",
         "puzzle_pieces_v016.aleo",
         "multiparty_pvp_utils_v015_avh.aleo",
       ],

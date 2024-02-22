@@ -23,7 +23,6 @@ export const GameRecordSchema = z.object({
     "7field",
   ]),
   ix: z.literal("1u32"),
-  uuid: z.string().uuid(),
   _nonce: z.string(),
 });
 export type GameRecord = {
@@ -137,7 +136,6 @@ export const CalculatedOutcomeNotificationSchema = z.object({
   challenger_address: zodAddress,
   opponent_address: zodAddress,
   ix: z.literal("11u32"),
-  uuid: z.string().uuid(),
   _nonce: z.string(),
 });
 export type CalculatedOutcomeNotification = {
@@ -154,7 +152,6 @@ export const RevealAnswerNotificationSchema = z.object({
   challenger_address: zodAddress,
   opponent_address: zodAddress,
   opponent_answer: z.array(u8).length(11),
-  uuid: z.string().uuid(),
   ix: z.literal("8u32"),
   _nonce: z.string(),
 });
@@ -351,7 +348,7 @@ export const parseGameRecord = (
         recordData: result,
         recordWithPlaintext: recordWithPlaintext,
       } as GameNotification;
-    } catch {}
+    } catch { }
   }
   return undefined;
 };

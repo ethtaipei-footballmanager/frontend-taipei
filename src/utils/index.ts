@@ -23,7 +23,7 @@ export const getPositionRole = (positionCode: number): string => {
 };
 
 export const isValidPlacement = (playerPosition: string, gridIndex: number) => {
-  console.log("params", playerPosition, gridIndex);
+  // console.log("params", playerPosition, gridIndex);
 
   if (playerPosition === "GK" && gridIndex !== 0) {
     return false;
@@ -58,7 +58,7 @@ export const calculateAttribute = (value: number | string): number => {
 export const getAllPuzzleWalletEvents = async () => {
   const filter: EventsFilter = {
     type: EventType.Execute,
-    programId: "football_game_v012.aleo",
+    programId: "football_game_v013.aleo",
   };
   const events: GetEventsResponse = await getEvents(filter);
   console.log("🚀 ~ getAllPuzzleWalletEvents ~ events:", events);
