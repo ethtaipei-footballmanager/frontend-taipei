@@ -5,18 +5,17 @@ import { useNewGameStore } from "../create-game/store";
 import { useGameStore } from "../state/gameStore";
 // import TheirTurn from '@components/TheirTurn';
 import YourTurn from '@components/YourTurn';
+import { useInitGame } from "@/hooks/initGame";
+
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-// import { getAllPuzzleWalletEvents } from "@/utils";
-import { Event } from "@puzzlehq/sdk";
 
 interface IYourGames { }
 
 const YourGames: React.FC<IYourGames> = ({ }) => {
 
-  const [allEvents, setAllEvents] = useState<Event[] | undefined>();
-
+  useInitGame();
 
   const [yourTurn, theirTurn, totalBalance] = useGameStore((state) => [
     state.yourTurn,
