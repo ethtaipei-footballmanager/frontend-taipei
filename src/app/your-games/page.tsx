@@ -1,20 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useNewGameStore } from "../create-game/store";
 import { useGameStore } from "../state/gameStore";
 // import TheirTurn from '@components/TheirTurn';
-import YourTurn from '@components/YourTurn';
 import { useInitGame } from "@/hooks/initGame";
+import YourTurn from "@components/YourTurn";
 
+interface IYourGames {}
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
-
-interface IYourGames { }
-
-const YourGames: React.FC<IYourGames> = ({ }) => {
-
+const YourGames: React.FC<IYourGames> = ({}) => {
   useInitGame();
 
   const [yourTurn, theirTurn, totalBalance] = useGameStore((state) => [
@@ -29,16 +23,15 @@ const YourGames: React.FC<IYourGames> = ({ }) => {
   const [initialize] = useNewGameStore((state) => [state.initialize]);
 
   return (
-    <div>
+    <div className="p-4">
       {/* {yourTurn.length > 0 && <YourTurn games={yourTurn} />} */}
-      {
-        yourTurn.length > 0 && yourTurn.map((game, index) => (
-          <YourTurn key={index} game={game} />
-        ))
-      }
+      <div className="grid grid-cols-3">
+        {yourTurn.length > 0 &&
+          yourTurn.map((game, index) => <YourTurn key={index} game={game} />)}
+      </div>
       {/* {theirTurn.length > 0 && <TheirTurn games={theirTurn} />} */}
       {yourTurn.length === 0 && theirTurn.length === 0 && (
-        <p className='self-center font-semibold'>
+        <p className="self-center font-semibold">
           No ongoing games, start one with a friend!
         </p>
       )}

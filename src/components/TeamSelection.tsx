@@ -346,7 +346,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         </Button>
         {/* <div className="flex flex-row gap-1"> */}
         {/* </div> */}
-
       </div>
       <Dialog>
         <DialogTrigger asChild>
@@ -383,7 +382,8 @@ const TeamSelection: React.FC<ITeamSelection> = ({
             <DialogHeader>
               <DialogTitle>Start Game</DialogTitle>
               <DialogDescription>
-                Enter your opponent&apos;s Aleo address and how much you are wagering for the game
+                Enter your opponent&apos;s Aleo address and how much you are
+                wagering for the game
               </DialogDescription>
             </DialogHeader>
             <Input
@@ -412,25 +412,33 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                 </p>
               </div>
               {betError && <p className="text-red-500 text-sm">{betError}</p>}
-              <div className="relative">
-                <Slider
-                  className="mt-6"
-                  onValueChange={(e) => setBet(e[0])}
-                  defaultValue={[100]}
-                  value={[bet]}
-                  min={0}
-                  max={availableBalance}
-                  step={1}
-                />
-                {/* Min label */}
-                <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-7">
-                  0
-                </span>
-                {/* Max label */}
-                <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-7">
-                  {availableBalance}
-                </span>
-              </div>
+              {availableBalance === 0 ? (
+                <div className="flex text-center w-full tracking-tight">
+                  <p className="text-red-500 text-sm">
+                    You need puzzle pieces to play the game
+                  </p>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Slider
+                    className="mt-6"
+                    onValueChange={(e) => setBet(e[0])}
+                    defaultValue={[100]}
+                    value={[bet]}
+                    min={0}
+                    max={availableBalance}
+                    step={1}
+                  />
+                  {/* Min label */}
+                  <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-7">
+                    0
+                  </span>
+                  {/* Max label */}
+                  <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-7">
+                    {availableBalance}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex w-full justify-center  items-center ">
               {/* <Button
@@ -462,14 +470,16 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                 Feeling Lucky!
               </motion.span>
             </Button> */}
-              <Button
-                onClick={handleStartGame}
-                className="w-full"
-                variant={"outline"}
-                type="submit"
-              >
-                Start Game
-              </Button>
+              {availableBalance !== 0 && (
+                <Button
+                  onClick={handleStartGame}
+                  className="w-full"
+                  variant={"outline"}
+                  type="submit"
+                >
+                  Start Game
+                </Button>
+              )}
             </div>
           </DialogContent>
         )}
