@@ -92,6 +92,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   //   setEventIdSubmit,
   //   setStep,
   // ] = useAcceptGameStore((state) => [
+  console.log("🚀 ~ availableBalance:", availableBalance, largestPiece);
   //   state.inputsSubmitWager,
   //   state.eventIdSubmit,
   //   state.setSubmitWagerInputs,
@@ -227,12 +228,14 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     const game_req_notification = game.gameNotification.recordWithPlaintext;
     console.log(
       "🚀 ~ createSubmitWagerEvent ~ game_req_notification:",
-      game_req_notification,
-      puzzleRecord
+      game_req_notification
     );
+    console.log("🚀 ~ createSubmitWagerEvent ~ puzzleRecord:", puzzleRecord);
     if (!puzzleRecord || !key_record || !game_req_notification) {
       return;
     }
+    console.log("heere");
+
     setLoading(true);
     setError(undefined);
     const signature = await requestSignature({ message: messageToSign });

@@ -14,7 +14,7 @@ export const useMsRecords = (address?: string) => {
     multisig: true,
   });
   const msGameRecords = records?.filter(
-    (record) => record.programId === "football_game_v12.aleo"
+    (record) => record.programId === "football_game_v013.aleo"
   );
   const msPuzzleRecords = records?.filter(
     (record) => record.programId === "puzzle_pieces_v016.aleo"
@@ -23,7 +23,7 @@ export const useMsRecords = (address?: string) => {
     (record) => record.programId === "multiparty_pvp_utils_v015_avh.aleo"
   );
 
-  console.log([msGameRecords, msPuzzleRecords, msUtilRecords]);
+  console.log("recordsss", [msGameRecords, msPuzzleRecords, msUtilRecords]);
 
   return { msPuzzleRecords, msGameRecords, msUtilRecords };
 };

@@ -4,12 +4,14 @@ import { Step, useAcceptGameStore } from "@/app/accept-game/store";
 import { useGameStore } from "@/app/state/gameStore";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEventHandling } from "@/hooks/eventHandling";
-import { useMsRecords } from "@/hooks/msRecords";
 import { calculateAttribute, getPositionRole, isValidPlacement } from "@/utils";
 import { teams } from "@/utils/team-data";
 import {
   EventType,
+  RecordWithPlaintext,
+  RecordsFilter,
   createSharedState,
+  getRecords,
   requestCreateEvent,
   requestSignature,
   useAccount,
@@ -161,9 +163,18 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     state.setStep,
   ]);
   const [currentGame] = useGameStore((state) => [state.currentGame]);
+  console.log("🚀 ~ currentGame:", currentGame);
   const [filteredPlayers, setFilteredPlayers] = useState<PlayerType[]>([]);
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
+  console.log("🚀 ~ msAddress:", msAddress);
+  // const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
+  const [msPuzzleRecords, setMsPuzzleRecords] = useState<
+    RecordWithPlaintext[] | undefined
+  >();
+  const [msGameRecords, setMsGameRecords] = useState<
+    RecordWithPlaintext[] | undefined
+  >();
+  console.log("🚀 ~ msPuzzleRecords:", msPuzzleRecords, msGameRecords);
 
   const { loading, error, event, setLoading, setError } = useEventHandling({
     id: eventIdAccept,
@@ -259,8 +270,44 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     [msPuzzleRecords, msGameRecords].toString(),
   ]);
 
+  const filter: RecordsFilter = {
+    programIds: [
+      "football_game_v013.aleo",
+      "puzzle_pieces_v016.aleo",
+      "multiparty_pvp_utils_v015_avh.aleo",
+    ],
+    type: "unspent",
+  };
+  useEffect(() => {
+    const response = async () => {
+      const records = await getRecords({
+        filter,
+        address: msAddress,
+
+        // multisig: true,
+      });
+      console.log("🚀 ~ response ~ response:", records);
+      const msGameRecordsData = records?.records?.filter(
+        (record) => record.programId === "football_game_v013.aleo"
+      );
+      console.log("🚀 ~ response ~ msGameRecordsData:", msGameRecordsData);
+
+      const msPuzzleRecordsData = records?.records?.filter(
+        (record) => record.programId === "puzzle_pieces_v016.aleo"
+      );
+      console.log("🚀 ~ response ~ msPuzzleRecordsData:", msPuzzleRecordsData);
+
+      const msUtilRecords = records?.records?.filter(
+        (record) => record.programId === "multiparty_pvp_utils_v015_avh.aleo"
+      );
+      setMsPuzzleRecords(msPuzzleRecordsData!);
+      setMsGameRecords(msGameRecordsData!);
+    };
+    response();
+  }, []);
+
   const createAcceptGameEvent = async () => {
-    console.log("inpts", inputsAcceptGame);
+    console.log("inpts", msGameRecords, msPuzzleRecords);
 
     if (
       !inputsAcceptGame?.game_record ||
