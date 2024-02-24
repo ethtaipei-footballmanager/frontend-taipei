@@ -8,7 +8,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 // const transition = {
 //   type: "spring",
 //   mass: 0.5,
@@ -65,7 +65,7 @@ import React, { useEffect, useState } from "react";
 //   );
 // };
 
-export const Menu = ({
+export const FloatingMenu = ({
   setActive,
   children,
 }: {
@@ -76,12 +76,6 @@ export const Menu = ({
   const pathname = usePathname();
 
   const [visible, setVisible] = useState(false);
-  const [firstRender, setFirstRender] = useState(true); // State to track first render
-
-  useEffect(() => {
-    // After first render, set firstRender to false
-    setFirstRender(false);
-  }, []);
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     // Check if current is not undefined and is a number

@@ -40,25 +40,47 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   const challenger_address =
     game.gameNotification.recordData.challenger_address;
   const vs = user === opponent_address ? challenger_address : opponent_address;
-  const wager = game.gameNotification.recordData.total_pot / 2;
+  const [setCurrentGame] = useGameStore((state) => [state.setCurrentGame]);
 
+  const wager = game.gameNotification.recordData.total_pot / 2;
   const [
-    inputs,
+    inputsSubmitWager,
     eventIdSubmit,
+    acceptGameInputs,
     setSubmitWagerInputs,
     setEventIdSubmit,
     setStep,
-  ] = useAcceptGameStore((state) => [
+    setAcceptedSelectedTeam,
+  ] = useAcceptGameStore((state: any) => [
     state.inputsSubmitWager,
     state.eventIdSubmit,
+    state.setAcceptGameInputs,
     state.setSubmitWagerInputs,
     state.setEventIdSubmit,
     state.setStep,
+    state.setAcceptedSelectedTeam,
   ]);
-  const [currentGame, largestPiece] = useGameStore((state) => [
-    state.currentGame,
-    state.largestPiece,
-  ]);
+  const [largestPiece, availableBalance, currentGame] = useGameStore(
+    (state) => [state.largestPiece, state.availableBalance, state.currentGame]
+  );
+  const puzzleRecord =
+    availableBalance >= game.gameNotification.recordData.total_pot / 2
+      ? largestPiece
+      : undefined;
+  // const [
+  //   inputs,
+  //   eventIdSubmit,
+  //   setSubmitWagerInputs,
+  //   setEventIdSubmit,
+  //   setStep,
+  // ] = useAcceptGameStore((state) => [
+  //   state.inputsSubmitWager,
+  //   state.eventIdSubmit,
+  //   state.setSubmitWagerInputs,
+  //   state.setEventIdSubmit,
+  //   state.setStep,
+  // ]);
+
   const [isModal, setIsModal] = useState(false);
   const { loading, error, event, setLoading, setError } = useEventHandling({
     id: eventIdSubmit,
@@ -66,29 +88,89 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     // onSettled: () => setStep(Step._02_AcceptGame),
   });
 
-  const createEvent = async () => {
-    console.log("clicked", inputs, game);
+  // const createEvent = async () => {
+  //   console.log("clicked", inputs, game);
 
-    if (
-      !inputs?.opponent_wager_record ||
-      !inputs.key_record ||
-      !inputs.game_req_notification
-    )
+  //   if (
+  //     !inputs?.opponent_wager_record ||
+  //     !inputs.key_record ||
+  //     !inputs.game_req_notification
+  //   )
+  //     return;
+  //   setLoading(true);
+  //   setError(undefined);
+  //   const signature = await requestSignature({ message: messageToSign });
+  //   if (!signature.messageFields || !signature.signature) {
+  //     setError("Signature or signature message fields not found");
+  //     setLoading(false);
+  //     return;
+  //   }
+  //   const messageFields = Object(jsyaml.load(signature.messageFields));
+
+  //   const newInputs: Partial<SubmitWagerInputs> = {
+  //     opponent_wager_record: inputs.opponent_wager_record,
+  //     key_record: inputs.key_record,
+  //     game_req_notification: inputs.game_req_notification,
+  //     opponent_message_1: messageFields.field_1,
+  //     opponent_message_2: messageFields.field_2,
+  //     opponent_message_3: messageFields.field_3,
+  //     opponent_message_4: messageFields.field_4,
+  //     opponent_message_5: messageFields.field_5,
+  //     opponent_sig: signature.signature,
+  //   };
+  //   const game_multisig_seed = currentGame?.utilRecords?.[0].data.seed ?? "";
+  //   console.log("game_multisig seed", game_multisig_seed);
+  //   const { data } = await importSharedState(game_multisig_seed);
+  //   console.log(`Shared state imported: ${data?.address}`);
+
+  //   setSubmitWagerInputs(newInputs);
+  //   const response = await requestCreateEvent({
+  //     type: EventType.Execute,
+  //     programId: GAME_PROGRAM_ID,
+  //     functionId: GAME_FUNCTIONS.submit_wager,
+  //     fee: transitionFees.submit_wager,
+  //     inputs: Object.values(newInputs),
+  //     address: inputs.game_req_notification.owner, // opponent address
+  //   });
+  //   if (response.error) {
+  //     setError(response.error);
+  //     setLoading(false);
+  //   } else if (response.eventId) {
+  //     /// todo - other things here?
+  //     setEventIdSubmit(response.eventId);
+  //     setSubmitWagerInputs({ ...newInputs });
+  //     router.push(`/create-game`);
+  //     //   setSearchParams({ eventIdSubmit: response.eventId });
+  //   }
+  // };
+  const createSubmitWagerEvent = async () => {
+    const key_record = game.utilRecords[0];
+    console.log("🚀 ~ createSubmitWagerEvent ~ key_record:", key_record);
+    const game_req_notification = game.gameNotification.recordWithPlaintext;
+    console.log(
+      "🚀 ~ createSubmitWagerEvent ~ game_req_notification:",
+      game_req_notification,
+      puzzleRecord
+    );
+    if (!puzzleRecord || !key_record || !game_req_notification) {
       return;
+    }
     setLoading(true);
     setError(undefined);
     const signature = await requestSignature({ message: messageToSign });
+    // setConfirmStep(ConfirmStep.Signing);
     if (!signature.messageFields || !signature.signature) {
       setError("Signature or signature message fields not found");
       setLoading(false);
       return;
     }
+    // setConfirmStep(ConfirmStep.RequestingEvent);
     const messageFields = Object(jsyaml.load(signature.messageFields));
 
     const newInputs: Partial<SubmitWagerInputs> = {
-      opponent_wager_record: inputs.opponent_wager_record,
-      key_record: inputs.key_record,
-      game_req_notification: inputs.game_req_notification,
+      opponent_wager_record: puzzleRecord,
+      key_record: key_record,
+      game_req_notification: game_req_notification,
       opponent_message_1: messageFields.field_1,
       opponent_message_2: messageFields.field_2,
       opponent_message_3: messageFields.field_3,
@@ -108,7 +190,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       functionId: GAME_FUNCTIONS.submit_wager,
       fee: transitionFees.submit_wager,
       inputs: Object.values(newInputs),
-      address: inputs.game_req_notification.owner, // opponent address
+      address: game_req_notification.owner, // opponent address
     });
     if (response.error) {
       setError(response.error);
@@ -116,12 +198,11 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     } else if (response.eventId) {
       /// todo - other things here?
       setEventIdSubmit(response.eventId);
+      setCurrentGame(game);
       setSubmitWagerInputs({ ...newInputs });
-      router.push(`/create-game`);
-      //   setSearchParams({ eventIdSubmit: response.eventId });
+      router.push(`/accept-game/${response.eventId}`);
     }
   };
-
   const renderActionButton = () => {
     switch (game.gameAction) {
       case "Submit Wager":
@@ -149,9 +230,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
               </DialogHeader>
               <div className="flex justify-center gap-4 mt-2 text-center w-full items-center">
                 <Button
-                  onClick={() => {
-                    createEvent();
-                  }}
+                  onClick={createSubmitWagerEvent}
                   variant="outline"
                   className="flex flex-col gap-1 hover:text-white dark:hover:bg-[#dbe0e5]  bg-[#fafafa] w-2/5   h-fit justify-center items-center"
                 >

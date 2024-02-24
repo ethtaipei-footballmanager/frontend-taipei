@@ -1,18 +1,30 @@
 "use client";
 
 import Game from "@/components/Game";
-import { useAcceptGameStore } from "../store";
+import TeamSelection from "@/components/TeamSelection";
+import { useInitGame } from "@/hooks/initGame";
+import { useState } from "react";
 
 interface IPage {}
 
 const Page: React.FC<IPage> = ({}) => {
-  const [acceptedSelectedTeam] = useAcceptGameStore((state: any) => [
-    state.setAcceptedSelectedTeam,
-  ]);
+  const [selectedTeam, setSelectedTeam] = useState(1);
+  const [isGameStarted, setIsGameStarted] = useState(false);
+  useInitGame();
+
   return (
-    <>
-      <Game selectedTeam={acceptedSelectedTeam} />
-    </>
+    <div className="">
+      {isGameStarted ? (
+        <Game selectedTeam={selectedTeam} isChallenged={true} />
+      ) : (
+        <TeamSelection
+          isChallenged={true}
+          setSelectedTeam={setSelectedTeam}
+          selectedTeam={selectedTeam}
+          setIsGameStarted={setIsGameStarted}
+        />
+      )}
+    </div>
   );
 };
 export default Page;

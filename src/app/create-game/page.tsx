@@ -15,12 +15,13 @@ const CreateGame: React.FC<ICreateGame> = ({}) => {
   return (
     <div className="">
       {isGameStarted ? (
-        <Game selectedTeam={selectedTeam} />
+        <Game selectedTeam={selectedTeam} isChallenged={false} />
       ) : (
         <TeamSelection
           setSelectedTeam={setSelectedTeam}
           selectedTeam={selectedTeam}
           setIsGameStarted={setIsGameStarted}
+          isChallenged={false}
         />
       )}
     </div>

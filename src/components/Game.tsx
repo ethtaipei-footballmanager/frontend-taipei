@@ -18,7 +18,7 @@ import {
 import { csv } from "d3";
 import jsyaml from "js-yaml";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useKeyPressEvent } from "react-use";
 import { toast } from "sonner";
@@ -47,6 +47,7 @@ import {
 import { ScrollArea } from "./ui/scroll-area";
 interface IGame {
   selectedTeam: number;
+  isChallenged: boolean;
   // setIsGameStarted: (val: boolean) => void;
 }
 type Position = "GK" | "DEF" | "MID" | "ATT";
@@ -75,7 +76,6 @@ export const initializeGrid = (
   existingGrid: any[]
 ): any[] => {
   const [defenders, midfielders, forwards] = formation.split("-").map(Number);
-
   const initialGrid = [
     Array.from({ length: 1 }, () => null), // Goalkeeper
     Array.from({ length: defenders || 4 }, () => null), // Defenders
@@ -103,7 +103,7 @@ export const initializeGrid = (
 const messageToSign = "Let's play Super Leo Lig";
 const nonce = "1234567field"; // todo make this random?
 
-const Game: React.FC<IGame> = ({ selectedTeam }) => {
+const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const { account } = useAccount();
   const { balances } = useBalance({});
   const balance = balances?.[0]?.public ?? 0;
@@ -112,6 +112,8 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const [selectedPlayer, setSelectedPlayer] = useState<SelectedPlayer | null>(
     null
   );
+  const router = useRouter();
+
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<
     Record<Position, boolean>
   >({
@@ -127,7 +129,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlayed, setIsPlayed] = useState(false);
-  const [isChallenged, setIsChallenged] = useState(false);
+  // const [isChallenged, setIsChallenged] = useState(false);
   const pathname = usePathname();
   const { setInputs, inputs } = useNewGameStore();
   console.log("🚀 ~ inputs:", inputs);
@@ -203,33 +205,33 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       (r: any) =>
         r.data.ix === "3u32.private" &&
         r.data.challenger.replace(".private", "") ===
-        currentGame.gameNotification.recordData.challenger_address &&
+          currentGame.gameNotification.recordData.challenger_address &&
         r.data.staker.replace(".private", "") ===
-        currentGame.gameNotification.recordData.challenger_address
+          currentGame.gameNotification.recordData.challenger_address
     );
     const piece_claim_challenger = msPuzzleRecords.find(
       (r: any) =>
         r.data.ix === "6u32.private" &&
         r.data.challenger.replace(".private", "") ===
-        currentGame.gameNotification.recordData.challenger_address &&
+          currentGame.gameNotification.recordData.challenger_address &&
         r.data.claimer.replace(".private", "") ===
-        currentGame.gameNotification.recordData.challenger_address
+          currentGame.gameNotification.recordData.challenger_address
     );
     const piece_stake_opponent = msPuzzleRecords.find(
       (r) =>
         r.data.ix === "3u32.private" &&
         r.data.opponent.replace(".private", "") ===
-        currentGame.gameNotification.recordData.opponent_address &&
+          currentGame.gameNotification.recordData.opponent_address &&
         r.data.staker.replace(".private", "") ===
-        currentGame.gameNotification.recordData.opponent_address
+          currentGame.gameNotification.recordData.opponent_address
     );
     const piece_claim_opponent = msPuzzleRecords.find(
       (r) =>
         r.data.ix === "6u32.private" &&
         r.data.opponent.replace(".private", "") ===
-        currentGame.gameNotification.recordData.opponent_address &&
+          currentGame.gameNotification.recordData.opponent_address &&
         r.data.claimer.replace(".private", "") ===
-        currentGame.gameNotification.recordData.opponent_address
+          currentGame.gameNotification.recordData.opponent_address
     );
 
     console.log("msGameRecords[0]", msGameRecords[0]);
@@ -258,6 +260,8 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
   ]);
 
   const createAcceptGameEvent = async () => {
+    console.log("inpts", inputsAcceptGame);
+
     if (
       !inputsAcceptGame?.game_record ||
       !inputsAcceptGame.piece_stake_challenger ||
@@ -310,6 +314,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       } else {
         console.log("success", response.eventId);
         setEventIdAccept(response.eventId);
+        router.push(`/create-game/${response.eventId}`);
       }
     } catch (e) {
       setError((e as Error).message);
@@ -424,7 +429,6 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
     }
   };
 
-
   // TODO AVH DELETE THIS LATER. ONLY FOR TESTING PURPOSES
   const createDefaultProposeGameEvent = async () => {
     setIsLoading(true);
@@ -439,9 +443,7 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
       setIsLoading(false);
       return;
     }
-    console.log(
-      "🚀 ~ createProposeGameEvent ~ creating:"
-    );
+    console.log("🚀 ~ createProposeGameEvent ~ creating:");
     const sharedStateResponse = await createSharedState();
     console.log(
       "🚀 ~ createProposeGameEvent ~ sharedStateResponse:",
@@ -495,7 +497,8 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           challenger_message_5: fields.field_5,
           challenger_sig: signature.signature,
           challenger_nonce: nonce, /// todo - make this random
-          challenger_answer: "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
+          challenger_answer:
+            "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
           game_multisig_seed,
         };
         console.log(
@@ -615,12 +618,10 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
 
   // TODO AVH DELETE THIS LATER. ONLY FOR TESTING PURPOSES
   const startDefaultGame = async () => {
-
     console.log("hey2");
 
     const createGame = await createDefaultProposeGameEvent();
     console.log("🚀 ~ startGame ~ DEFAULT:", createGame);
-
   };
 
   const removePlayer = (playerId: number) => {
@@ -717,11 +718,6 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
 
       setPlayerData(teamPlayers[0]);
     });
-    if (pathname.includes("accept-game")) {
-      setIsChallenged(true);
-    } else {
-      setIsChallenged(false);
-    }
   }, []);
 
   useEffect(() => {
@@ -894,12 +890,21 @@ const Game: React.FC<IGame> = ({ selectedTeam }) => {
           </div>
         )}
         <div className="w-full -mt-2 flex justify-center">
-          <Button onClick={startGame} className="w-1/2" variant={"outline"}>
+          <Button
+            disabled={loading}
+            onClick={startGame}
+            className="w-1/2"
+            variant={"outline"}
+          >
             Start Game
           </Button>
         </div>
         <div className="w-full -mt-2 flex justify-center">
-          <Button onClick={startDefaultGame} className="w-1/2" variant={"outline"}>
+          <Button
+            onClick={startDefaultGame}
+            className="w-1/2"
+            variant={"outline"}
+          >
             TEST
           </Button>
         </div>

@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import ConnectWallet from "./ConnectWallet";
-import { Menu } from "./menu";
+import { FloatingMenu } from "./FloatingMenu";
 import { buttonVariants } from "./ui/button";
 const Navbar = ({ className }: { className?: string }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -136,7 +136,7 @@ const Navbar = ({ className }: { className?: string }) => {
           className
         )}
       >
-        <Menu setActive={setActive}>
+        <FloatingMenu setActive={setActive}>
           <Link
             href="/your-games"
             className={`text-black ${buttonVariants({
@@ -153,7 +153,7 @@ const Navbar = ({ className }: { className?: string }) => {
           >
             Create Game
           </Link>
-        </Menu>
+        </FloatingMenu>
       </div>
       <ConnectWallet setIsWalletModal={setIsWalletModal} />
     </div>

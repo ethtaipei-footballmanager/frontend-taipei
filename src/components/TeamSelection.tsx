@@ -49,6 +49,7 @@ interface ITeamSelection {
   setSelectedTeam: (val: number) => void;
   setIsGameStarted: (val: boolean) => void;
   selectedTeam: number;
+  isChallenged: boolean;
   // startGame: () => void;
 }
 
@@ -87,13 +88,14 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   selectedTeam,
   setSelectedTeam,
   setIsGameStarted,
+  isChallenged,
 }) => {
   const [bet, setBet] = useState(1);
   const [opponent, setOpponent] = useState("");
   const swiperRef = useRef<any>();
   const [opponentError, setOpponentError] = useState<string | null>(null);
   const [betError, setBetError] = useState<string | null>(null);
-  const [isChallenged, setIsChallenged] = useState(false);
+  // const [isChallenged, setIsChallenged] = useState(false);
   const { account } = useAccount();
   const { setInputs, inputs } = useNewGameStore();
   const [availableBalance, largestPiece, currentGame] = useGameStore(
@@ -234,17 +236,17 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     }
   };
 
-  useEffect(() => {
-    if (
-      acceptGameInputs?.opponent_wager_record ||
-      acceptGameInputs.key_record ||
-      acceptGameInputs.game_req_notification
-    ) {
-      setIsChallenged(true);
-    } else {
-      setIsChallenged(false);
-    }
-  }, [account]);
+  // useEffect(() => {
+  //   if (
+  //     acceptGameInputs?.opponent_wager_record ||
+  //     acceptGameInputs.key_record ||
+  //     acceptGameInputs.game_req_notification
+  //   ) {
+  //     setIsChallenged(true);
+  //   } else {
+  //     setIsChallenged(false);
+  //   }
+  // }, [account]);
 
   console.log(
     "acceptgame",
@@ -254,7 +256,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   );
 
   const handleStartGame = () => {
-    if (account?.address) {
+    if (account?.address && bet <= availableBalance) {
       setIsGameStarted(true);
     } else {
       toast.info("Please connect your Puzzle Wallet to play");
@@ -362,18 +364,11 @@ const TeamSelection: React.FC<ITeamSelection> = ({
 
             <div className="flex w-full gap-2 justify-center  items-center ">
               <Button
-                onClick={createSubmitWagerEvent}
+                onClick={handleStartGame}
                 className="w-full"
                 variant={"outline"}
               >
-                Accept
-              </Button>
-              <Button
-                onClick={() => router.push("/")}
-                className="w-full"
-                variant={"outline"}
-              >
-                Reject
+                Start
               </Button>
             </div>
           </DialogContent>
