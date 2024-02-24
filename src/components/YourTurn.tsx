@@ -5,6 +5,7 @@ import {
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
   GAME_RESULTS_MAPPING,
+  RevealAnswerInputs,
   SubmitWagerInputs,
   transitionFees,
 } from "@/app/state/manager";
@@ -35,7 +36,7 @@ import { AleoNetworkClient } from '@aleohq/sdk';
 interface IYourTurn {
   game: Game;
 }
-const messageToSign = "1234567field";
+const messageToSign = "1234567field"; // TODO replace this by appropriate msg
 
 const networkClient = new AleoNetworkClient("https://vm.aleo.org/api");
 
@@ -242,6 +243,41 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     }
   };
 
+
+  // TODO: Complete this
+  const createRevealAnswerEvent = async () => {
+    console.log("🚀 ~ createRevealAnswerGameEvent ~ TODO:");
+
+    const newInputs: Partial<RevealAnswerInputs> = {
+
+      challenger_claim_signature: puzzleRecord,
+      calculated_outcome_notification_record: puzzleRecord,
+      joint_piece_state: puzzleRecord,
+      challenger_answer_record: puzzleRecord,
+      game_outcome: await gameOutcome.then(result => typeof result === 'string' ? result : "Error: Invalid outcome"),
+    };
+
+    // setCalculateOutcomeInputs(newInputs);
+    const response = await requestCreateEvent({
+      type: EventType.Execute,
+      programId: GAME_PROGRAM_ID,
+      functionId: GAME_FUNCTIONS.reveal_answer,
+      fee: transitionFees.reveal_answer,
+      inputs: Object.values(newInputs),
+      address: "TODO",
+    });
+    if (response.error) {
+      setError(response.error);
+      setLoading(false);
+    } else if (response.eventId) {
+      /// todo - other things here?
+      setEventIdSubmit(response.eventId);
+      setCurrentGame(game);
+      // setCalculateOutcomeInputs({ ...newInputs });
+      // router.push(`/accept-game/${response.eventId}`);
+    }
+  };
+
   const renderActionButton = () => {
     switch (game.gameAction) {
       case "Submit Wager":
@@ -297,6 +333,13 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
           </Button>
         );
       case "Reveal":
+        return (
+          <Button
+            onClick={createRevealAnswerEvent}
+            size="sm" color="yellow">
+            Reveal outcome
+          </Button>
+        );
         return (
           // TODO: Here we must do 3 things
           // - gameOutcome must be retrieved from the mapping (multisig address is the key)
@@ -387,8 +430,8 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
             Challenger: <strong>{truncateAddress(vs)}</strong>
           </span>
           <span className="font-semibold text-lg text-center">
-            Outcome: <strong>1</strong>
-            Outcome: <strong>{gameOutcome}</strong>
+            Outcome: <strong>1-1</strong>
+            {/* Outcome: <strong>{gameOutcome.goals_home + "-" gameOutcome.goals_away}</strong> */}
           </span>
           <span className="font-semibold text-lg text-center">
             Amount: <strong>{wager}</strong>
