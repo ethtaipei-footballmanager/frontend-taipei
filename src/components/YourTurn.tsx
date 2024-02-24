@@ -1,15 +1,14 @@
 import { useAcceptGameStore } from "@/app/accept-game/store";
-import { useCalculateOutcomeStore } from "@/app/calculate-outcome/store";
 import {
   CalculateOutcomeInputs,
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
-  GAME_RESULTS_MAPPING,
   RevealAnswerInputs,
   SubmitWagerInputs,
   transitionFees,
 } from "@/app/state/manager";
 import { useEventHandling } from "@/hooks/eventHandling";
+import { useMsRecords } from "@/hooks/msRecords";
 import {
   EventType,
   importSharedState,
@@ -19,7 +18,7 @@ import {
 import { useGameStore, type Game } from "@state/gameStore";
 import jsyaml from "js-yaml";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { truncateAddress } from "./ConnectWallet";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -31,14 +30,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { AleoNetworkClient } from '@aleohq/sdk';
+//@ts-ignore
+import Identicon from "react-identicons";
 
 interface IYourTurn {
   game: Game;
 }
 const messageToSign = "1234567field"; // TODO replace this by appropriate msg
 
-const networkClient = new AleoNetworkClient("https://vm.aleo.org/api");
+// const networkClient = new AleoNetworkClient("https://vm.aleo.org/api");
 
 const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   const router = useRouter();
@@ -47,7 +47,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   const challenger_address =
     game.gameNotification.recordData.challenger_address;
   const vs = user === opponent_address ? challenger_address : opponent_address;
-  const gameOutcome = networkClient.getProgramMappingValue(GAME_PROGRAM_ID, GAME_RESULTS_MAPPING, game.gameNotification.recordData.game_multisig);
 
   const [setCurrentGame] = useGameStore((state) => [state.setCurrentGame]);
 
@@ -60,6 +59,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     setEventIdSubmit,
     setStep,
     setAcceptedSelectedTeam,
+    initializeAcceptGame,
   ] = useAcceptGameStore((state: any) => [
     state.inputsSubmitWager,
     state.eventIdSubmit,
@@ -68,10 +68,19 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     state.setEventIdSubmit,
     state.setStep,
     state.setAcceptedSelectedTeam,
+    state.initializeAcceptGame,
   ]);
+
   const [largestPiece, availableBalance, currentGame] = useGameStore(
     (state) => [state.largestPiece, state.availableBalance, state.currentGame]
   );
+  const msAddress = currentGame?.gameNotification.recordData.game_multisig;
+  console.log("🚀 ~ msAddress 82:", msAddress);
+
+  const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
+  console.log("🚀 ~ msPuzzleRecords 82:", msPuzzleRecords);
+  console.log("🚀 ~ currentGMAE 82:", currentGame);
+
   const puzzleRecord =
     availableBalance >= game.gameNotification.recordData.total_pot / 2
       ? largestPiece
@@ -152,6 +161,66 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   //     //   setSearchParams({ eventIdSubmit: response.eventId });
   //   }
   // };
+
+  useEffect(() => {
+    if (!currentGame || !msPuzzleRecords || !msGameRecords) return;
+    const piece_stake_challenger = msPuzzleRecords?.find(
+      (r: any) =>
+        r.data.ix === "3u32.private" &&
+        r.data.challenger.replace(".private", "") ===
+          currentGame.gameNotification.recordData.challenger_address &&
+        r.data.staker.replace(".private", "") ===
+          currentGame.gameNotification.recordData.challenger_address
+    );
+    const piece_claim_challenger = msPuzzleRecords.find(
+      (r: any) =>
+        r.data.ix === "6u32.private" &&
+        r.data.challenger.replace(".private", "") ===
+          currentGame.gameNotification.recordData.challenger_address &&
+        r.data.claimer.replace(".private", "") ===
+          currentGame.gameNotification.recordData.challenger_address
+    );
+    const piece_stake_opponent = msPuzzleRecords.find(
+      (r: any) =>
+        r.data.ix === "3u32.private" &&
+        r.data.opponent.replace(".private", "") ===
+          currentGame.gameNotification.recordData.opponent_address &&
+        r.data.staker.replace(".private", "") ===
+          currentGame.gameNotification.recordData.opponent_address
+    );
+    const piece_claim_opponent = msPuzzleRecords.find(
+      (r: any) =>
+        r.data.ix === "6u32.private" &&
+        r.data.opponent.replace(".private", "") ===
+          currentGame.gameNotification.recordData.opponent_address &&
+        r.data.claimer.replace(".private", "") ===
+          currentGame.gameNotification.recordData.opponent_address
+    );
+
+    console.log("msGameRecords[0]", msGameRecords[0]);
+    console.log("piece_stake_challenger", piece_stake_challenger);
+    console.log("piece_claim_challenger", piece_claim_challenger);
+    console.log("piece_stake_opponent", piece_stake_opponent);
+    console.log("piece_claim_opponent", piece_claim_opponent);
+    if (
+      piece_claim_challenger === undefined ||
+      piece_claim_opponent === undefined ||
+      piece_stake_challenger === undefined ||
+      piece_stake_opponent === undefined ||
+      msGameRecords[0] === undefined
+    )
+      return;
+    initializeAcceptGame(
+      msGameRecords[0],
+      piece_stake_challenger,
+      piece_claim_challenger,
+      piece_stake_opponent,
+      piece_claim_opponent
+    );
+  }, [
+    currentGame?.gameNotification.recordData.game_multisig,
+    [msPuzzleRecords, msGameRecords].toString(),
+  ]);
   const createSubmitWagerEvent = async () => {
     const key_record = game.utilRecords[0];
     console.log("🚀 ~ createSubmitWagerEvent ~ key_record:", key_record);
@@ -243,18 +312,20 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     }
   };
 
-
   // TODO: Complete this
   const createRevealAnswerEvent = async () => {
     console.log("🚀 ~ createRevealAnswerGameEvent ~ TODO:");
-
+    // const gameOutcome = await networkClient?.getProgramMappingValue(
+    //   GAME_PROGRAM_ID,
+    //   GAME_RESULTS_MAPPING,
+    //   game.gameNotification.recordData.game_multisig
+    // );
     const newInputs: Partial<RevealAnswerInputs> = {
-
       challenger_claim_signature: puzzleRecord,
       calculated_outcome_notification_record: puzzleRecord,
       joint_piece_state: puzzleRecord,
       challenger_answer_record: puzzleRecord,
-      game_outcome: await gameOutcome.then(result => typeof result === 'string' ? result : "Error: Invalid outcome"),
+      game_outcome: "win",
     };
 
     // setCalculateOutcomeInputs(newInputs);
@@ -327,16 +398,16 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       case "Calculate":
         return (
           <Button
-            onClick={createCalculateOutcomeEvent}  // TODO implement a simple wallet popup that consumes 2 records.
-            size="sm" color="yellow">
+            onClick={createCalculateOutcomeEvent} // TODO implement a simple wallet popup that consumes 2 records.
+            size="sm"
+            color="yellow"
+          >
             Play game
           </Button>
         );
       case "Reveal":
         return (
-          <Button
-            onClick={createRevealAnswerEvent}
-            size="sm" color="yellow">
+          <Button onClick={createRevealAnswerEvent} size="sm" color="yellow">
             Reveal outcome
           </Button>
         );
@@ -353,7 +424,9 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
             //     `/reveal-answer/${game.gameNotification.recordData.game_multisig}`
             //   );
             // }}
-            size="sm" color="yellow">
+            size="sm"
+            color="yellow"
+          >
             Reveal outcome
           </Button>
         );
@@ -425,10 +498,14 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     // </div>
     <Card className="  max-w-sm grid-span-1 w-full shadow-lg rounded-xl overflow-hidden">
       <div className="flex flex-col gap-8 justify-center items-center lg:justify-between p-6 space-y-6 sm:space-y-0">
-        <div className="flex w-full justify-between">
-          <span className="font-semibold text-lg text-center">
-            Challenger: <strong>{truncateAddress(vs)}</strong>
-          </span>
+        <div className="flex w-full flex-col justify-between">
+          <div>
+            <Identicon string={truncateAddress(vs)} size={36} />
+
+            <span className="font-semibold text-lg text-center">
+              Challenger: <strong>{truncateAddress(vs)}</strong>
+            </span>
+          </div>
           <span className="font-semibold text-lg text-center">
             Outcome: <strong>1-1</strong>
             {/* Outcome: <strong>{gameOutcome.goals_home + "-" gameOutcome.goals_away}</strong> */}

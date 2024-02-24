@@ -419,9 +419,13 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         });
         console.log("🚀 ~ createProposeGameEvent ~ response:", response);
         if (response.error) {
+          setIsLoading(false);
         } else if (!response.eventId) {
+          setIsLoading(false);
         } else {
+          setIsLoading(false);
           console.log("success", response.eventId);
+          router.push(`/create-game/${response.eventId}`);
           // setEventId(response.eventId);
           //   setSearchParams({ eventId: response.eventId });
         }
@@ -891,7 +895,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         )}
         <div className="w-full -mt-2 flex justify-center">
           <Button
-            disabled={loading}
+            disabled={isLoading}
             onClick={startGame}
             className="w-1/2"
             variant={"outline"}

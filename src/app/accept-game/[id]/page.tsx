@@ -5,9 +5,9 @@ import TeamSelection from "@/components/TeamSelection";
 import { useInitGame } from "@/hooks/initGame";
 import { useState } from "react";
 
-interface IPage {}
+interface IAcceptGamePage {}
 
-const Page: React.FC<IPage> = ({}) => {
+const AcceptGamePage: React.FC<IAcceptGamePage> = ({}) => {
   const [selectedTeam, setSelectedTeam] = useState(1);
   const [isGameStarted, setIsGameStarted] = useState(false);
   useInitGame();
@@ -27,4 +27,4 @@ const Page: React.FC<IPage> = ({}) => {
     </div>
   );
 };
-export default Page;
+export default AcceptGamePage;
