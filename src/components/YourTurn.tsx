@@ -46,6 +46,8 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   const challenger_address =
     game.gameNotification.recordData.challenger_address;
   const vs = user === opponent_address ? challenger_address : opponent_address;
+  const gameOutcome = networkClient.getProgramMappingValue(GAME_PROGRAM_ID, GAME_RESULTS_MAPPING, game.gameNotification.recordData.game_multisig);
+
   const [setCurrentGame] = useGameStore((state) => [state.setCurrentGame]);
 
   const wager = game.gameNotification.recordData.total_pot / 2;
@@ -303,7 +305,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
           <Button
             // onClick={() => {
             //   setCurrentGame(game);
-            //   const gameOutcome = networkClient.getMappingValue(GAME_PROGRAM_ID, GAME_RESULTS_MAPPING, game.gameNotification.recordData.game_multisig);
+            //   const gameOutcome = networkClient.getProgramMappingValue(GAME_PROGRAM_ID, GAME_RESULTS_MAPPING, game.gameNotification.recordData.game_multisig);
             //   navigate(
             //     `/reveal-answer/${game.gameNotification.recordData.game_multisig}`
             //   );
@@ -383,6 +385,10 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
         <div className="flex w-full justify-between">
           <span className="font-semibold text-lg text-center">
             Challenger: <strong>{truncateAddress(vs)}</strong>
+          </span>
+          <span className="font-semibold text-lg text-center">
+            Outcome: <strong>1</strong>
+            Outcome: <strong>{gameOutcome}</strong>
           </span>
           <span className="font-semibold text-lg text-center">
             Amount: <strong>{wager}</strong>
