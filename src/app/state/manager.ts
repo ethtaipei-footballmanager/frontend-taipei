@@ -1,6 +1,7 @@
 import { RecordWithPlaintext } from "@puzzlehq/sdk";
 
 export const GAME_PROGRAM_ID = "football_game_v013.aleo";
+export const GAME_RESULTS_MAPPING = "game_outcomes";
 
 export const GAME_FUNCTIONS = {
   propose_game: "propose_game",
@@ -65,13 +66,17 @@ export type AcceptGameInputs = {
   block_ht: string;
 };
 
-export type RevealAnswerInputs = {
+export type CalculateOutcomeInputs = {
   reveal_answer_notification_record: RecordWithPlaintext;
   challenger_answer_record: RecordWithPlaintext;
-  joint_piece_stake: RecordWithPlaintext;
+};
+
+export type RevealAnswerInputs = {
   challenger_claim_signature: RecordWithPlaintext;
-  game_outcome: string;
   calculated_outcome_notification_record: RecordWithPlaintext;
+  joint_piece_state: RecordWithPlaintext;
+  challenger_answer_record: RecordWithPlaintext;
+  game_outcome: string;
 };
 
 export type FinishGameInputs = {

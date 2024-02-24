@@ -16,9 +16,9 @@ type RevealAnswerStore = {
   initialize: (
     calculated_outcome_notification_record: RecordWithPlaintext,
     challenger_answer_record: RecordWithPlaintext,
-    joint_piece_stake: RecordWithPlaintext,
+    joint_piece_state: RecordWithPlaintext,
     challenger_claim_signature: RecordWithPlaintext,
-    game_outcome: string //TODO this is a structin leo
+    game_outcome: string, //TODO this is a struct in leo
   ) => void;
   setEventId: (eventId?: string) => void;
   close: () => void;
@@ -36,7 +36,7 @@ export const useRevealAnswerStore = create<RevealAnswerStore>()(
       initialize: (
         calculated_outcome_notification_record: RecordWithPlaintext,
         challenger_answer_record: RecordWithPlaintext,
-        joint_piece_stake: RecordWithPlaintext,
+        joint_piece_state: RecordWithPlaintext,
         challenger_claim_signature: RecordWithPlaintext,
         game_outcome: string
       ) => {
@@ -44,7 +44,7 @@ export const useRevealAnswerStore = create<RevealAnswerStore>()(
           inputsRevealAnswer: {
             calculated_outcome_notification_record,
             challenger_answer_record,
-            joint_piece_stake,
+            joint_piece_state,
             challenger_claim_signature,
             game_outcome,
           },

@@ -1,7 +1,7 @@
 import { RecordWithPlaintext } from "@puzzlehq/sdk";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-// import { CalculateOutcomeInputs } from '@state/manager';
+import { CalculateOutcomeInputs } from '@state/manager';
 
 export enum Step {
   _01_Finish,

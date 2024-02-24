@@ -1,7 +1,10 @@
 import { useAcceptGameStore } from "@/app/accept-game/store";
+import { useCalculateOutcomeStore } from "@/app/calculate-outcome/store";
 import {
+  CalculateOutcomeInputs,
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
+  GAME_RESULTS_MAPPING,
   SubmitWagerInputs,
   transitionFees,
 } from "@/app/state/manager";
@@ -27,11 +30,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { AleoNetworkClient } from '@aleohq/sdk';
 
 interface IYourTurn {
   game: Game;
 }
 const messageToSign = "1234567field";
+
+const networkClient = new AleoNetworkClient("https://vm.aleo.org/api");
 
 const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   const router = useRouter();
@@ -203,6 +209,37 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       router.push(`/accept-game/${response.eventId}`);
     }
   };
+
+  // TODO: Complete this
+  const createCalculateOutcomeEvent = async () => {
+    console.log("🚀 ~ createCalculateOutcomeEvent ~ TODO:");
+
+    const newInputs: Partial<CalculateOutcomeInputs> = {
+      reveal_answer_notification_record: puzzleRecord, //todo
+      challenger_answer_record: puzzleRecord, // todo
+    };
+
+    // setCalculateOutcomeInputs(newInputs);
+    const response = await requestCreateEvent({
+      type: EventType.Execute,
+      programId: GAME_PROGRAM_ID,
+      functionId: GAME_FUNCTIONS.calculate_outcome,
+      fee: transitionFees.calculate_outcome,
+      inputs: Object.values(newInputs),
+      address: "TODO",
+    });
+    if (response.error) {
+      setError(response.error);
+      setLoading(false);
+    } else if (response.eventId) {
+      /// todo - other things here?
+      setEventIdSubmit(response.eventId);
+      setCurrentGame(game);
+      // setCalculateOutcomeInputs({ ...newInputs });
+      // router.push(`/accept-game/${response.eventId}`);
+    }
+  };
+
   const renderActionButton = () => {
     switch (game.gameAction) {
       case "Submit Wager":
@@ -249,10 +286,30 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
             Accept
           </Button>
         );
+      case "Calculate":
+        return (
+          <Button
+            onClick={createCalculateOutcomeEvent}  // TODO implement a simple wallet popup that consumes 2 records.
+            size="sm" color="yellow">
+            Play game
+          </Button>
+        );
       case "Reveal":
         return (
-          <Button size="sm" color="yellow">
-            Reveal
+          // TODO: Here we must do 3 things
+          // - gameOutcome must be retrieved from the mapping (multisig address is the key)
+          // - Wallet popup that consumes 4 records + gameOutcome
+          // - Navigate user to the page of this specific game (something like /games/{id}) // id = multisig address
+          <Button
+            // onClick={() => {
+            //   setCurrentGame(game);
+            //   const gameOutcome = networkClient.getMappingValue(GAME_PROGRAM_ID, GAME_RESULTS_MAPPING, game.gameNotification.recordData.game_multisig);
+            //   navigate(
+            //     `/reveal-answer/${game.gameNotification.recordData.game_multisig}`
+            //   );
+            // }}
+            size="sm" color="yellow">
+            Reveal outcome
           </Button>
         );
       // return (
