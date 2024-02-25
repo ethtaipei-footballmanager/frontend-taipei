@@ -1020,7 +1020,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
               ))}
             </TabsList>
             {["GK", "DEF", "MID", "ATT"].map((position) => (
-              <TabsContent value={position}>
+              <TabsContent key={position} value={position}>
                 <div className=" grid grid-cols-5 gap-2  h-64 p-6 ">
                   {filteredPlayers!.map((player) => {
                     return (
