@@ -2,7 +2,6 @@
 
 import { Step, useAcceptGameStore } from "@/app/accept-game/store";
 import { useGameStore } from "@/app/state/gameStore";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useEventHandling } from "@/hooks/eventHandling";
 import { useMsRecords } from "@/hooks/msRecords";
 import { calculateAttribute, getPositionRole, isValidPlacement } from "@/utils";
@@ -49,6 +48,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { ScrollArea } from "./ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 interface IGame {
   selectedTeam: number;
   isChallenged: boolean;
@@ -111,6 +111,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const { account } = useAccount();
   const { balances } = useBalance({});
   const balance = balances?.[0]?.public ?? 0;
+  const [tab, setTab] = useState<Position>("GK");
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<SelectedPlayer | null>(
@@ -118,14 +119,14 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   );
   const router = useRouter();
 
-  const [selectedCheckboxes, setSelectedCheckboxes] = useState<
-    Record<Position, boolean>
-  >({
-    GK: true,
-    DEF: true,
-    MID: true,
-    ATT: true,
-  });
+  // const [selectedCheckboxes, setSelectedCheckboxes] = useState<
+  //   Record<Position, boolean>
+  // >({
+  //   GK: true,
+  //   DEF: true,
+  //   MID: true,
+  //   ATT: true,
+  // });
   const [movingPlayer, setMovingPlayer] = useState<PlayerType>();
   const [playerData, setPlayerData] = useState<PlayerType>();
   const [totalAttack, setTotalAttack] = useState(0);
@@ -196,24 +197,24 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   // const msPublicBalance =
   //   msBalances && msBalances?.length > 0 ? msBalances[0].public : 0;
 
-  const handleCheckboxChange = (position: Position) => {
-    if (
-      Object.values(selectedCheckboxes).filter(Boolean).length > 1 ||
-      !selectedCheckboxes[position]
-    ) {
-      setSelectedCheckboxes((prev) => ({
-        ...prev,
-        [position]: !prev[position],
-      }));
-    }
-  };
+  // const handleCheckboxChange = (position: Position) => {
+  //   if (
+  //     Object.values(selectedCheckboxes).filter(Boolean).length > 1 ||
+  //     !selectedCheckboxes[position]
+  //   ) {
+  //     setSelectedCheckboxes((prev) => ({
+  //       ...prev,
+  //       [position]: !prev[position],
+  //     }));
+  //   }
+  // };
 
   useEffect(() => {
     const filteredPlayers = benchPlayers.filter(
-      (player) => selectedCheckboxes[player.position as Position]
+      (player) => player.position === tab
     );
     setFilteredPlayers(filteredPlayers);
-  }, [selectedCheckboxes, benchPlayers]);
+  }, [tab, benchPlayers]);
 
   useEffect(() => {
     if (!currentGame || !msPuzzleRecords || !msGameRecords) return;
@@ -739,7 +740,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       return newGrid;
     });
   };
-
+  const onTabChange = (value: any) => {
+    setTab(value);
+  };
   const findPlayerLocation = (
     grid: any[],
     playerId: number
@@ -990,51 +993,60 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           </div> */}
 
         <ScrollArea className=" overflow-y-auto h-64 p-5">
-          <div className="flex gap-4 w-full items-center justify-center">
+          <Tabs
+            value={tab}
+            onValueChange={onTabChange}
+            defaultValue="all"
+            className="max-w-3xl"
+          >
+            <TabsList className="flex gap-4 max-w-3xl items-center justify-center">
+              {["GK", "DEF", "MID", "ATT"].map((position) => (
+                <TabsTrigger className="w-full" key={position} value={position}>
+                  {/* <Checkbox
+                    defaultChecked
+                    checked={selectedCheckboxes[position as Position]}
+                    id={position}
+                    title={position}
+                    onCheckedChange={() =>
+                      handleCheckboxChange(position as Position)
+                    }
+                  /> */}
+                  <label
+                    htmlFor={position}
+                    className="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  />
+                  {position}
+                </TabsTrigger>
+              ))}
+            </TabsList>
             {["GK", "DEF", "MID", "ATT"].map((position) => (
-              <div
-                key={position}
-                className="flex gap-1 items-center justify-center"
-              >
-                <Checkbox
-                  defaultChecked
-                  checked={selectedCheckboxes[position as Position]}
-                  id={position}
-                  title={position}
-                  onCheckedChange={() =>
-                    handleCheckboxChange(position as Position)
-                  }
-                />
-                <label
-                  htmlFor={position}
-                  className="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                />
-                {position}
-              </div>
+              <TabsContent value={position}>
+                <div className=" grid grid-cols-5 gap-2  h-64 p-6 ">
+                  {filteredPlayers!.map((player) => {
+                    return (
+                      <Player
+                        key={player.name}
+                        selectedPlayer={selectedPlayer!}
+                        onPlayerClick={() => {
+                          setMovingPlayer(player);
+                          setSelectedPlayer({
+                            id: player.id,
+                            position: player.position,
+                          });
+                          setIsSelecting(true);
+                        }}
+                        player={player}
+                        movePlayer={(playerId, slot) =>
+                          movePlayer(playerId, 1, slot)
+                        }
+                        isActive={false}
+                      />
+                    );
+                  })}
+                </div>
+              </TabsContent>
             ))}
-          </div>
-
-          <div className="w-full grid grid-cols-5 gap-2  h-64 p-6 ">
-            {filteredPlayers!.map((player) => {
-              return (
-                <Player
-                  key={player.name}
-                  selectedPlayer={selectedPlayer!}
-                  onPlayerClick={() => {
-                    setMovingPlayer(player);
-                    setSelectedPlayer({
-                      id: player.id,
-                      position: player.position,
-                    });
-                    setIsSelecting(true);
-                  }}
-                  player={player}
-                  movePlayer={(playerId, slot) => movePlayer(playerId, 1, slot)}
-                  isActive={false}
-                />
-              );
-            })}
-          </div>
+          </Tabs>
           {/* {activePlayersCount !== 11 && (
               <div className="w-full flex justify-center">
                 <Button className="w-1/2" variant={"outline"}>
