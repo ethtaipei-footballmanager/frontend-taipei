@@ -49,6 +49,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   const vs = user === opponent_address ? challenger_address : opponent_address;
 
   const [setCurrentGame] = useGameStore((state) => [state.setCurrentGame]);
+  console.log("game52", game);
 
   const wager = game.gameNotification.recordData.total_pot / 2;
   const [
@@ -365,7 +366,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
               <Button
                 onClick={() => setIsModal(true)}
                 variant="outline"
-                className="tracking-wider text-base text-black dark:text-white font-semibold flex gap-2.5"
+                className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
               >
                 Accept Challenge
               </Button>
@@ -385,7 +386,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
                   disabled={loading}
                   onClick={createSubmitWagerEvent}
                   variant="outline"
-                  className="flex flex-col gap-1 hover:text-white dark:hover:bg-[#dbe0e5]  bg-[#fafafa] w-2/5   h-fit justify-center items-center"
+                  className="flex flex-col gap-1 hover:text-white dark:hover:bg-[#dbe0e5]  bg-[#fafafa]   h-fit justify-center items-center"
                 >
                   <span className="text-xs font-semibold text-black">
                     Accept
@@ -504,8 +505,8 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     //   <div className="flex justify-end">{renderActionButton()}</div>
     // </div>
     <Card className="  max-w-sm grid-span-1 w-full shadow-lg rounded-xl overflow-hidden">
-      <div className="flex flex-col gap-8 justify-center items-center lg:justify-between p-6 space-y-6 sm:space-y-0">
-        <div className="flex w-full flex-col justify-between">
+      <div className="flex flex-col gap-4 justify-center items-center  p-6  sm:space-y-0">
+        {/* <div className="flex w-full flex-col justify-between">
           <div>
             <Identicon string={truncateAddress(vs)} size={36} />
 
@@ -513,15 +514,30 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
               Challenger: <strong>{truncateAddress(vs)}</strong>
             </span>
           </div>
-          <span className="font-semibold text-lg text-center">
-            Outcome: <strong>1-1</strong>
-            {/* Outcome: <strong>{gameOutcome.goals_home + "-" gameOutcome.goals_away}</strong> */}
+        </div> */}
+        <div className="flex flex-col gap-2.5 items-center ">
+          <Identicon string={truncateAddress(vs)} size={36} />
+          <span className="font-bold text-lg text-center">
+            {truncateAddress(vs)}
           </span>
-          <span className="font-semibold text-lg text-center">
-            Amount: <strong>{wager}</strong>
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            Challenged you
           </span>
         </div>
-        {renderActionButton()}
+        <div className="flex flex-col text-center w-full items-center justify-center">
+          <div>
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Outcome: <strong>1-1</strong>
+              </p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Amount: <strong>{wager}</strong>
+              </p>
+            </div>
+          </div>
+
+          {renderActionButton()}
+        </div>
         {/* <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
       <p className="text-xs text-gray-600 dark:text-gray-400">
         Refree: Pierluigi Webb

@@ -3,14 +3,12 @@
 import { useNewGameStore } from "../create-game/store";
 import { useGameStore } from "../state/gameStore";
 // import TheirTurn from '@components/TheirTurn';
-import { useInitGame } from "@/hooks/initGame";
 import YourTurn from "@components/YourTurn";
+import { Separator } from "@components/ui/separator";
 
 interface IYourGames {}
 
 const YourGames: React.FC<IYourGames> = ({}) => {
-  useInitGame();
-
   const [yourTurn, theirTurn, totalBalance] = useGameStore((state) => [
     state.yourTurn,
     state.theirTurn,
@@ -23,12 +21,37 @@ const YourGames: React.FC<IYourGames> = ({}) => {
   const [initialize] = useNewGameStore((state) => [state.initialize]);
 
   return (
-    <div className="p-4">
+    <div className="p-4 flex gap-2 h-[80vh] w-full mt-6 justify-center">
       {/* {yourTurn.length > 0 && <YourTurn games={yourTurn} />} */}
-      <div className="grid grid-cols-3">
-        {yourTurn.length > 0 &&
-          yourTurn.map((game, index) => <YourTurn key={index} game={game} />)}
-      </div>
+
+      {yourTurn.length > 0 && (
+        <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
+          <h2 className="tracking-tighter text-2xl font-bold">
+            Your Turn to Play
+          </h2>
+
+          <div className="grid grid-cols-3 gap-4">
+            {yourTurn.map((game, index) => (
+              <YourTurn key={index} game={game} />
+            ))}
+          </div>
+        </div>
+      )}
+      <Separator orientation="vertical" className="" />
+      {theirTurn.length > 0 && (
+        <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
+          <h2 className="tracking-tighter text-2xl font-bold">
+            Their Turn to Play
+          </h2>
+
+          <div className="grid grid-cols-3 gap-4">
+            {theirTurn.map((game, index) => (
+              <YourTurn key={index} game={game} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* {theirTurn.length > 0 && <TheirTurn games={theirTurn} />} */}
       {yourTurn.length === 0 && theirTurn.length === 0 && (
         <p className="self-center font-semibold">
