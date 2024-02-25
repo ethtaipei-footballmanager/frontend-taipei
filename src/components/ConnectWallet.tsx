@@ -69,7 +69,7 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
   }, [account]);
 
   return (
-    <div className="flex gap-6 items-center">
+    <div className="flex gap-6 z-50 items-center">
       {account ? (
         <Dialog>
           <DialogTrigger asChild>
@@ -157,9 +157,9 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
           {account ? "" : "Connect Wallet"}
         </Button>
       )}
-      <div className="hidden md:flex">
-        <ThemeToggle />
-      </div>
+      {/* <div className="hidden md:flex"> */}
+      <ThemeToggle />
+      {/* </div> */}
     </div>
   );
 };

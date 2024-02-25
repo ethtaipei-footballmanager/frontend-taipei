@@ -11,8 +11,10 @@ export const useMsRecords = (address?: string) => {
       type: "unspent",
     },
     address,
-    multisig: true,
+    page: 1,
+    // multisig: true,
   });
+  console.log("🚀 ~ useMsRecords ~ records:", records);
   const msGameRecords = records?.filter(
     (record) => record.programId === "football_game_v013.aleo"
   );

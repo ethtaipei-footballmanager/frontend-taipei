@@ -4,8 +4,10 @@ import { Step, useAcceptGameStore } from "@/app/accept-game/store";
 import { useGameStore } from "@/app/state/gameStore";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEventHandling } from "@/hooks/eventHandling";
+import { useMsRecords } from "@/hooks/msRecords";
 import { calculateAttribute, getPositionRole, isValidPlacement } from "@/utils";
 import { teams } from "@/utils/team-data";
+
 import {
   EventType,
   RecordWithPlaintext,
@@ -133,9 +135,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const [isPlayed, setIsPlayed] = useState(false);
   // const [isChallenged, setIsChallenged] = useState(false);
   const pathname = usePathname();
-  const { setInputs, inputs } = useNewGameStore();
+  const { setInputs, inputs, setEventId } = useNewGameStore();
   console.log("🚀 ~ inputs:", inputs);
-
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [selectedReplacementPlayer, setSelectedReplacementPlayer] =
     useState<PlayerType | null>(null);
   // const [opponentTotalDefense, setOpponentTotalDefense] = useState(0);
@@ -167,7 +169,10 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const [filteredPlayers, setFilteredPlayers] = useState<PlayerType[]>([]);
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
   console.log("🚀 ~ msAddress:", msAddress);
-  // const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
+  const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
+    useMsRecords(msAddress);
+  console.log("🚀 ~ recordsPuzzle:", recordsPuzzle);
+  console.log("🚀 ~ recordsGame:", recordsGame);
   const [msPuzzleRecords, setMsPuzzleRecords] = useState<
     RecordWithPlaintext[] | undefined
   >();
@@ -352,6 +357,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         inputs: Object.values(acceptGameInputs),
         address: inputsAcceptGame.game_record.owner,
       });
+      setLoadingMessage("Joining game...");
+
       if (response.error) {
         setError(response.error);
         setLoading(false);
@@ -382,6 +389,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     // setError(undefined);
 
     console.log("🚀 ~ createProposeGameEvent ~ signature await:");
+    toast.info("Please sign the message");
+    setLoadingMessage("Signing...");
     const signature = await requestSignature({ message: messageToSign });
     console.log("🚀 ~ createProposeGameEvent ~ signature:", signature);
 
@@ -389,6 +398,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       setIsLoading(false);
       return;
     }
+    setLoadingMessage("Creating Multisig...");
+
     const sharedStateResponse = await createSharedState();
     console.log(
       "🚀 ~ createProposeGameEvent ~ sharedStateResponse:",
@@ -457,6 +468,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           "🚀 ~ createProposeGameEvent ~ proposalInputs:",
           proposalInputs
         );
+        toast.info("Approve the transaction to create the game");
+
         const response = await requestCreateEvent({
           type: EventType.Execute,
           programId: GAME_PROGRAM_ID,
@@ -464,16 +477,20 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           fee: transitionFees.propose_game,
           inputs: Object.values(proposalInputs),
         });
+        setLoadingMessage("Starting Game...");
+
         console.log("🚀 ~ createProposeGameEvent ~ response:", response);
         if (response.error) {
           setIsLoading(false);
+          setLoadingMessage("");
         } else if (!response.eventId) {
           setIsLoading(false);
+          setLoadingMessage("");
         } else {
           setIsLoading(false);
           console.log("success", response.eventId);
+          setEventId(response.eventId);
           router.push(`/create-game/${response.eventId}`);
-          // setEventId(response.eventId);
           //   setSearchParams({ eventId: response.eventId });
         }
       }
@@ -568,7 +585,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         } else if (!response.eventId) {
         } else {
           console.log("success", response.eventId);
-          // setEventId(response.eventId);
+          router.push(`/create-game/${response.eventId}`);
+
+          setEventId(response.eventId);
           //   setSearchParams({ eventId: response.eventId });
         }
       }
@@ -947,7 +966,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
             className="w-1/2"
             variant={"outline"}
           >
-            Start Game
+            {loadingMessage ? loadingMessage : "Start Game"}
           </Button>
         </div>
         <div className="w-full -mt-2 flex justify-center">

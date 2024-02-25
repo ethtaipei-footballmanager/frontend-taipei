@@ -122,6 +122,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   console.log("🚀 ~ inputsSubmitWager:", eventIdSubmit, acceptGameInputs);
 
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
+  console.log("🚀 ~ msAddress:", msAddress);
   const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
   const [confirmStep, setConfirmStep] = useState(ConfirmStep.Signing);
   const router = useRouter();
@@ -132,12 +133,17 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   });
   const filter: RecordsFilter = {
     type: "unspent",
+    programIds: [
+      "football_game_v013.aleo",
+      "puzzle_pieces_v016.aleo",
+      "multiparty_pvp_utils_v015_avh.aleo",
+    ],
   };
   useEffect(() => {
     const response = async () => {
       const record = await getRecords({
         filter,
-        address: account?.address,
+        // address: account?.address,
       });
       console.log("🚀 ~ response ~ response:", record);
 

@@ -9,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
+import { useWindowSize } from "react-use";
 // const transition = {
 //   type: "spring",
 //   mass: 0.5,
@@ -65,15 +66,89 @@ import React, { useState } from "react";
 //   );
 // };
 
+const transition = {
+  type: "spring",
+  mass: 0.5,
+  damping: 11.5,
+  stiffness: 100,
+  restDelta: 0.001,
+  restSpeed: 0.001,
+};
+
+export const MobileMenuItem = ({
+  setActive,
+  active,
+  item,
+  children,
+}: {
+  setActive: (item: boolean) => void;
+  active: boolean;
+  item: string | any;
+  children?: React.ReactNode;
+}) => {
+  return (
+    <div onMouseEnter={() => setActive(true)} className="relative ">
+      <motion.p
+        transition={{ duration: 0.2 }}
+        className="cursor-pointer text-black hover:opacity-[0.9] dark:text-white"
+      >
+        <span>{item}</span>
+      </motion.p>
+      {active && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={transition}
+        >
+          {active && (
+            <div className="absolute top-[calc(100%_+_1rem)] left-1/2 transform -translate-x-1/2">
+              <motion.div
+                transition={transition}
+                layoutId="active" // layoutId ensures smooth animation
+                className="bg-white dark:bg-black backdrop-blur-sm rounded-2xl overflow-hidden border border-black/[0.2] dark:border-white/[0.2] shadow-xl"
+              >
+                <motion.div
+                  layout // layout ensures smooth animation
+                  className="w-max h-full p-4"
+                >
+                  {children}
+                </motion.div>
+              </motion.div>
+            </div>
+          )}
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+export const MobileMenu = ({
+  setActive,
+  children,
+}: {
+  setActive: (item: boolean) => void;
+  children: React.ReactNode;
+}) => {
+  return (
+    <nav
+      onMouseLeave={() => setActive(false)} // resets the state
+      className="relative rounded-full boder border-transparent dark:bg-black dark:border-white/[0.2] bg-white shadow-input flex justify-center space-x-4 px-4 py-4 "
+    >
+      {children}
+    </nav>
+  );
+};
+
 export const FloatingMenu = ({
   setActive,
   children,
 }: {
-  setActive: (item: string | null) => void;
+  setActive: (val: boolean) => void;
   children: React.ReactNode;
 }) => {
   const { scrollYProgress } = useScroll();
   const pathname = usePathname();
+  const { width } = useWindowSize();
 
   const [visible, setVisible] = useState(true);
 
@@ -112,8 +187,8 @@ export const FloatingMenu = ({
         }}
       >
         <nav
-          onMouseLeave={() => setActive(null)} // resets the state
-          className="relative  rounded-full border shadow-md border-transparent dark:bg-black dark:border-white/[0.2] bg-white shadow-input flex justify-center space-x-4 px-8 py-2 "
+          onMouseLeave={() => setActive(false)} // resets the state
+          className="relative  rounded-full border shadow-md border-transparent dark:bg-black dark:border-white/[0.2] bg-white shadow-input flex justify-center space-x-4 px-4 lg:px-8 py-1 lg:py-2 "
         >
           {children}
         </nav>

@@ -36,7 +36,7 @@ import Identicon from "react-identicons";
 interface IYourTurn {
   game: Game;
 }
-const messageToSign = "1234567field"; // TODO replace this by appropriate msg
+const messageToSign = "Accept Game Challenge"; // TODO replace this by appropriate msg
 
 // const networkClient = new AleoNetworkClient("https://vm.aleo.org/api");
 
@@ -239,6 +239,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     setLoading(true);
     setError(undefined);
     const signature = await requestSignature({ message: messageToSign });
+    console.log("🚀 ~ createSubmitWagerEvent ~ signature:", signature);
     // setConfirmStep(ConfirmStep.Signing);
     if (!signature.messageFields || !signature.signature) {
       setError("Signature or signature message fields not found");
@@ -281,7 +282,9 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       setEventIdSubmit(response.eventId);
       setCurrentGame(game);
       setSubmitWagerInputs({ ...newInputs });
-      router.push(`/accept-game/${response.eventId}`);
+      router.push(
+        `/accept-game/${game.gameNotification.recordData.game_multisig}`
+      );
     }
   };
 
@@ -379,6 +382,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
               </DialogHeader>
               <div className="flex justify-center gap-4 mt-2 text-center w-full items-center">
                 <Button
+                  disabled={loading}
                   onClick={createSubmitWagerEvent}
                   variant="outline"
                   className="flex flex-col gap-1 hover:text-white dark:hover:bg-[#dbe0e5]  bg-[#fafafa] w-2/5   h-fit justify-center items-center"

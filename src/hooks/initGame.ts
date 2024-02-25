@@ -1,7 +1,7 @@
-import { useAccount } from '@puzzlehq/sdk';
-import { useEffect } from 'react';
-import { useGameStore } from '@state/gameStore';
-import { useGameRecords } from './records';
+import { useAccount } from "@puzzlehq/sdk";
+import { useGameStore } from "@state/gameStore";
+import { useEffect } from "react";
+import { useGameRecords } from "./records";
 
 export const useInitGame = () => {
   const { account } = useAccount();
@@ -9,6 +9,12 @@ export const useInitGame = () => {
   const [setRecords] = useGameStore((state) => [state.setRecords]);
 
   const { gameNotifications, puzzleRecords, utilRecords } = useGameRecords();
+  console.log(
+    "🚀 ~ useInitGame ~ gameNotifications:",
+    gameNotifications,
+    puzzleRecords,
+    utilRecords
+  );
 
   useEffect(() => {
     if (

@@ -2,9 +2,9 @@ import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import { Providers } from "./providers";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -23,7 +23,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <Navbar />
-          <main>{children}</main>
+          <main>
+            <NextTopLoader crawlSpeed={50} speed={50} showSpinner={false} />
+            {children}
+          </main>
           <Toaster />
         </Providers>
       </body>
