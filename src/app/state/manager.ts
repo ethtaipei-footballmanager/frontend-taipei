@@ -14,9 +14,9 @@ export const GAME_FUNCTIONS = {
 
 /// todo - update these
 export const transitionFees = {
-  propose_game: 0.017,
-  submit_wager: 0.0186,
-  accept_game: 0.03901,
+  propose_game: 0.027,
+  submit_wager: 0.0286,
+  accept_game: 0.04901,
   calculate_outcome: 0.1,
   reveal_answer: 0.1,
   finish_game: 0.1,
