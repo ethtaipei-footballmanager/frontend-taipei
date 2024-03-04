@@ -4,11 +4,13 @@ import { useNewGameStore } from "../create-game/store";
 import { useGameStore } from "../state/gameStore";
 // import TheirTurn from '@components/TheirTurn';
 import YourTurn from "@components/YourTurn";
+import { useInitGame } from "@/hooks/initGame";
 import { Separator } from "@components/ui/separator";
 
 interface IYourGames {}
 
 const YourGames: React.FC<IYourGames> = ({}) => {
+  useInitGame();
   const [yourTurn, theirTurn, totalBalance] = useGameStore((state) => [
     state.yourTurn,
     state.theirTurn,
