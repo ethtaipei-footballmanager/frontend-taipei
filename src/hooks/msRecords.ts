@@ -1,6 +1,7 @@
 import { useRecords } from "@puzzlehq/sdk";
 
 export const useMsRecords = (address?: string) => {
+  console.log("🚀 ~ useMsRecords ~ address:", address);
   const { records } = useRecords({
     filter: {
       programIds: [

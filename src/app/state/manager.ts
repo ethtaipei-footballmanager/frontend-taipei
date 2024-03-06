@@ -20,7 +20,6 @@ export const transitionFees = {
   calculate_outcome: 0.1,
   reveal_answer: 0.1,
   finish_game: 0.1,
-  testing: 0.5,
 };
 
 export type LoadingStatus = "idle" | "loading" | "success" | "error";

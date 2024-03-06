@@ -134,7 +134,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlayed, setIsPlayed] = useState(false);
-  // const [isChallenged, setIsChallenged] = useState(false);
   const pathname = usePathname();
   const { setInputs, inputs, setEventId } = useNewGameStore();
   console.log("🚀 ~ inputs:", inputs);
@@ -168,7 +167,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const [currentGame] = useGameStore((state) => [state.currentGame]);
   console.log("🚀 ~ currentGame:", currentGame);
   const [filteredPlayers, setFilteredPlayers] = useState<PlayerType[]>([]);
-  const msAddress = currentGame?.gameNotification.recordData.game_multisig;
+  const msAddress = "aleo1vq9wze4g664r3lxq7x5zdq09wlhfxt967d23c6p7s6qggtmwxqxsxt5u2k";
   console.log("🚀 ~ msAddress:", msAddress);
   const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
     useMsRecords(msAddress);
@@ -313,6 +312,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   }, []);
 
   const createAcceptGameEvent = async () => {
+    console.log("🚀 ~ createAcceptGameEvent");
+
     console.log("inpts", msGameRecords, msPuzzleRecords);
 
     if (
@@ -595,6 +596,66 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     }
   };
 
+  const createDefaultAcceptGameEvent = async () => {
+    console.log("🚀 ~ createDefaultAcceptGameEvent");
+
+    console.log("inpts", msGameRecords, msPuzzleRecords);
+    console.log("inputsAcceptGame", inputsAcceptGame);
+    if (
+      !inputsAcceptGame?.game_record ||
+      !inputsAcceptGame.piece_stake_challenger ||
+      !inputsAcceptGame.piece_claim_challenger ||
+      !inputsAcceptGame.piece_stake_opponent ||
+      !inputsAcceptGame.piece_claim_opponent
+    )
+      return;
+    setLoading(true);
+    setError(undefined);
+    try {
+      const response_block_ht = await fetch(
+        "https://jigsaw-dev.puzzle.online/api/aleoapi/latest/height"
+      );
+      
+      const block_ht = Number(await response_block_ht.json());
+      const acceptGameInputs: Omit<
+        AcceptGameInputs,
+        "opponent_answer_readable"
+      > = {
+        game_record: inputsAcceptGame.game_record,
+        opponent_answer: "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
+        piece_stake_challenger: inputsAcceptGame.piece_stake_challenger,
+        piece_claim_challenger: inputsAcceptGame.piece_claim_challenger,
+        piece_stake_opponent: inputsAcceptGame.piece_stake_opponent,
+        piece_claim_opponent: inputsAcceptGame.piece_claim_opponent,
+        block_ht: block_ht.toString() + "u32",
+      };
+      const response = await requestCreateEvent({
+        type: EventType.Execute,
+        programId: GAME_PROGRAM_ID,
+        functionId: GAME_FUNCTIONS.accept_game,
+        fee: transitionFees.accept_game,
+        inputs: Object.values(acceptGameInputs),
+        address: inputsAcceptGame.game_record.owner,
+      });
+      setLoadingMessage("Joining game...");
+
+      if (response.error) {
+        setError(response.error);
+        setLoading(false);
+      } else if (!response.eventId) {
+        setError("No eventId found!");
+        setLoading(false);
+      } else {
+        console.log("success", response.eventId);
+        setEventIdAccept(response.eventId);
+        router.push(`/create-game/${response.eventId}`);
+      }
+    } catch (e) {
+      setError((e as Error).message);
+      setLoading(false);
+    }
+  };
+  
   const activePlayersCount = activePlayers.filter(Boolean).length;
   console.log("formationSplitted", formationSplitted[2]);
 
@@ -691,9 +752,21 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const startDefaultGame = async () => {
     console.log("hey2");
 
-    const createGame = await createDefaultProposeGameEvent();
-    console.log("🚀 ~ startGame ~ DEFAULT:", createGame);
+
+    if (isChallenged) {
+      console.log("hey1");
+
+      const acceptGame = await createDefaultAcceptGameEvent();
+    } else {
+      console.log("hey2");
+
+      const createGame = await createDefaultProposeGameEvent();
+      console.log("🚀 ~ startGame ~ DEFAULT:", createGame);
+    }
+
   };
+
+  
 
   const removePlayer = (playerId: number) => {
     setGrid((prevGrid: any) => {
