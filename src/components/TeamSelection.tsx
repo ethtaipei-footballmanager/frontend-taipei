@@ -359,26 +359,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         <DialogTrigger asChild>
           <Button variant="outline">Pick Team</Button>
         </DialogTrigger>
-        {isChallenged ? (
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Start Game</DialogTitle>
-              <DialogDescription>
-                You have been challenged to a game
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="flex w-full gap-2 justify-center  items-center ">
-              <Button
-                onClick={handleStartGame}
-                className="w-full"
-                variant={"outline"}
-              >
-                Start
-              </Button>
-            </div>
-          </DialogContent>
-        ) : (
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Start Game</DialogTitle>
@@ -483,7 +463,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
               )}
             </div>
           </DialogContent>
-        )}
+        
       </Dialog>
     </div>
   );
