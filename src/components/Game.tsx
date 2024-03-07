@@ -338,6 +338,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         activePlayerIds.toString()
       );
       const block_ht = Number(await response_block_ht.json());
+      // TODO: Error handling for missing input
       const acceptGameInputs: Omit<
         AcceptGameInputs,
         "opponent_answer_readable"

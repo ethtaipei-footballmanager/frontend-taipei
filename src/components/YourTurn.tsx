@@ -47,6 +47,9 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   const challenger_address =
     game.gameNotification.recordData.challenger_address;
   const vs = user === opponent_address ? challenger_address : opponent_address;
+  const game_id = game.gameNotification.recordData.game_multisig;
+
+  
 
   const [setCurrentGame] = useGameStore((state) => [state.setCurrentGame]);
   console.log("game52", game);
@@ -516,6 +519,10 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
           </div>
         </div> */}
         <div className="flex flex-col gap-2.5 items-center ">
+          {/* Game id= multisig address */}
+          <span className="font-bold text-lg text-center">
+            {truncateAddress(game_id)} 
+          </span>
           <Identicon string={truncateAddress(vs)} size={36} />
           <span className="font-bold text-lg text-center">
             {truncateAddress(vs)}
