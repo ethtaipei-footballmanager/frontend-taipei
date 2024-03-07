@@ -108,6 +108,7 @@ const messageToSign = "Let's play Super Leo Lig";
 const nonce = "1234567field"; // todo make this random?
 
 const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
+  const ALEO_NETWORK_URL = "https://node.puzzle.online/testnet3";
   const { account } = useAccount();
   const { balances } = useBalance({});
   const balance = balances?.[0]?.public ?? 0;
@@ -327,7 +328,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     setError(undefined);
     try {
       const response_block_ht = await fetch(
-        "https://jigsaw-dev.puzzle.online/api/aleoapi/latest/height"
+        `${ALEO_NETWORK_URL}/testnet3/latest/height`
       );
       const activePlayerIds = activePlayers.map((player) => {
         return `${player.id}u8`;
@@ -613,7 +614,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     setError(undefined);
     try {
       const response_block_ht = await fetch(
-        "https://jigsaw-dev.puzzle.online/api/aleoapi/latest/height"
+        `${ALEO_NETWORK_URL}/testnet3/latest/height`
       );
       
       const block_ht = Number(await response_block_ht.json());
