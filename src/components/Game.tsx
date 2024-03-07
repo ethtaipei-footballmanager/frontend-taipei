@@ -328,7 +328,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     setError(undefined);
     try {
       const response_block_ht = await fetch(
-        `${ALEO_NETWORK_URL}/testnet3/latest/height`
+        `${ALEO_NETWORK_URL}/latest/height`
       );
       const activePlayerIds = activePlayers.map((player) => {
         return `${player.id}u8`;
@@ -614,7 +614,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     setError(undefined);
     try {
       const response_block_ht = await fetch(
-        `${ALEO_NETWORK_URL}/testnet3/latest/height`
+        `${ALEO_NETWORK_URL}/latest/height`
       );
       
       const block_ht = Number(await response_block_ht.json());
