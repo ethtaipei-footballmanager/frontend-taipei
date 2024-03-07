@@ -167,8 +167,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const [currentGame] = useGameStore((state) => [state.currentGame]);
   console.log("🚀 ~ currentGame:", currentGame);
   const [filteredPlayers, setFilteredPlayers] = useState<PlayerType[]>([]);
-  const msAddress = "aleo1vq9wze4g664r3lxq7x5zdq09wlhfxt967d23c6p7s6qggtmwxqxsxt5u2k";
-  console.log("🚀 ~ msAddress:", msAddress);
+  const msAddress = currentGame?.gameNotification.recordData.game_multisig;
   const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
     useMsRecords(msAddress);
   console.log("🚀 ~ recordsPuzzle:", recordsPuzzle);
