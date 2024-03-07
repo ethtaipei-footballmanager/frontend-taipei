@@ -629,6 +629,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         piece_claim_opponent: inputsAcceptGame.piece_claim_opponent,
         block_ht: block_ht.toString() + "u32",
       };
+
+    console.log("requestCreateEvent await ", inputsAcceptGame);
+
       const response = await requestCreateEvent({
         type: EventType.Execute,
         programId: GAME_PROGRAM_ID,
@@ -638,6 +641,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         address: inputsAcceptGame.game_record.owner,
       });
       setLoadingMessage("Joining game...");
+      console.log("requestCreateEvent response ", response);
 
       if (response.error) {
         setError(response.error);

@@ -368,7 +368,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
                 variant="outline"
                 className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
               >
-                Accept Challenge
+                Submit wager
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
