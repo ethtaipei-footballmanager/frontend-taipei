@@ -1059,6 +1059,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
             TEST
           </Button>
         </div>
+        GAME ID : {currentGame?.gameNotification.recordData.game_multisig}
+        {/* Idea: Allow only to click start when multisig = path
+        Also check if signed in wallet = opponent from game */}
       </div>
       <div className="row-start-2 flex flex-col w-full h-[270px] mt-12   border-2 px-4 rounded-md">
         {/* <div className="flex flex-col px-4 whitespace-nowrap">
