@@ -127,7 +127,7 @@ const validStates = {
     "winner:4", // challenger or opponent to claim prize
     "opponent:1", // opponent to submit wager
     "opponent:2", // opponent to accept game
-    "challenger:7", // challenger to calculate outcome (before reveal)
+    "challenger:8", // challenger to calculate outcome (before reveal)
   ]),
   theirTurn: new Set([
     "challenger:1", // challenger to ping opponent to submit wager
@@ -171,6 +171,7 @@ export const useGameStore = create<GameStore>()(
           totalBalance,
           largestPiece,
         }));
+        console.log("records.gameNotifications", records.gameNotifications);
 
         const allGameNotifications: GameNotification[] =
           records.gameNotifications
@@ -183,11 +184,14 @@ export const useGameStore = create<GameStore>()(
             .filter(
               (record): record is GameNotification => record !== undefined
             );
+            console.log("allGameNotifications", allGameNotifications);
 
         const gameNotificationsByGameAddress = _.groupBy(
           allGameNotifications,
           "recordData.game_multisig"
         );
+        console.log("gameNotificationsByGameAddress", gameNotificationsByGameAddress);
+
         const gameNotifications = _.values(gameNotificationsByGameAddress).map(
           (notifications) => {
             if (notifications.length === 1) return notifications[0];
@@ -206,6 +210,7 @@ export const useGameStore = create<GameStore>()(
           }
         );
 
+          console.log("gameNotifications", gameNotifications);
         const { yourTurn, theirTurn, finished } = gameNotifications.reduce<{
           yourTurn: Game[];
           theirTurn: Game[];

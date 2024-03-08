@@ -144,7 +144,7 @@ export type CalculatedOutcomeNotification = {
 };
 
 export const RevealAnswerNotificationSchema = z.object({
-  owner: zodAddress, //opponent
+  owner: zodAddress, //challenger
   game_multisig: zodAddress,
   game_state: z.literal("3field"),
   your_turn: z.string().transform(Boolean),
@@ -237,7 +237,8 @@ export type GameState =
   | "opponent:6"
   | "winner:4"
   | "loser:4"
-  | "challenger:7" // Added this state for calculating outcome
+  | "challenger:7" // TODO do we use this?
+  | "challenger:8" // Added this state for calculating outcome
   | "opponent:7";
 
 export const getGameState = (game: GameNotification): GameState => {
@@ -260,7 +261,7 @@ export const getGameState = (game: GameNotification): GameState => {
     case "7u32":
       return `opponent:3`;
     case "8u32":
-      return `challenger:3`;
+      return `challenger:8`;
     case "9u32": {
       const isWinner = game.recordData.winner === game.recordData.owner;
       return isWinner ? `winner:4` : `loser:4`;
@@ -268,7 +269,7 @@ export const getGameState = (game: GameNotification): GameState => {
     case "10u32":
       return `${challenger_or_opponent}:5`;
     case "11u32":
-      return "challenger:7";
+      return "challenger:11";
     default:
       return "challenger:0";
   }
@@ -294,8 +295,8 @@ export const getGameAction = (gameState: GameState): GameAction => {
       return "Renege"; // and ping
     case "challenger:2":
       return "Renege"; // and ping
-    case "challenger:3":
-      return "Reveal";
+    // case "challenger:3":
+    //   return "Reveal";
     case "winner:4":
       return "Claim";
     case "loser:4":
@@ -316,8 +317,10 @@ export const getGameAction = (gameState: GameState): GameAction => {
       return undefined;
     case "opponent:6":
       return undefined;
-    case "challenger:7":
+    case "challenger:8":
       return "Calculate";
+    case "challenger:11":
+      return "Reveal";
     case "opponent:7":
       return "Ping";
   }
@@ -338,7 +341,7 @@ export const parseGameRecord = (
     GameFinishedNotificationSchema,
     CalculatedOutcomeNotificationSchema,
   ];
-
+  console.log("try");
   for (const schema of schemas) {
     try {
       const result = schema.parse(
@@ -348,7 +351,8 @@ export const parseGameRecord = (
         recordData: result,
         recordWithPlaintext: recordWithPlaintext,
       } as GameNotification;
-    } catch { }
+    } catch {
+     }
   }
   return undefined;
 };

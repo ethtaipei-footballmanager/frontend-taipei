@@ -11,13 +11,14 @@ interface IYourGames {}
 
 const YourGames: React.FC<IYourGames> = ({}) => {
   useInitGame();
-  const [yourTurn, theirTurn, totalBalance] = useGameStore((state) => [
+  const [yourTurn, theirTurn, finished] = useGameStore((state) => [
     state.yourTurn,
     state.theirTurn,
-    state.totalBalance,
+    state.finished,
   ]);
   console.log("🚀 ~ yourTurn:", yourTurn);
   console.log("🚀 ~ theirTurn:", theirTurn);
+  console.log("🚀 ~ finished:", finished);
 
   const [initialize] = useNewGameStore((state) => [state.initialize]);
 
