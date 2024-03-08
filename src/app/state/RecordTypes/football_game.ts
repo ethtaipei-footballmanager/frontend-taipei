@@ -130,11 +130,12 @@ export type WaitingRevealNotification = {
 export const CalculatedOutcomeNotificationSchema = z.object({
   owner: zodAddress, //opponent
   game_multisig: zodAddress,
-  game_state: z.literal("3field"), //TODO: which field value we use?
+  game_state: z.literal("4field"), //TODO: which field value we use?
   your_turn: z.string().transform(Boolean),
   total_pot: z.string().transform(Number),
   challenger_address: zodAddress,
   opponent_address: zodAddress,
+  opponent_answer: z.array(z.string()).length(11),
   ix: z.literal("11u32"),
   _nonce: z.string(),
 });
@@ -251,6 +252,7 @@ export type GameState =
   | "loser:4"
   | "challenger:7" // TODO do we use this?
   | "challenger:8" // Added this state for calculating outcome
+  | "challenger:11" // Added this state for calculating outcome
   | "opponent:7";
 
 export const getGameState = (game: GameNotification): GameState => {
@@ -355,11 +357,15 @@ export const parseGameRecord = (
   ];
   for (const schema of schemas) {
     try {
-      if (schema === RevealAnswerNotificationSchema && recordWithPlaintext.data.ix == "8u32") {
+
+      if (recordWithPlaintext.data.ix == "11u32") {
+        console.log("11u32 ", schema);
+      }
+      if (schema === CalculatedOutcomeNotificationSchema && recordWithPlaintext.data.ix == "11u32") {
         console.log("recordWithPlaintext BEFORE ", recordWithPlaintext.data);
       }
       const recordsRemoveVisibility = removeVisibilitySuffix(recordWithPlaintext.data);
-      if (schema === RevealAnswerNotificationSchema && recordWithPlaintext.data.ix == "8u32") {
+      if (schema === CalculatedOutcomeNotificationSchema && recordWithPlaintext.data.ix == "11u32") {
         console.log("recordsRemoveVisibility MID ", recordsRemoveVisibility);
       }
       
@@ -367,7 +373,7 @@ export const parseGameRecord = (
         recordsRemoveVisibility
       );
 
-      if (schema === RevealAnswerNotificationSchema && recordWithPlaintext.data.ix == "8u32") {
+      if (schema === CalculatedOutcomeNotificationSchema && recordWithPlaintext.data.ix == "11u32") {
         console.log("recordWithPlaintext AFTER ", recordWithPlaintext.data);
       }
       return {
