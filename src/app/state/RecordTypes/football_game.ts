@@ -151,7 +151,8 @@ export const RevealAnswerNotificationSchema = z.object({
   total_pot: z.string().transform(Number),
   challenger_address: zodAddress,
   opponent_address: zodAddress,
-  opponent_answer: z.array(u8).length(11),
+  // opponent_answer: z.array(u8).length(11), // TODO should we store as string instead?
+  opponent_answer: z.array(z.string()).length(11),
   ix: z.literal("8u32"),
   _nonce: z.string(),
 });
@@ -211,14 +212,25 @@ export type GameNotification =
   | CalculatedOutcomeNotification;
 
 export const removeVisibilitySuffix = (obj: { [key: string]: string }) => {
+  
   for (const key in obj) {
     if (typeof obj[key] === "string") {
       obj[key] = obj[key]
         .replace(".private", "")
         .replace(".public", "")
         .replace("u64", "");
+    } else if (Array.isArray(obj[key])) {
+      obj[key] = obj[key].map(item => 
+        // typeof item === "string" ? item.replace("u8.private", "") : item
+        typeof item === "string" ? item.replace(".private", "") : item
+
+      );
     }
+    
   }
+  // if (obj["ix"] = "8u32") {
+  //   console.log("obj", obj);
+  // }
   return obj;
 };
 
@@ -341,12 +353,23 @@ export const parseGameRecord = (
     GameFinishedNotificationSchema,
     CalculatedOutcomeNotificationSchema,
   ];
-  console.log("try");
   for (const schema of schemas) {
     try {
+      if (schema === RevealAnswerNotificationSchema && recordWithPlaintext.data.ix == "8u32") {
+        console.log("recordWithPlaintext BEFORE ", recordWithPlaintext.data);
+      }
+      const recordsRemoveVisibility = removeVisibilitySuffix(recordWithPlaintext.data);
+      if (schema === RevealAnswerNotificationSchema && recordWithPlaintext.data.ix == "8u32") {
+        console.log("recordsRemoveVisibility MID ", recordsRemoveVisibility);
+      }
+      
       const result = schema.parse(
-        removeVisibilitySuffix(recordWithPlaintext.data)
+        recordsRemoveVisibility
       );
+
+      if (schema === RevealAnswerNotificationSchema && recordWithPlaintext.data.ix == "8u32") {
+        console.log("recordWithPlaintext AFTER ", recordWithPlaintext.data);
+      }
       return {
         recordData: result,
         recordWithPlaintext: recordWithPlaintext,

@@ -244,8 +244,8 @@ export const useGameStore = create<GameStore>()(
           },
           { yourTurn: [], theirTurn: [], finished: [] }
         );
-        console.log("yourTurn", yourTurn);
-        console.log("theirTurn", theirTurn);
+        // console.log("yourTurn", yourTurn);
+        // console.log("theirTurn", theirTurn);
 
         set({ yourTurn, theirTurn, finished });
       },
