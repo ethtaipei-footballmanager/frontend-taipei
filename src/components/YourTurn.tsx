@@ -285,7 +285,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       /// todo - other things here?
       setEventIdSubmit(response.eventId);
       setCurrentGame(game);
-      setSubmitWagerInputs({ ...newInputs });
+      // setSubmitWagerInputs({ ...newInputs }); // TODO  why do we set submit wager inputs after we create the event?
       router.push(
         `/accept-game/${game.gameNotification.recordData.game_multisig}`
       );
@@ -367,7 +367,11 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
           <Dialog>
             <DialogTrigger asChild>
               <Button
-                onClick={() => setIsModal(true)}
+                onClick={() => {
+                  setCurrentGame(game);
+                  setIsModal(true);
+                }
+                }
                 variant="outline"
                 className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
               >
@@ -392,7 +396,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
                   className="flex flex-col gap-1 hover:text-white dark:hover:bg-[#dbe0e5]  bg-[#fafafa]   h-fit justify-center items-center"
                 >
                   <span className="text-xs font-semibold text-black">
-                    Accept
+                    Submit
                   </span>{" "}
                 </Button>
               </div>
@@ -402,7 +406,16 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       case "Accept":
         // return <AcceptGameButton game={game} />;
         return (
-          <Button size="sm" color="yellow">
+          <Button disabled={loading}
+          onClick={() => {
+            setCurrentGame(game);
+            router.push(
+              `/accept-game/${game.gameNotification.recordData.game_multisig}`
+            );          }
+          }
+          variant="outline"
+          className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
+          >
             Accept
           </Button>
         );
