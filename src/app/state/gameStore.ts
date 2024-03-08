@@ -18,14 +18,11 @@ const parsePuzzlePieces = (records: RecordWithPlaintext[]) => {
   if (records.length > 0) {
     let availableBalance = 0;
     let largestPiece = records[0];
-    console.log("🚀 ~ parsePuzzlePieces ~ largestPiece:", largestPiece);
-    console.log("records123", records);
 
     const totalBalance = records
       .filter((record) => !record.spent)
       .map((record) => {
         const amount = record.data?.amount?.replace("u64.private", "");
-        console.log("🚀 ~ .map ~ amount:", amount);
         if (amount && record.data?.ix === "0u32.private") {
           /// find largestPiece (and thus availableBalance)
           const amountInt = parseInt(amount);
@@ -166,7 +163,6 @@ export const useGameStore = create<GameStore>()(
         const utilRecords = records.utilRecords;
 
         const puzzleRecords = records.puzzleRecords;
-        console.log("🚀 ~ puzzleRecords:", puzzleRecords);
         const { availableBalance, totalBalance, largestPiece } =
           parsePuzzlePieces(puzzleRecords);
         set((state) => ({
@@ -209,7 +205,6 @@ export const useGameStore = create<GameStore>()(
             }
           }
         );
-        console.log("gameNotifications", gameNotifications);
 
         const { yourTurn, theirTurn, finished } = gameNotifications.reduce<{
           yourTurn: Game[];

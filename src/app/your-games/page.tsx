@@ -18,7 +18,6 @@ const YourGames: React.FC<IYourGames> = ({}) => {
   ]);
   console.log("🚀 ~ yourTurn:", yourTurn);
   console.log("🚀 ~ theirTurn:", theirTurn);
-  console.log("🚀 ~ totalBalance:", totalBalance);
 
   const [initialize] = useNewGameStore((state) => [state.initialize]);
 

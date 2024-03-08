@@ -52,17 +52,13 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
     try {
       const session: SessionTypes.Struct = await connect();
 
-      console.log("account", session);
     } catch (err) {
       //   setError((e as Error).message);
-      console.log("error", err);
     }
   };
 
-  console.log("hey account", account);
 
   useEffect(() => {
-    console.log("account wallet", address);
     if (account) {
       setAddress(account?.address!);
     }

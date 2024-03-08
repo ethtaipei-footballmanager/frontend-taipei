@@ -87,7 +87,6 @@ const Player: React.FC<IPlayer> = ({
   const [playerRating, setPlayerRating] = useState(0);
 
   const handleDoubleClick = () => {
-    console.log("doulbe");
     if (removePlayer) removePlayer(player.id);
   };
 

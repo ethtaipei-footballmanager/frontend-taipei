@@ -52,7 +52,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   
 
   const [setCurrentGame] = useGameStore((state) => [state.setCurrentGame]);
-  console.log("game52", game);
 
   const wager = game.gameNotification.recordData.total_pot / 2;
   const [
@@ -79,11 +78,8 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     (state) => [state.largestPiece, state.availableBalance, state.currentGame]
   );
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  console.log("🚀 ~ msAddress 82:", msAddress);
 
   const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
-  console.log("🚀 ~ msPuzzleRecords 82:", msPuzzleRecords);
-  console.log("🚀 ~ currentGMAE 82:", currentGame);
 
   const puzzleRecord =
     availableBalance >= game.gameNotification.recordData.total_pot / 2
@@ -96,7 +92,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   //   setEventIdSubmit,
   //   setStep,
   // ] = useAcceptGameStore((state) => [
-  console.log("🚀 ~ availableBalance:", availableBalance, largestPiece);
   //   state.inputsSubmitWager,
   //   state.eventIdSubmit,
   //   state.setSubmitWagerInputs,
@@ -112,7 +107,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   });
 
   // const createEvent = async () => {
-  //   console.log("clicked", inputs, game);
 
   //   if (
   //     !inputs?.opponent_wager_record ||
@@ -142,9 +136,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   //     opponent_sig: signature.signature,
   //   };
   //   const game_multisig_seed = currentGame?.utilRecords?.[0].data.seed ?? "";
-  //   console.log("game_multisig seed", game_multisig_seed);
   //   const { data } = await importSharedState(game_multisig_seed);
-  //   console.log(`Shared state imported: ${data?.address}`);
 
   //   setSubmitWagerInputs(newInputs);
   //   const response = await requestCreateEvent({
@@ -202,11 +194,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
           currentGame.gameNotification.recordData.opponent_address
     );
 
-    console.log("msGameRecords[0]", msGameRecords[0]);
-    console.log("piece_stake_challenger", piece_stake_challenger);
-    console.log("piece_claim_challenger", piece_claim_challenger);
-    console.log("piece_stake_opponent", piece_stake_opponent);
-    console.log("piece_claim_opponent", piece_claim_opponent);
     if (
       piece_claim_challenger === undefined ||
       piece_claim_opponent === undefined ||
@@ -228,22 +215,14 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   ]);
   const createSubmitWagerEvent = async () => {
     const key_record = game.utilRecords[0];
-    console.log("🚀 ~ createSubmitWagerEvent ~ key_record:", key_record);
     const game_req_notification = game.gameNotification.recordWithPlaintext;
-    console.log(
-      "🚀 ~ createSubmitWagerEvent ~ game_req_notification:",
-      game_req_notification
-    );
-    console.log("🚀 ~ createSubmitWagerEvent ~ puzzleRecord:", puzzleRecord);
     if (!puzzleRecord || !key_record || !game_req_notification) {
       return;
     }
-    console.log("heere");
 
     setLoading(true);
     setError(undefined);
     const signature = await requestSignature({ message: messageToSign });
-    console.log("🚀 ~ createSubmitWagerEvent ~ signature:", signature);
     // setConfirmStep(ConfirmStep.Signing);
     if (!signature.messageFields || !signature.signature) {
       setError("Signature or signature message fields not found");
@@ -265,9 +244,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       opponent_sig: signature.signature,
     };
     const game_multisig_seed = currentGame?.utilRecords?.[0].data.seed ?? "";
-    console.log("game_multisig seed", game_multisig_seed);
     const { data } = await importSharedState(game_multisig_seed);
-    console.log(`Shared state imported: ${data?.address}`);
 
     setSubmitWagerInputs(newInputs);
     const response = await requestCreateEvent({
@@ -294,7 +271,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
 
   // TODO: Complete this
   const createCalculateOutcomeEvent = async () => {
-    console.log("🚀 ~ createCalculateOutcomeEvent ~ TODO:");
 
     const newInputs: Partial<CalculateOutcomeInputs> = {
       reveal_answer_notification_record: puzzleRecord, //todo
@@ -324,7 +300,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
 
   // TODO: Complete this
   const createRevealAnswerEvent = async () => {
-    console.log("🚀 ~ createRevealAnswerGameEvent ~ TODO:");
     // const gameOutcome = await networkClient?.getProgramMappingValue(
     //   GAME_PROGRAM_ID,
     //   GAME_RESULTS_MAPPING,

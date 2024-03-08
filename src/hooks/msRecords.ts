@@ -1,7 +1,6 @@
 import { useRecords } from "@puzzlehq/sdk";
 
 export const useMsRecords = (address?: string) => {
-  console.log("🚀 ~ useMsRecords ~ address:", address);
   const { records } = useRecords({
     filter: {
       programIds: [
@@ -15,7 +14,6 @@ export const useMsRecords = (address?: string) => {
     page: 1,
     multisig: true,
   });
-  console.log("🚀 ~ useMsRecords ~ records:", records, address);
   const msGameRecords = records?.filter(
     (record) => record.programId === "football_game_v013.aleo"
   );
@@ -25,8 +23,5 @@ export const useMsRecords = (address?: string) => {
   const msUtilRecords = records?.filter(
     (record) => record.programId === "multiparty_pvp_utils_v015_avh.aleo"
   );
-
-  console.log("recordsss", [msGameRecords, msPuzzleRecords, msUtilRecords]);
-
   return { msPuzzleRecords, msGameRecords, msUtilRecords };
 };

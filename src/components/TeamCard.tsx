@@ -188,7 +188,6 @@ const TeamCard: React.FC<ITeamCard> = ({ team, selectedTeam, index }) => {
             <Card
               className="flex flex-col gap-8   text-black  items-center border bg-neutral-100 cursor-pointer  p-2.5 w-80 h-[50vh] mt-4 rounded-[10px] border-solid  border-[#ddd]"
               onClick={() => {
-                console.log("team", team.name);
                 //   onTeamSelected(team.name);
                 //   setIsGameStarted(true);
               }}

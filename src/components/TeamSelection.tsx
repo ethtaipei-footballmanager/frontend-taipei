@@ -101,7 +101,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const [availableBalance, largestPiece, currentGame] = useGameStore(
     (state) => [state.availableBalance, state.largestPiece, state.currentGame]
   );
-  console.log("🚀 ~ currentGame:", currentGame, availableBalance, largestPiece);
   const [
     inputsSubmitWager,
     eventIdSubmit,
@@ -119,10 +118,8 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     state.setStep,
     state.setAcceptedSelectedTeam,
   ]);
-  console.log("🚀 ~ inputsSubmitWager:", eventIdSubmit, acceptGameInputs);
 
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  console.log("🚀 ~ msAddress:", msAddress);
   const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
   const [confirmStep, setConfirmStep] = useState(ConfirmStep.Signing);
   const router = useRouter();
@@ -145,24 +142,19 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         filter,
         // address: account?.address,
       });
-      console.log("🚀 ~ response ~ response:", record);
 
       return record;
     };
     response();
   }, [account]);
 
-  console.log("🚀 ~ availableBalance:", availableBalance);
-  console.log("🚀 ~ largestPiece:", largestPiece);
 
   const handleOpponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOpponent(e.target.value);
   };
   useEffect(() => {
     const wagerAmountResult = wagerAmountSchema.safeParse(bet);
-    console.log("🚀 ~ useEffect ~ wagerAmountResult:", wagerAmountResult);
     const opponentResult = opponentSchema.safeParse(opponent);
-    console.log("🚀 ~ useEffect ~ opponentResult:", opponentResult);
 
     if (!wagerAmountResult.success) {
       setBetError("Wager amount must be a valid number");
@@ -218,9 +210,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       opponent_sig: signature.signature,
     };
     const game_multisig_seed = currentGame?.utilRecords?.[0].data.seed ?? "";
-    console.log("game_multisig seed", game_multisig_seed);
     const { data } = await importSharedState(game_multisig_seed);
-    console.log(`Shared state imported: ${data?.address}`);
 
     setSubmitWagerInputs(newInputs);
     const response = await requestCreateEvent({
@@ -254,12 +244,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   //   }
   // }, [account]);
 
-  console.log(
-    "acceptgame",
-    acceptGameInputs.game_req_notification,
-    acceptGameInputs?.opponent_wager_record,
-    acceptGameInputs.key_record
-  );
 
   const handleStartGame = () => {
     if (account?.address && bet <= availableBalance) {
@@ -269,7 +253,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     }
   };
 
-  console.log("bet", bet, inputs);
 
   return (
     <div className="flex flex-col h-fit  items-center gap-16 mt-16 justify-around ">
@@ -312,7 +295,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
           </SwiperSlide>
         ))} */}
         {teams.map((team, index) => {
-          // console.log("teams", team);
           return (
             <SwiperSlide
               key={team.name}

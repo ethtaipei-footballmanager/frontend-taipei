@@ -13,7 +13,6 @@ export const useGameRecords = () => {
     multisig: false,
   });
 
-  console.log("🚀 ~ useGameRecords ~ records:", records);
   const gameNotifications = records?.filter(
     (record) => record.programId === "football_game_v013.aleo"
   );
@@ -23,11 +22,7 @@ export const useGameRecords = () => {
   const utilRecords = records?.filter(
     (record) => record.programId === "multiparty_pvp_utils_v015_avh.aleo"
   );
-  console.log("🚀 ~ useGameRecords ~ records grouped:", [
-    gameNotifications,
-    puzzleRecords,
-    utilRecords,
-  ]);
+
 
   return { puzzleRecords, gameNotifications, utilRecords };
 };

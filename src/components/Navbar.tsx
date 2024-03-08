@@ -19,7 +19,6 @@ const Navbar = ({ className }: { className?: string }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { account, error, loading } = useAccount();
   const pathname = usePathname();
-  console.log("🚀 ~ Navbar ~ pathname:", pathname);
 
   const [isWalletModal, setIsWalletModal] = useState(false);
   const { width } = useWindowSize();

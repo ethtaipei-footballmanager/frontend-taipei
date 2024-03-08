@@ -6,7 +6,6 @@ import {
 } from "@puzzlehq/sdk";
 
 export const getPositionRole = (positionCode: number): string => {
-  console.log("jey", positionCode);
 
   switch (positionCode) {
     case 1:
@@ -23,7 +22,6 @@ export const getPositionRole = (positionCode: number): string => {
 };
 
 export const isValidPlacement = (playerPosition: string, gridIndex: number) => {
-  // console.log("params", playerPosition, gridIndex);
 
   if (playerPosition === "GK" && gridIndex !== 0) {
     return false;
@@ -61,6 +59,5 @@ export const getAllPuzzleWalletEvents = async () => {
     programId: "football_game_v013.aleo",
   };
   const events: GetEventsResponse = await getEvents(filter);
-  console.log("🚀 ~ getAllPuzzleWalletEvents ~ events:", events);
   return events.events;
 };

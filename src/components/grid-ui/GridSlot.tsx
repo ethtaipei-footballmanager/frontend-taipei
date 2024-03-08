@@ -37,14 +37,12 @@ const GridSlot: React.FC<IGridSlot> = ({
   jersey,
 }) => {
   const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : jersey;
-  // console.log("player30", player, jersey, isGoalkeeper);
   const isValid = isValidPlacement(selectedPlayer?.position, rowIndex);
   return (
     <div
       onClick={() => {
         setIsSelecting(true);
         if (!player) {
-          console.log("clicked", slot, rowIndex);
 
           movePlayer(selectedPlayer.id, rowIndex, slot);
         }

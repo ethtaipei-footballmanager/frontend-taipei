@@ -42,7 +42,6 @@ const Leaderboard = () => {
   //     };
   //     refresh();
   //     const lb = getLeaderboard();
-  //     console.log("🚀 ~ file: Leaderboard.jsx:19 ~ useEffect ~ lb:", lb);
   //     setLeaderboard(lb);
   //   }, []);
 
@@ -50,10 +49,7 @@ const Leaderboard = () => {
   //     setIsLoading(true);
   //     try {
   //       const lb = await sdk.retrieveLeaderboard();
-  //       console.log(
-  //         "🚀 ~ file: Leaderboard.jsx:31 ~ refreshLeaderboard ~ lb:",
-  //         lb
-  //       );
+
   //       storeLeaderboard(lb);
   //       setLeaderboard(lb);
   //       return lb;

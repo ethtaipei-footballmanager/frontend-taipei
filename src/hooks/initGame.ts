@@ -9,12 +9,6 @@ export const useInitGame = () => {
   const [setRecords] = useGameStore((state) => [state.setRecords]);
 
   const { gameNotifications, puzzleRecords, utilRecords } = useGameRecords();
-  console.log(
-    "🚀 ~ useInitGame ~ gameNotifications:",
-    gameNotifications,
-    puzzleRecords,
-    utilRecords
-  );
 
   useEffect(() => {
     if (

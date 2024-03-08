@@ -19,11 +19,9 @@ const Page: React.FC<IPage> = ({}) => {
     state.inputs,
     state.eventId,
   ]);
-  console.log("🚀 ~ inputs:", inputs, eventId);
   const game_multisig = inputs?.game_multisig;
 
   const { event } = useEvent({ id: eventId });
-  console.log("🚀 ~ yourTurn:", theirTurn, totalBalance);
   return (
     <section className="w-full h-[50vh] flex items-center justify-center ">
       <GameCard

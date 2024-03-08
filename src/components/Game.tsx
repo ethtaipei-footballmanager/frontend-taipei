@@ -137,7 +137,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const [isPlayed, setIsPlayed] = useState(false);
   const pathname = usePathname();
   const { setInputs, inputs, setEventId } = useNewGameStore();
-  console.log("🚀 ~ inputs:", inputs);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [selectedReplacementPlayer, setSelectedReplacementPlayer] =
     useState<PlayerType | null>(null);
@@ -166,20 +165,16 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     state.setStep,
   ]);
   const [currentGame] = useGameStore((state) => [state.currentGame]);
-  console.log("🚀 ~ currentGame:", currentGame);
   const [filteredPlayers, setFilteredPlayers] = useState<PlayerType[]>([]);
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
   const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
     useMsRecords(msAddress);
-  console.log("🚀 ~ recordsPuzzle:", recordsPuzzle);
-  console.log("🚀 ~ recordsGame:", recordsGame);
   const [msPuzzleRecords, setMsPuzzleRecords] = useState<
     RecordWithPlaintext[] | undefined
   >();
   const [msGameRecords, setMsGameRecords] = useState<
     RecordWithPlaintext[] | undefined
   >();
-  console.log("🚀 ~ msPuzzleRecords:", msPuzzleRecords, msGameRecords);
 
   const { loading, error, event, setLoading, setError } = useEventHandling({
     id: eventIdAccept,
@@ -250,11 +245,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           currentGame.gameNotification.recordData.opponent_address
     );
 
-    console.log("msGameRecords[0]", msGameRecords[0]);
-    console.log("piece_stake_challenger", piece_stake_challenger);
-    console.log("piece_claim_challenger", piece_claim_challenger);
-    console.log("piece_stake_opponent", piece_stake_opponent);
-    console.log("piece_claim_opponent", piece_claim_opponent);
     if (
       piece_claim_challenger === undefined ||
       piece_claim_opponent === undefined ||
@@ -291,16 +281,13 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
         // multisig: true,
       });
-      console.log("🚀 ~ response ~ response:", records);
       const msGameRecordsData = records?.records?.filter(
         (record) => record.programId === "football_game_v013.aleo"
       );
-      console.log("🚀 ~ response ~ msGameRecordsData:", msGameRecordsData);
 
       const msPuzzleRecordsData = records?.records?.filter(
         (record) => record.programId === "puzzle_pieces_v016.aleo"
       );
-      console.log("🚀 ~ response ~ msPuzzleRecordsData:", msPuzzleRecordsData);
 
       const msUtilRecords = records?.records?.filter(
         (record) => record.programId === "multiparty_pvp_utils_v015_avh.aleo"
@@ -312,10 +299,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   }, []);
 
   const createAcceptGameEvent = async () => {
-    console.log("🚀 ~ createAcceptGameEvent");
-
-    console.log("inpts", msGameRecords, msPuzzleRecords);
-
     if (
       !inputsAcceptGame?.game_record ||
       !inputsAcceptGame.piece_stake_challenger ||
@@ -333,11 +316,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       const activePlayerIds = activePlayers.map((player) => {
         return `${player.id}u8`;
       });
-      console.log(
-        "🚀 ~ activePlayerIds ~ activePlayerIds:",
-        activePlayerIds,
-        activePlayerIds.toString()
-      );
       const block_ht = Number(await response_block_ht.json());
       // TODO: Error handling for missing input
       const acceptGameInputs: Omit<
@@ -369,7 +347,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         setError("No eventId found!");
         setLoading(false);
       } else {
-        console.log("success", response.eventId);
         setEventIdAccept(response.eventId);
         router.push(`/create-game/${response.eventId}`);
       }
@@ -391,11 +368,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     // setConfirmStep(ConfirmStep.Signing);
     // setError(undefined);
 
-    console.log("🚀 ~ createProposeGameEvent ~ signature await:");
     toast.info("Please sign the message");
     setLoadingMessage("Signing...");
     const signature = await requestSignature({ message: messageToSign });
-    console.log("🚀 ~ createProposeGameEvent ~ signature:", signature);
 
     if (signature.error || !signature.messageFields || !signature.signature) {
       setIsLoading(false);
@@ -404,10 +379,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     setLoadingMessage("Creating Multisig...");
 
     const sharedStateResponse = await createSharedState();
-    console.log(
-      "🚀 ~ createProposeGameEvent ~ sharedStateResponse:",
-      sharedStateResponse
-    );
     if (sharedStateResponse.error) {
       setIsLoading(false);
       return;
@@ -416,18 +387,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       const game_multisig = sharedStateResponse.data.address;
 
       setInputs({ ...inputs, game_multisig_seed, game_multisig });
-      console.log(
-        "144",
-        inputs?.opponent,
-        inputs?.wager_record,
-        inputs?.challenger_wager_amount,
-        inputs?.challenger_answer,
-        inputs?.challenger,
-        signature,
-        signature.messageFields,
-        signature.signature,
-        account
-      );
 
       if (
         inputs?.opponent &&
@@ -444,11 +403,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         const activePlayerIds = activePlayers.map((player) => {
           return `${player.id}u8`;
         });
-        console.log(
-          "🚀 ~ activePlayerIds ~ activePlayerIds:",
-          activePlayerIds,
-          toString()
-        );
 
         const proposalInputs: ProposeGameInputs = {
           wager_record: inputs.wager_record,
@@ -467,10 +421,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           challenger_answer: "[" + activePlayerIds.toString() + "]",
           game_multisig_seed,
         };
-        console.log(
-          "🚀 ~ createProposeGameEvent ~ proposalInputs:",
-          proposalInputs
-        );
         toast.info("Approve the transaction to create the game");
 
         const response = await requestCreateEvent({
@@ -482,7 +432,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         });
         setLoadingMessage("Starting Game...");
 
-        console.log("🚀 ~ createProposeGameEvent ~ response:", response);
         if (response.error) {
           setIsLoading(false);
           setLoadingMessage("");
@@ -491,7 +440,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           setLoadingMessage("");
         } else {
           setIsLoading(false);
-          console.log("success", response.eventId);
           setEventId(response.eventId);
           router.push(`/create-game/${response.eventId}`);
           //   setSearchParams({ eventId: response.eventId });
@@ -506,20 +454,13 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     // setConfirmStep(ConfirmStep.Signing);
     // setError(undefined);
 
-    console.log("🚀 ~ createProposeGameEvent ~ signature await:");
     const signature = await requestSignature({ message: messageToSign });
-    console.log("🚀 ~ createProposeGameEvent ~ signature:", signature);
 
     if (signature.error || !signature.messageFields || !signature.signature) {
       setIsLoading(false);
       return;
     }
-    console.log("🚀 ~ createProposeGameEvent ~ creating:");
     const sharedStateResponse = await createSharedState();
-    console.log(
-      "🚀 ~ createProposeGameEvent ~ sharedStateResponse:",
-      sharedStateResponse
-    );
     if (sharedStateResponse.error) {
       setIsLoading(false);
       return;
@@ -528,18 +469,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       const game_multisig = sharedStateResponse.data.address;
 
       setInputs({ ...inputs, game_multisig_seed, game_multisig });
-      console.log(
-        "144",
-        inputs?.opponent,
-        inputs?.wager_record,
-        inputs?.challenger_wager_amount,
-        inputs?.challenger_answer,
-        inputs?.challenger,
-        signature,
-        signature.messageFields,
-        signature.signature,
-        account
-      );
 
       if (
         inputs?.opponent &&
@@ -572,10 +501,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
             "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
           game_multisig_seed,
         };
-        console.log(
-          "🚀 ~ createProposeGameEvent ~ proposalInputs:",
-          proposalInputs
-        );
         const response = await requestCreateEvent({
           type: EventType.Execute,
           programId: GAME_PROGRAM_ID,
@@ -583,11 +508,11 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           fee: transitionFees.propose_game,
           inputs: Object.values(proposalInputs),
         });
-        console.log("🚀 ~ createProposeGameEvent ~ response:", response);
         if (response.error) {
+          // todo AVH
         } else if (!response.eventId) {
+          // todo AVH
         } else {
-          console.log("success", response.eventId);
           router.push(`/create-game/${response.eventId}`);
 
           setEventId(response.eventId);
@@ -598,10 +523,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   };
 
   const createDefaultAcceptGameEvent = async () => {
-    console.log("🚀 ~ createDefaultAcceptGameEvent");
-
-    console.log("inpts", msGameRecords, msPuzzleRecords);
-    console.log("inputsAcceptGame", inputsAcceptGame);
     if (
       !inputsAcceptGame?.game_record ||
       !inputsAcceptGame.piece_stake_challenger ||
@@ -631,8 +552,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         block_ht: block_ht.toString() + "u32",
       };
 
-    console.log("requestCreateEvent await ", inputsAcceptGame);
-
       const response = await requestCreateEvent({
         type: EventType.Execute,
         programId: GAME_PROGRAM_ID,
@@ -642,7 +561,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         address: inputsAcceptGame.game_record.owner,
       });
       setLoadingMessage("Joining game...");
-      console.log("requestCreateEvent response ", response);
 
       if (response.error) {
         setError(response.error);
@@ -651,7 +569,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         setError("No eventId found!");
         setLoading(false);
       } else {
-        console.log("success", response.eventId);
         setEventIdAccept(response.eventId);
         router.push(`/create-game/${response.eventId}`);
       }
@@ -662,12 +579,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   };
   
   const activePlayersCount = activePlayers.filter(Boolean).length;
-  console.log("formationSplitted", formationSplitted[2]);
 
   const movePlayer = (playerId: number, gridIndex: number, slot: number) => {
-    console.log("Moving player with ID:", playerId);
-    console.log("To grid index:", gridIndex);
-    console.log("To slot:", slot);
 
     const playerIndexOnBench = benchPlayers.findIndex(
       (p) => p?.id === playerId
@@ -684,9 +597,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
     setGrid((prevGrid: any) => {
       const newGrid = [...prevGrid];
-      console.log("Previous Grid:", prevGrid);
-
-      console.log("Player Index on Bench:", playerIndexOnBench);
 
       // Remove the player from the bench
       setBenchPlayers((prevPlayers) =>
@@ -706,7 +616,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       });
 
       newGrid[gridIndex][slot] = benchPlayers[playerIndexOnBench];
-      console.log("New Grid:", newGrid, activePlayers);
 
       return newGrid;
     });
@@ -725,7 +634,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   };
 
   useEffect(() => {
-    console.log("format", selectedFormation.split("-"));
 
     setFormationSplitted(selectedFormation.split("-"));
 
@@ -733,20 +641,14 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   }, [selectedFormation]);
 
   const startGame = async () => {
-    console.log("active", activePlayers);
 
     if (activePlayers.length !== 11) {
       toast.info("Please select 11 players");
     } else {
       if (isChallenged) {
-        console.log("hey1");
-
         const acceptGame = await createAcceptGameEvent();
       } else {
-        console.log("hey2");
-
         const createGame = await createProposeGameEvent();
-        console.log("🚀 ~ startGame ~ createGame:", createGame);
       }
 
       // toast.info("You have selected 11 ");
@@ -755,18 +657,10 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
   // TODO AVH DELETE THIS LATER. ONLY FOR TESTING PURPOSES
   const startDefaultGame = async () => {
-    console.log("hey2");
-
-
     if (isChallenged) {
-      console.log("hey1");
-
       const acceptGame = await createDefaultAcceptGameEvent();
     } else {
-      console.log("hey2");
-
       const createGame = await createDefaultProposeGameEvent();
-      console.log("🚀 ~ startGame ~ DEFAULT:", createGame);
     }
 
   };
@@ -839,7 +733,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   useEffect(() => {
     // Fetch and parse the CSV data on component mount
     csv("/players.csv").then((data) => {
-      console.log("data 95", data, selectedTeam);
       // Filter the data for the selected team and set the players state
       const teamPlayers = data
         .filter((player) => player.team_id === teams[selectedTeam].id) // Filter by selectedTeam
@@ -859,7 +752,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           defenseScore: calculateAttribute(player.defense),
         }))
         .sort((a, b) => a.id - b.id);
-      console.log("player0", teamPlayers[0]);
 
       setBenchPlayers(teamPlayers);
       setSelectedPlayer({
@@ -873,7 +765,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
   useEffect(() => {
     csv("/players.csv").then((data) => {
-      console.log("123", data, selectedPlayer);
       // Filter the data for the selected team and set the players state
       const player = data
         .filter((player) => Number(player.player_uid) === selectedPlayer!.id) // Filter by selectedTeam
@@ -892,17 +783,13 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           attackScore: calculateAttribute(player.attack),
           defenseScore: calculateAttribute(player.defense),
         }));
-      console.log("player", player[0]);
 
       setPlayerData(player[0]);
     });
   }, [selectedPlayer]);
 
-  console.log("selected", selectedPlayer);
-
   useEffect(() => {
     // Calculate total attack and defense whenever activePlayers changes
-    console.log("346", activePlayers);
     const newTotalAttack = activePlayers.reduce(
       (sum, player) => (player ? sum + player.attackScore : sum),
       0
@@ -916,7 +803,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     setTotalAttack(newTotalAttack);
     setTotalDefense(newTotalDefense);
   }, [activePlayers]);
-  console.log("selected", selectedFormation);
 
   return (
     // <DndProvider backend={HTML5Backend}>
