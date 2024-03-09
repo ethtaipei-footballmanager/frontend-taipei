@@ -172,7 +172,6 @@ export const useGameStore = create<GameStore>()(
           totalBalance,
           largestPiece,
         }));
-        console.log("records.gameNotifications", records.gameNotifications);
 
         const allGameNotifications: GameNotification[] =
           records.gameNotifications
@@ -185,13 +184,11 @@ export const useGameStore = create<GameStore>()(
             .filter(
               (record): record is GameNotification => record !== undefined
             );
-            console.log("allGameNotifications", allGameNotifications);
 
         const gameNotificationsByGameAddress = _.groupBy(
           allGameNotifications,
           "recordData.game_multisig"
         );
-        console.log("gameNotificationsByGameAddress", gameNotificationsByGameAddress);
 
         const gameNotifications = _.values(gameNotificationsByGameAddress).map(
           (notifications) => {
@@ -211,7 +208,6 @@ export const useGameStore = create<GameStore>()(
           }
         );
 
-          console.log("gameNotifications", gameNotifications);
         const { yourTurn, theirTurn, finished } = gameNotifications.reduce<{
           yourTurn: Game[];
           theirTurn: Game[];
@@ -245,8 +241,6 @@ export const useGameStore = create<GameStore>()(
           },
           { yourTurn: [], theirTurn: [], finished: [] }
         );
-        // console.log("yourTurn", yourTurn);
-        // console.log("theirTurn", theirTurn);
 
         set({ yourTurn, theirTurn, finished });
       },

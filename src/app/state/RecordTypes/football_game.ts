@@ -231,9 +231,6 @@ export const removeVisibilitySuffix = (obj: { [key: string]: string }) => {
     }
     
   }
-  // if (obj["ix"] = "8u32") {
-  //   console.log("obj", obj);
-  // }
   return obj;
 };
 
@@ -361,27 +358,9 @@ export const parseGameRecord = (
   for (const schema of schemas) {
     try {
 
-      const logging_schema = GameFinishReqNotificationSchema;
-      const logging_ix = "9u32";
-
-      if (recordWithPlaintext.data.ix == logging_ix) {
-        console.log(recordWithPlaintext.data.ix, schema);
-      }
-      if (schema === logging_schema && recordWithPlaintext.data.ix == logging_ix) {
-        console.log("recordWithPlaintext BEFORE ", recordWithPlaintext.data);
-      }
-      const recordsRemoveVisibility = removeVisibilitySuffix(recordWithPlaintext.data);
-      if (schema === logging_schema && recordWithPlaintext.data.ix == logging_ix) {
-        console.log("recordsRemoveVisibility MID ", recordsRemoveVisibility);
-      }
-      
       const result = schema.parse(
-        recordsRemoveVisibility
+        removeVisibilitySuffix(recordWithPlaintext.data)
       );
-
-      if (schema === logging_schema && recordWithPlaintext.data.ix == logging_ix) {
-        console.log("recordWithPlaintext AFTER ", recordWithPlaintext.data);
-      }
       return {
         recordData: result,
         recordWithPlaintext: recordWithPlaintext,
