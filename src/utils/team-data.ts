@@ -7,7 +7,8 @@ export const teams = [
     midfield: 76,
     defense: 72,
     foundingYear: 1960,
-    jersey: "#3498db",
+    // jersey: "#3498db",
+    jersey: "/jerseys/jersey_a.png",
     colors: ["blue", "silver"],
     colorCodes: ["#3498db", "#bdc3c7"],
     achievements: [
@@ -24,7 +25,8 @@ export const teams = [
     attack: 86,
     midfield: 85,
     defense: 85,
-    jersey: "#3498db",
+    jersey: "/jerseys/jersey_b.png",
+
     foundingYear: 1995,
     colors: ["blue", "yellow"],
     colorCodes: ["#3498db", "#f39c12"],
@@ -43,7 +45,8 @@ export const teams = [
     midfield: 69,
     defense: 70,
     foundingYear: 1988,
-    jersey: "#8e44ad",
+    jersey: "/jerseys/jersey_c.png",
+
     colors: ["purple", "slate"],
     colorCodes: ["#8e44ad", "#596275"],
     achievements: [
@@ -60,7 +63,8 @@ export const teams = [
     attack: 80,
     midfield: 88,
     defense: 87,
-    jersey: "#8b4513",
+    jersey: "/jerseys/jersey_d.png",
+
     foundingYear: 1992,
     colors: ["brown", "green"],
     colorCodes: ["#8b4513", "#008000"],
@@ -76,7 +80,8 @@ export const teams = [
     midfield: 78,
     defense: 86,
     foundingYear: 2000,
-    jersey: "#00ff00",
+    jersey: "/jerseys/jersey_e.png",
+
     colors: ["green", "red"],
     colorCodes: ["#00ff00", "#c92d2d"],
     achievements: [
@@ -94,7 +99,8 @@ export const teams = [
     midfield: 86,
     defense: 76,
     foundingYear: 1975,
-    jersey: "#ffd700",
+    jersey: "/jerseys/jersey_f.png",
+
     colors: ["gold", "black"],
     colorCodes: ["#ffd700", "#000000"],
     achievements: [

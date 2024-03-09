@@ -6,7 +6,6 @@ import {
 } from "@puzzlehq/sdk";
 
 export const getPositionRole = (positionCode: number): string => {
-
   switch (positionCode) {
     case 1:
       return "GK";
@@ -22,7 +21,6 @@ export const getPositionRole = (positionCode: number): string => {
 };
 
 export const isValidPlacement = (playerPosition: string, gridIndex: number) => {
-
   if (playerPosition === "GK" && gridIndex !== 0) {
     return false;
   } else if (playerPosition === "DEF" && gridIndex !== 1) {
@@ -60,4 +58,23 @@ export const getAllPuzzleWalletEvents = async () => {
   };
   const events: GetEventsResponse = await getEvents(filter);
   return events.events;
+};
+
+export const getTeamName = (id: string) => {
+  switch (id) {
+    case "1":
+      return "a";
+    case "2":
+      return "b";
+    case "3":
+      return "c";
+    case "4":
+      return "d";
+    case "5":
+      return "e";
+    case "6":
+      return "f";
+    default:
+      return "Unknown";
+  }
 };

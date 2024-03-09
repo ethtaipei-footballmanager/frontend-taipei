@@ -4,7 +4,12 @@ import { Step, useAcceptGameStore } from "@/app/accept-game/store";
 import { useGameStore } from "@/app/state/gameStore";
 import { useEventHandling } from "@/hooks/eventHandling";
 import { useMsRecords } from "@/hooks/msRecords";
-import { calculateAttribute, getPositionRole, isValidPlacement } from "@/utils";
+import {
+  calculateAttribute,
+  getPositionRole,
+  getTeamName,
+  isValidPlacement,
+} from "@/utils";
 import { teams } from "@/utils/team-data";
 
 import {
@@ -537,14 +542,15 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       const response_block_ht = await fetch(
         `${ALEO_NETWORK_URL}/latest/height`
       );
-      
+
       const block_ht = Number(await response_block_ht.json());
       const acceptGameInputs: Omit<
         AcceptGameInputs,
         "opponent_answer_readable"
       > = {
         game_record: inputsAcceptGame.game_record,
-        opponent_answer: "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
+        opponent_answer:
+          "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
         piece_stake_challenger: inputsAcceptGame.piece_stake_challenger,
         piece_claim_challenger: inputsAcceptGame.piece_claim_challenger,
         piece_stake_opponent: inputsAcceptGame.piece_stake_opponent,
@@ -577,11 +583,10 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       setLoading(false);
     }
   };
-  
+
   const activePlayersCount = activePlayers.filter(Boolean).length;
 
   const movePlayer = (playerId: number, gridIndex: number, slot: number) => {
-
     const playerIndexOnBench = benchPlayers.findIndex(
       (p) => p?.id === playerId
     );
@@ -634,14 +639,12 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   };
 
   useEffect(() => {
-
     setFormationSplitted(selectedFormation.split("-"));
 
     setGrid((prevGrid: any) => initializeGrid(selectedFormation, prevGrid));
   }, [selectedFormation]);
 
   const startGame = async () => {
-
     if (activePlayers.length !== 11) {
       toast.info("Please select 11 players");
     } else {
@@ -662,10 +665,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     } else {
       const createGame = await createDefaultProposeGameEvent();
     }
-
   };
-
-  
 
   const removePlayer = (playerId: number) => {
     setGrid((prevGrid: any) => {
@@ -736,21 +736,25 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       // Filter the data for the selected team and set the players state
       const teamPlayers = data
         .filter((player) => player.team_id === teams[selectedTeam].id) // Filter by selectedTeam
-        .map((player) => ({
-          id: parseInt(player.player_uid),
-          name: player.player_name,
-          team: player.team,
-          position: getPositionRole(Number(player.position)),
-          goalkeeper: player.goalkeeper,
-          image: `/player_a.svg`,
-          speed: calculateAttribute(player.speed),
-          power: calculateAttribute(player.power),
-          stamina: calculateAttribute(player.stamina),
-          technique: calculateAttribute(player.technique),
-          goalkeeping: calculateAttribute(player.goalkeeping),
-          attackScore: calculateAttribute(player.attack),
-          defenseScore: calculateAttribute(player.defense),
-        }))
+        .map((player) => {
+          const teamName = getTeamName(player.team_id);
+          console.log(`/players/player_${teamName}.png`, player);
+          return {
+            id: parseInt(player.player_uid),
+            name: player.player_name,
+            team: player.team,
+            position: getPositionRole(Number(player.position)),
+            goalkeeper: player.goalkeeper,
+            image: `/players/player_${teamName}.png`,
+            speed: calculateAttribute(player.speed),
+            power: calculateAttribute(player.power),
+            stamina: calculateAttribute(player.stamina),
+            technique: calculateAttribute(player.technique),
+            goalkeeping: calculateAttribute(player.goalkeeping),
+            attackScore: calculateAttribute(player.attack),
+            defenseScore: calculateAttribute(player.defense),
+          };
+        })
         .sort((a, b) => a.id - b.id);
 
       setBenchPlayers(teamPlayers);
@@ -768,21 +772,25 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       // Filter the data for the selected team and set the players state
       const player = data
         .filter((player) => Number(player.player_uid) === selectedPlayer!.id) // Filter by selectedTeam
-        .map((player) => ({
-          id: parseInt(player.player_uid),
-          name: player.player_name,
-          team: player.team,
-          position: getPositionRole(Number(player.position)),
-          goalkeeper: player.goalkeeper,
-          image: `/player_a.svg`,
-          speed: calculateAttribute(player.speed),
-          power: calculateAttribute(player.power),
-          stamina: calculateAttribute(player.stamina),
-          technique: calculateAttribute(player.technique),
-          goalkeeping: calculateAttribute(player.goalkeeping),
-          attackScore: calculateAttribute(player.attack),
-          defenseScore: calculateAttribute(player.defense),
-        }));
+        .map((player) => {
+          const teamName = getTeamName(player.team_id);
+
+          return {
+            id: parseInt(player.player_uid),
+            name: player.player_name,
+            team: player.team,
+            position: getPositionRole(Number(player.position)),
+            goalkeeper: player.goalkeeper,
+            image: `/players/player_${teamName}.png`,
+            speed: calculateAttribute(player.speed),
+            power: calculateAttribute(player.power),
+            stamina: calculateAttribute(player.stamina),
+            technique: calculateAttribute(player.technique),
+            goalkeeping: calculateAttribute(player.goalkeeping),
+            attackScore: calculateAttribute(player.attack),
+            defenseScore: calculateAttribute(player.defense),
+          };
+        });
 
       setPlayerData(player[0]);
     });
