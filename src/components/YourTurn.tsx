@@ -243,7 +243,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
 
   // TODO: Complete this
   const createRevealAnswerEvent = async () => {
-    console.log("reveal utilrecords " , game);
     const calculated_outcome_notification_record = game.gameNotification.recordWithPlaintext;
     
     const challenger_claim_signature = game.puzzleRecords.find(
@@ -268,14 +267,12 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
         const response = await fetch(`https://node.puzzle.online/testnet3/program/football_game_v013.aleo/mapping/game_outcomes/${multisig}`);
         const data = await response.json();
         game_outcome = data;
-        console.log("game_outcome", game_outcome);
         // If you need to access game_outcome later, you can do it after this line
       } catch (error) {
         console.error('There was an error fetching the game outcome:', error);
       }
     }
     await fetchGameOutcome();
-    console.log("game_outcome", game_outcome, game.gameNotification.recordData.game_multisig);
 
     if (!calculated_outcome_notification_record || !challenger_answer_record || !joint_piece_stake || !challenger_claim_signature || !game_outcome) {
       return;
@@ -288,8 +285,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       challenger_answer_record: challenger_answer_record,
       game_outcome: game_outcome
     };
-
-    console.log("newInputs", newInputs)
 
     // setCalculateOutcomeInputs(newInputs);
     const response = await requestCreateEvent({
@@ -388,6 +383,26 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
           variant="outline"
           className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5">
             Reveal outcome
+          </Button>
+        );
+
+      case "Lose":
+        return (
+          <Button
+          // onClick={createFinishGameEvent} // TODO implement a simple wallet popup that consumes 2 records.
+          variant="outline"
+          className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5">
+            Lose
+          </Button>
+        );
+
+      case "Claim":
+        return (
+          <Button
+          // onClick={createFinishGameEvent} // TODO implement a simple wallet popup that consumes 2 records.
+          variant="outline"
+          className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5">
+            Claim
           </Button>
         );
         return (

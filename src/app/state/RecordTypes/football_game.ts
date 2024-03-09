@@ -165,13 +165,15 @@ export type RevealAnswerNotification = {
 export const GameFinishReqNotificationSchema = z.object({
   owner: zodAddress, //opponent
   game_multisig: zodAddress,
-  game_state: z.literal("4field"),
+  game_state: z.literal("5field"),
   your_turn: z.string().transform(Boolean),
   total_pot: z.string().transform(Number),
   challenger_address: zodAddress,
   opponent_address: zodAddress,
-  challenger_answer: z.array(u8).length(11),
-  opponent_answer: z.array(u8).length(11),
+  // challenger_answer: z.array(u8).length(11),
+  // opponent_answer: z.array(u8).length(11),
+  challenger_answer: z.array(z.string()).length(11),
+  opponent_answer: z.array(z.string()).length(11),
   winner: zodAddress,
   loser: zodAddress,
   ix: z.literal("9u32"),
@@ -185,7 +187,7 @@ export type GameFinishReqNotification = {
 export const GameFinishedNotificationSchema = z.object({
   owner: zodAddress, //opponent
   game_multisig: zodAddress,
-  game_state: z.enum(["5field", "6field"]),
+  game_state: z.enum(["6field", "7field"]),
   your_turn: z.string().transform(Boolean),
   total_pot: z.string().transform(Number),
   challenger_address: zodAddress,
@@ -277,6 +279,7 @@ export const getGameState = (game: GameNotification): GameState => {
     case "8u32":
       return `challenger:8`;
     case "9u32": {
+      console.log("game.recordData.winner", game.recordData.winner);
       const isWinner = game.recordData.winner === game.recordData.owner;
       return isWinner ? `winner:4` : `loser:4`;
     }
@@ -358,14 +361,17 @@ export const parseGameRecord = (
   for (const schema of schemas) {
     try {
 
-      if (recordWithPlaintext.data.ix == "11u32") {
-        console.log("11u32 ", schema);
+      const logging_schema = GameFinishReqNotificationSchema;
+      const logging_ix = "9u32";
+
+      if (recordWithPlaintext.data.ix == logging_ix) {
+        console.log(recordWithPlaintext.data.ix, schema);
       }
-      if (schema === CalculatedOutcomeNotificationSchema && recordWithPlaintext.data.ix == "11u32") {
+      if (schema === logging_schema && recordWithPlaintext.data.ix == logging_ix) {
         console.log("recordWithPlaintext BEFORE ", recordWithPlaintext.data);
       }
       const recordsRemoveVisibility = removeVisibilitySuffix(recordWithPlaintext.data);
-      if (schema === CalculatedOutcomeNotificationSchema && recordWithPlaintext.data.ix == "11u32") {
+      if (schema === logging_schema && recordWithPlaintext.data.ix == logging_ix) {
         console.log("recordsRemoveVisibility MID ", recordsRemoveVisibility);
       }
       
@@ -373,7 +379,7 @@ export const parseGameRecord = (
         recordsRemoveVisibility
       );
 
-      if (schema === CalculatedOutcomeNotificationSchema && recordWithPlaintext.data.ix == "11u32") {
+      if (schema === logging_schema && recordWithPlaintext.data.ix == logging_ix) {
         console.log("recordWithPlaintext AFTER ", recordWithPlaintext.data);
       }
       return {
