@@ -4,6 +4,7 @@ import {
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
   RevealAnswerInputs,
+  FinishGameInputs,
   SubmitWagerInputs,
   transitionFees,
 } from "@/app/state/manager";
@@ -88,7 +89,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
   const { loading, error, event, setLoading, setError } = useEventHandling({
     id: eventIdSubmit,
     stepName: "Submit Wager",
-    // onSettled: () => setStep(Step._02_AcceptGame),
   });
 
 
@@ -241,7 +241,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     }
   };
 
-  // TODO: Complete this
   const createRevealAnswerEvent = async () => {
     const calculated_outcome_notification_record = game.gameNotification.recordWithPlaintext;
     
@@ -303,6 +302,63 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       setCurrentGame(game);
       // setCalculateOutcomeInputs({ ...newInputs });
       // router.push(`/accept-game/${response.eventId}`);
+    }
+  };
+
+  const createFinishGameEvent = async () => {
+    console.log("createFinishGameEvent");
+    console.log('game', game);
+    console.log('msPuzzleRecords', msPuzzleRecords);
+    console.log('msGameRecords', msGameRecords);
+
+    if (!game || !msPuzzleRecords || !msGameRecords) return;
+
+    const game_record = msGameRecords[0];
+
+    const joint_piece_winner = msPuzzleRecords.find(
+      (r) => r.data.ix === '12u32.private'
+    );
+    const piece_joint_stake = msPuzzleRecords.find(
+      (r) => r.data.ix === '9u32.private'
+    );
+    const joint_piece_time_claim = msPuzzleRecords.find(
+      (r) => r.data.ix === '8u32.private'
+    );
+
+
+    console.log('game_record', game_record);
+    console.log('joint_piece_winner', joint_piece_winner);
+    console.log('piece_joint_stake', piece_joint_stake);
+    console.log('joint_piece_time_claim', joint_piece_time_claim);
+
+    const multisig = game.gameNotification.recordData.game_multisig;
+    if (!game_record || !joint_piece_winner || !piece_joint_stake || !joint_piece_time_claim) {
+      return;
+    }
+
+    const newInputs: Partial<FinishGameInputs> = {
+      game_record: game_record,
+      joint_piece_winner: joint_piece_winner,
+      piece_joint_stake: piece_joint_stake,
+      joint_piece_time_claim: joint_piece_time_claim
+    };
+
+    // setCalculateOutcomeInputs(newInputs);
+    const response = await requestCreateEvent({
+      type: EventType.Execute,
+      programId: GAME_PROGRAM_ID,
+      functionId: GAME_FUNCTIONS.finish_game,
+      fee: transitionFees.finish_game,
+      inputs: Object.values(newInputs),
+      address: game_record.owner, // opponent address
+    });
+    if (response.error) {
+      setError(response.error);
+      setLoading(false);
+    } else if (response.eventId) {
+      /// todo - other things here?
+      setEventIdSubmit(response.eventId);
+      setCurrentGame(game);
     }
   };
 
@@ -389,7 +445,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       case "Lose":
         return (
           <Button
-          // onClick={createFinishGameEvent} // TODO implement a simple wallet popup that consumes 2 records.
           variant="outline"
           className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5">
             Lose
@@ -399,85 +454,19 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       case "Claim":
         return (
           <Button
-          // onClick={createFinishGameEvent} // TODO implement a simple wallet popup that consumes 2 records.
-          variant="outline"
+          onClick={
+            () => {
+            console.log("click claim");
+            setCurrentGame(game);
+            console.log("click claim game", game);
+            createFinishGameEvent();
+          }
+        }          variant="outline"
           className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5">
             Claim
           </Button>
         );
-        return (
-          // TODO: Here we must do 3 things
-          // - gameOutcome must be retrieved from the mapping (multisig address is the key)
-          // - Wallet popup that consumes 4 records + gameOutcome
-          // - Navigate user to the page of this specific game (something like /games/{id}) // id = multisig address
-          <Button
-            // onClick={() => {
-            //   setCurrentGame(game);
-            //   const gameOutcome = networkClient.getProgramMappingValue(GAME_PROGRAM_ID, GAME_RESULTS_MAPPING, game.gameNotification.recordData.game_multisig);
-            //   navigate(
-            //     `/reveal-answer/${game.gameNotification.recordData.game_multisig}`
-            //   );
-            // }}
-            size="sm"
-            color="yellow"
-          >
-            Reveal outcome
-          </Button>
-        );
-      // return (
-      // <Button
-      //     onClick={() => {
-      //         setCurrentGame(game);
-      //         navigate(
-      //             `/reveal-answer/${game.gameNotification.recordData.game_multisig}`
-      //         );
-      //     }}
-      //     size="sm"
-      //     color="yellow"
-      // >
-      //     Reveal
-      // </Button>
-      // );
-      case "Lose":
-        return (
-          <Button size="sm" color="yellow">
-            Lose
-          </Button>
-        );
-      // return (
-      //     <Button
-      //         onClick={() => {
-      //             setCurrentGame(game);
-      //             navigate(
-      //                 `/finish-game/lose/${game.gameNotification.recordData.game_multisig}`
-      //             );
-      //         }}
-      //         size="sm"
-      //         color="yellow"
-      //     >
-      //         See Answer
-      //     </Button>
-      // );
-      case "Claim":
-        return (
-          <Button size="sm" color="yellow">
-            Claim
-          </Button>
-        );
-      // return (
-      //     <Button
-      //         onClick={() => {
-      //             setCurrentGame(game);
-      //             navigate(
-      //                 `/finish-game/win/${game.gameNotification.recordData.game_multisig}`
-      //             );
-      //         }}
-      //         color="yellow"
-      //         size="sm"
-      //     >
-      //         View Result
-      //     </Button>
-      // );
+     
     }
   };
   return (
