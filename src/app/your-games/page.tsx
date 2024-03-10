@@ -3,8 +3,8 @@
 import { useNewGameStore } from "../create-game/store";
 import { useGameStore } from "../state/gameStore";
 // import TheirTurn from '@components/TheirTurn';
-import YourTurn from "@components/YourTurn";
 import { useInitGame } from "@/hooks/initGame";
+import YourTurn from "@components/YourTurn";
 import { Separator } from "@components/ui/separator";
 
 interface IYourGames {}
@@ -23,33 +23,52 @@ const YourGames: React.FC<IYourGames> = ({}) => {
   const [initialize] = useNewGameStore((state) => [state.initialize]);
 
   return (
-    <div className="p-4 flex gap-2 h-[80vh] w-full mt-6 justify-center">
+    <div className="flex flex-col justify-center gap-4 items-center">
       {/* {yourTurn.length > 0 && <YourTurn games={yourTurn} />} */}
+      <div className="p-4 flex gap-2 h-[80vh] w-full mt-6 justify-center">
+        {yourTurn.length > 0 && (
+          <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
+            <h2 className="tracking-tighter text-2xl font-bold">
+              Your Turn to Play
+            </h2>
 
-      {yourTurn.length > 0 && (
-        <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
-          <h2 className="tracking-tighter text-2xl font-bold">
-            Your Turn to Play
-          </h2>
-
-          <div className="grid grid-cols-3 gap-4">
-            {yourTurn.map((game, index) => (
-              <YourTurn key={index} game={game} />
-            ))}
+            <div className="grid grid-cols-3 gap-4">
+              {yourTurn.map((game, index) => (
+                <YourTurn key={index} game={game} isFinished={false} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-      <Separator orientation="vertical" className="" />
-      {theirTurn.length > 0 && (
-        <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
-          <h2 className="tracking-tighter text-2xl font-bold">
-            Their Turn to Play
-          </h2>
+        )}
+        <Separator orientation="vertical" className="" />
+        {theirTurn.length > 0 && (
+          <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
+            <h2 className="tracking-tighter text-2xl font-bold">
+              Their Turn to Play
+            </h2>
 
-          <div className="grid grid-cols-3 gap-4">
-            {theirTurn.map((game, index) => (
-              <YourTurn key={index} game={game} />
-            ))}
+            <div className="grid grid-cols-3 gap-4">
+              {theirTurn.map((game, index) => (
+                <YourTurn key={index} game={game} isFinished={false} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {finished.length > 0 && (
+        <div className="flex flex-col gap-3 justify-center items-center w-full py-6">
+          <Separator orientation="horizontal" className="" />
+
+          <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
+            <h2 className="tracking-tighter text-2xl font-bold">
+              Finished Games
+            </h2>
+
+            <div className="grid grid-cols-3 justify-center items-center gap-4">
+              {finished.map((game, index) => (
+                <YourTurn key={index} game={game} isFinished={true} />
+              ))}
+            </div>
           </div>
         </div>
       )}
