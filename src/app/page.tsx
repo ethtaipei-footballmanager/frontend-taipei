@@ -9,9 +9,7 @@ import { CiTrophy } from "react-icons/ci";
 import { FaXTwitter } from "react-icons/fa6";
 import { IoFootballOutline, IoGameControllerOutline } from "react-icons/io5";
 export default function Home() {
-  const header = "Welcome to the Super Leo Lig".split(
-    " "
-  );
+  const header = "Welcome to the Super Leo Lig".split(" ");
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden bg-white dark:bg-gray-900">
       <main className="flex-1">
@@ -20,7 +18,7 @@ export default function Home() {
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                  <h1 className="text-3xl w-2/3 font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                     {header.map((el, i) => (
                       <motion.span
                         initial={{ opacity: 0 }}

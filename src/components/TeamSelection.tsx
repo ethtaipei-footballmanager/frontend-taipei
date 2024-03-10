@@ -148,7 +148,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     response();
   }, [account]);
 
-
   const handleOpponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOpponent(e.target.value);
   };
@@ -244,7 +243,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   //   }
   // }, [account]);
 
-
   const handleStartGame = () => {
     if (account?.address && bet <= availableBalance) {
       setIsGameStarted(true);
@@ -252,7 +250,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       toast.info("Please connect your Puzzle Wallet to play");
     }
   };
-
 
   return (
     <div className="flex flex-col h-fit  items-center gap-16 mt-16 justify-around ">
@@ -337,10 +334,11 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         {/* <div className="flex flex-row gap-1"> */}
         {/* </div> */}
       </div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="outline">Pick Team</Button>
-        </DialogTrigger>
+      {!isChallenged ? (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">Pick Team</Button>
+          </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Start Game</DialogTitle>
@@ -445,8 +443,17 @@ const TeamSelection: React.FC<ITeamSelection> = ({
               )}
             </div>
           </DialogContent>
-        
-      </Dialog>
+        </Dialog>
+      ) : (
+        <Button
+          onClick={handleStartGame}
+          className="w-36"
+          variant={"outline"}
+          type="submit"
+        >
+          Start Game
+        </Button>
+      )}
     </div>
   );
 };
