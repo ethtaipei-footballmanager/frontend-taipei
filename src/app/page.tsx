@@ -9,7 +9,7 @@ import { CiTrophy } from "react-icons/ci";
 import { FaXTwitter } from "react-icons/fa6";
 import { IoFootballOutline, IoGameControllerOutline } from "react-icons/io5";
 export default function Home() {
-  const header = "Welcome to the Super Leo Lig".split(" ");
+  const header = "Welcome to Super Leo Lig".split(" ");
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden bg-white dark:bg-gray-900">
       <main className="flex-1">
