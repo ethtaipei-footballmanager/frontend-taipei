@@ -83,4 +83,5 @@ export type FinishGameInputs = {
   joint_piece_winner: RecordWithPlaintext;
   piece_joint_stake: RecordWithPlaintext;
   joint_piece_time_claim: RecordWithPlaintext;
+  game_outcome: string; // TODO remove this in next contract upgrade
 };

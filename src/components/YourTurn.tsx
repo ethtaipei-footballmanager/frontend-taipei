@@ -88,7 +88,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     (state) => [state.largestPiece, state.availableBalance, state.currentGame]
   );
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-
+    console.log("AVH msPuzzleRecords msAddress", msAddress);
   const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
     useMsRecords(msAddress);
   const [msPuzzleRecords, setMsPuzzleRecords] = useState<
@@ -377,12 +377,29 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       (r) => r.data.ix === "8u32.private"
     );
 
+    const multisig = game.gameNotification.recordData.game_multisig; // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
+    let game_outcome; // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
+
+    async function fetchGameOutcome() { // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
+      try {
+        const response = await fetch(
+          `https://node.puzzle.online/testnet3/program/football_game_v013.aleo/mapping/game_outcomes/${multisig}`
+        );
+        const data = await response.json();
+        game_outcome = data;
+        // If you need to access game_outcome later, you can do it after this line
+      } catch (error) {
+        console.error("There was an error fetching the game outcome:", error);
+      }
+    }
+    await fetchGameOutcome(); // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
+
     console.log("game_record", game_record);
     console.log("joint_piece_winner", joint_piece_winner);
     console.log("piece_joint_stake", piece_joint_stake);
     console.log("joint_piece_time_claim", joint_piece_time_claim);
+    console.log("game_outcome", joint_piece_time_claim);
 
-    const multisig = game.gameNotification.recordData.game_multisig;
     if (
       !game_record ||
       !joint_piece_winner ||
@@ -397,6 +414,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       joint_piece_winner: joint_piece_winner,
       piece_joint_stake: piece_joint_stake,
       joint_piece_time_claim: joint_piece_time_claim,
+      game_outcome: game_outcome, // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
     };
 
     // setCalculateOutcomeInputs(newInputs);
