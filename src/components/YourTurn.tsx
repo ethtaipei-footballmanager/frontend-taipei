@@ -47,7 +47,7 @@ interface IYourTurn {
 
 const filter: RecordsFilter = {
   programIds: [
-    "football_game_v013.aleo",
+    "football_game_v014.aleo",
     "puzzle_pieces_v016.aleo",
     "multiparty_pvp_utils_v015_avh.aleo",
   ],
@@ -133,7 +133,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
         // multisig: true,
       });
       const msGameRecordsData = records?.records?.filter(
-        (record) => record.programId === "football_game_v013.aleo"
+        (record) => record.programId === "football_game_v014.aleo"
       );
 
       const msPuzzleRecordsData = records?.records?.filter(
@@ -294,7 +294,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
   const fetchGameOutcome = async () => {
     try {
       const response = await fetch(
-        `https://node.puzzle.online/testnet3/program/football_game_v013.aleo/mapping/game_outcomes/${game_id}`
+        `https://node.puzzle.online/testnet3/program/football_game_v014.aleo/mapping/game_outcomes/${game_id}`
       );
 
       const dataText = await response.text(); // Change this to text(), as JSON parsing fails
@@ -461,11 +461,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
       (r) => r.data.ix === "8u32.private"
     );
 
-    const multisig = game.gameNotification.recordData.game_multisig; // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
-    // let game_outcome; // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
-
-    const game_outcome = await fetchGameOutcome();
-    // await fetchGameOutcome(); // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
 
     console.log("game_record", game_record);
     console.log("joint_piece_winner", joint_piece_winner);
@@ -487,7 +482,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
       joint_piece_winner: joint_piece_winner,
       piece_joint_stake: piece_joint_stake,
       joint_piece_time_claim: joint_piece_time_claim,
-      game_outcome: game_outcome, // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
     };
 
     // setCalculateOutcomeInputs(newInputs);
