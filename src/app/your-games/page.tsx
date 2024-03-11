@@ -6,19 +6,29 @@ import { useGameStore } from "../state/gameStore";
 import { useInitGame } from "@/hooks/initGame";
 import YourTurn from "@components/YourTurn";
 import { Separator } from "@components/ui/separator";
+import { EventType, requestCreateEvent, useAccount } from "@puzzlehq/sdk";
+import { useState } from "react";
+import { transitionFees } from "../state/manager";
 
 interface IYourGames {}
 
 const YourGames: React.FC<IYourGames> = ({}) => {
   useInitGame();
-  const [yourTurn, theirTurn, finished] = useGameStore((state) => [
-    state.yourTurn,
-    state.theirTurn,
-    state.finished,
-  ]);
+  const [yourTurn, theirTurn, finished, availableBalance] = useGameStore(
+    (state) => [
+      state.yourTurn,
+      state.theirTurn,
+      state.finished,
+      state.availableBalance,
+    ]
+  );
+  const { account } = useAccount();
+  const [loading, setLoading] = useState(false);
   console.log("🚀 ~ yourTurn:", yourTurn);
   console.log("🚀 ~ theirTurn:", theirTurn);
   console.log("🚀 ~ finished:", finished);
+
+
 
   const [initialize] = useNewGameStore((state) => [state.initialize]);
 
@@ -39,19 +49,22 @@ const YourGames: React.FC<IYourGames> = ({}) => {
             </div>
           </div>
         )}
-        <Separator orientation="vertical" className="" />
-        {theirTurn.length > 0 && (
-          <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
-            <h2 className="tracking-tighter text-2xl font-bold">
-              Their Turn to Play
-            </h2>
 
-            <div className="grid grid-cols-3 gap-4">
-              {theirTurn.map((game, index) => (
-                <YourTurn key={index} game={game} isFinished={false} />
-              ))}
+        {theirTurn.length > 0 && (
+          <>
+            <Separator orientation="vertical" className="" />
+            <div className="flex flex-col gap-6 items-center w-1/2 justify-start">
+              <h2 className="tracking-tighter text-2xl font-bold">
+                Their Turn to Play
+              </h2>
+
+              <div className="grid grid-cols-3 gap-4">
+                {theirTurn.map((game, index) => (
+                  <YourTurn key={index} game={game} isFinished={false} />
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 
@@ -75,10 +88,11 @@ const YourGames: React.FC<IYourGames> = ({}) => {
 
       {/* {theirTurn.length > 0 && <TheirTurn games={theirTurn} />} */}
       {yourTurn.length === 0 && theirTurn.length === 0 && (
-        <p className="self-center font-semibold">
+        <p className=" absolute left-2/5 top-1/2 font-semibold">
           No ongoing games, start one with a friend!
         </p>
       )}
+
       {/* {allEvents?.map((event, index) => {
         if (
           event.functionId == "propose_game" ||

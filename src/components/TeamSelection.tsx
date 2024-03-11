@@ -177,6 +177,26 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     }
   }, [bet, opponent]);
 
+  const getPuzzlePieces = async () => {
+    setLoading(true);
+    try {
+      const response = await requestCreateEvent({
+        type: EventType.Execute,
+        programId: "puzzle_pieces_v016.aleo",
+        functionId: "mint_private",
+        fee: transitionFees.submit_wager,
+        inputs: Object.values({
+          amount: "1000u64",
+          address: account?.address!,
+        }),
+        address: account?.address, // opponent address
+      });
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
   const createSubmitWagerEvent = async () => {
     if (
       !acceptGameInputs?.opponent_wager_record ||
@@ -374,10 +394,18 @@ const TeamSelection: React.FC<ITeamSelection> = ({
               </div>
               {betError && <p className="text-red-500 text-sm">{betError}</p>}
               {availableBalance === 0 ? (
-                <div className="flex text-center w-full tracking-tight">
+                <div className="flex flex-col gap-4 -mb-6 items-center justify-center text-center w-full tracking-tight">
                   <p className="text-red-500 text-sm">
                     You need puzzle pieces to play the game
                   </p>
+                  <Button
+                    disabled={loading}
+                    onClick={getPuzzlePieces}
+                    className="w-32"
+                    variant={"outline"}
+                  >
+                    Mint Pieces
+                  </Button>
                 </div>
               ) : (
                 <div className="relative">

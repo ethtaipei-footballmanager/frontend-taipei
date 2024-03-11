@@ -9,8 +9,8 @@ export const teams = [
     foundingYear: 1960,
     // jersey: "#3498db",
     jersey: "/jerseys/jersey_a.png",
-    colors: ["blue", "silver"],
-    colorCodes: ["#3498db", "#bdc3c7"],
+    colors: ["red", "black"],
+    colorCodes: ["#c90000", "#000000"],
     achievements: [
       "Dominant in the 1980s",
       "Multiple championships",
@@ -28,8 +28,8 @@ export const teams = [
     jersey: "/jerseys/jersey_b.png",
 
     foundingYear: 1995,
-    colors: ["blue", "yellow"],
-    colorCodes: ["#3498db", "#f39c12"],
+    colors: ["black", "white"],
+    colorCodes: ["#000", "#fff"],
     achievements: [
       "Championship in 2007",
       "Rise from lower divisions",
@@ -47,8 +47,8 @@ export const teams = [
     foundingYear: 1988,
     jersey: "/jerseys/jersey_c.png",
 
-    colors: ["purple", "slate"],
-    colorCodes: ["#8e44ad", "#596275"],
+    colors: ["orange", "blue"],
+    colorCodes: ["#e65800", "#0036e6"],
     achievements: [
       "League title in third season",
       "Cultural identity connection",
@@ -66,8 +66,8 @@ export const teams = [
     jersey: "/jerseys/jersey_d.png",
 
     foundingYear: 1992,
-    colors: ["brown", "green"],
-    colorCodes: ["#8b4513", "#008000"],
+    colors: ["blue", "black"],
+    colorCodes: ["#0225b3", "#000000"],
     achievements: ["Balanced Offense and Defense", "Established in 1992"],
     fanbase: "Harvesters",
   },
@@ -82,8 +82,8 @@ export const teams = [
     foundingYear: 2000,
     jersey: "/jerseys/jersey_e.png",
 
-    colors: ["green", "red"],
-    colorCodes: ["#00ff00", "#c92d2d"],
+    colors: ["purple", "black"],
+    colorCodes: ["#3402b3", "#000"],
     achievements: [
       "Speed and Precision",
       "Strategic Teamwork",
@@ -101,8 +101,8 @@ export const teams = [
     foundingYear: 1975,
     jersey: "/jerseys/jersey_f.png",
 
-    colors: ["gold", "black"],
-    colorCodes: ["#ffd700", "#000000"],
+    colors: ["green", "purple"],
+    colorCodes: ["#02b35b", "#4902b3"],
     achievements: [
       "Consistent Playoff Appearances",
       "Strong Aerial Attack Strategy",

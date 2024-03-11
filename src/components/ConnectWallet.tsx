@@ -1,5 +1,14 @@
 "use client";
-import { disconnect, useAccount, useBalance, useConnect } from "@puzzlehq/sdk";
+import { useGameStore } from "@/app/state/gameStore";
+import { transitionFees } from "@/app/state/manager";
+import {
+  EventType,
+  disconnect,
+  requestCreateEvent,
+  useAccount,
+  useBalance,
+  useConnect,
+} from "@puzzlehq/sdk";
 import { SessionTypes } from "@walletconnect/types";
 import React, { useEffect, useState } from "react";
 import { IoCopyOutline, IoLogOutOutline } from "react-icons/io5";
@@ -30,8 +39,9 @@ interface IConnectWallet {
 }
 
 const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
-  const { account, error, loading } = useAccount();
+  const { account, error } = useAccount();
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
   const { connect } = useConnect();
   const [isCopied, setIsCopied] = useState(false);
   const { balances } = useBalance({
@@ -39,6 +49,26 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
     multisig: true,
   });
   // const balances = useBalance();
+  const [availableBalance] = useGameStore((state) => [state.availableBalance]);
+  const getPuzzlePieces = async () => {
+    setLoading(true);
+    try {
+      const response = await requestCreateEvent({
+        type: EventType.Execute,
+        programId: "puzzle_pieces_v016.aleo",
+        functionId: "mint_private",
+        fee: transitionFees.submit_wager,
+        inputs: Object.values({
+          amount: "1000u64",
+          address: account?.address!,
+        }),
+        address: account?.address, // opponent address
+      });
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
 
   const copyAddress = () => {
     navigator.clipboard.writeText(account?.address as string);
@@ -51,12 +81,10 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
   const connectWallet = async () => {
     try {
       const session: SessionTypes.Struct = await connect();
-
     } catch (err) {
       //   setError((e as Error).message);
     }
   };
-
 
   useEffect(() => {
     if (account) {
@@ -99,8 +127,23 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
                 <h1 className="font-semibold tracking-tighter text-[#868989] ">
                   Private Balance: {balances && balances[0].private.toFixed(2)}
                 </h1>
+                <h1 className="font-semibold tracking-tighter text-[#868989] ">
+                  Puzzle Pieces: {availableBalance && availableBalance}
+                </h1>
               </DialogDescription>
             </DialogHeader>
+            {availableBalance === 0 && (
+              <div className="w-full flex items-center justify-center">
+                <Button
+                  disabled={loading}
+                  onClick={getPuzzlePieces}
+                  className="w-32"
+                  variant={"outline"}
+                >
+                  Mint Pieces
+                </Button>
+              </div>
+            )}
             <div className="flex justify-center gap-4 mt-2 text-center w-full items-center">
               <Button
                 onClick={copyAddress}
