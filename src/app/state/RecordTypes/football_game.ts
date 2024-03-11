@@ -20,9 +20,9 @@ export const GameRecordSchema = z.object({
     "4field",
     "5field",
     "6field",
-    "7field",
+    "9field",
   ]),
-  ix: z.literal("1u32"),
+  ix: z.literal("1u32"), // We ignore finished games (ix 0)
   _nonce: z.string(),
 });
 export type GameRecord = {
@@ -127,23 +127,6 @@ export type WaitingRevealNotification = {
   recordWithPlaintext: RecordWithPlaintext;
 };
 
-export const CalculatedOutcomeNotificationSchema = z.object({
-  owner: zodAddress, //opponent
-  game_multisig: zodAddress,
-  game_state: z.literal("4field"), //TODO: which field value we use?
-  your_turn: z.string().transform(Boolean),
-  total_pot: z.string().transform(Number),
-  challenger_address: zodAddress,
-  opponent_address: zodAddress,
-  opponent_answer: z.array(z.string()).length(11),
-  ix: z.literal("11u32"),
-  _nonce: z.string(),
-});
-export type CalculatedOutcomeNotification = {
-  recordData: z.infer<typeof CalculatedOutcomeNotificationSchema>;
-  recordWithPlaintext: RecordWithPlaintext;
-};
-
 export const RevealAnswerNotificationSchema = z.object({
   owner: zodAddress, //challenger
   game_multisig: zodAddress,
@@ -162,6 +145,39 @@ export type RevealAnswerNotification = {
   recordWithPlaintext: RecordWithPlaintext;
 };
 
+export const WaitingCalculationNotificationSchema = z.object({
+  owner: zodAddress, //opponent
+  game_multisig: zodAddress,
+  game_state: z.literal("4field"),
+  your_turn: z.string().transform(Boolean),
+  total_pot: z.string().transform(Number),
+  challenger_address: zodAddress,
+  opponent_address: zodAddress,
+  ix: z.literal("9u32"),
+  _nonce: z.string(),
+});
+export type WaitingCalculationNotification = {
+  recordData: z.infer<typeof WaitingCalculationNotificationSchema>;
+  recordWithPlaintext: RecordWithPlaintext;
+};
+
+export const CalculatedOutcomeNotificationSchema = z.object({
+  owner: zodAddress, //opponent
+  game_multisig: zodAddress,
+  game_state: z.literal("4field"),
+  your_turn: z.string().transform(Boolean),
+  total_pot: z.string().transform(Number),
+  challenger_address: zodAddress,
+  opponent_address: zodAddress,
+  opponent_answer: z.array(z.string()).length(11),
+  ix: z.literal("10u32"),
+  _nonce: z.string(),
+});
+export type CalculatedOutcomeNotification = {
+  recordData: z.infer<typeof CalculatedOutcomeNotificationSchema>;
+  recordWithPlaintext: RecordWithPlaintext;
+};
+
 export const GameFinishReqNotificationSchema = z.object({
   owner: zodAddress, //opponent
   game_multisig: zodAddress,
@@ -176,7 +192,7 @@ export const GameFinishReqNotificationSchema = z.object({
   opponent_answer: z.array(z.string()).length(11),
   winner: zodAddress,
   loser: zodAddress,
-  ix: z.literal("9u32"),
+  ix: z.literal("11u32"),
   _nonce: z.string(),
 });
 export type GameFinishReqNotification = {
@@ -187,14 +203,14 @@ export type GameFinishReqNotification = {
 export const GameFinishedNotificationSchema = z.object({
   owner: zodAddress, //opponent
   game_multisig: zodAddress,
-  game_state: z.enum(["6field", "7field"]),
+  game_state: z.enum(["6field", "9field"]),
   your_turn: z.string().transform(Boolean),
   total_pot: z.string().transform(Number),
   challenger_address: zodAddress,
   opponent_address: zodAddress,
   winner: zodAddress,
   loser: zodAddress,
-  ix: z.literal("10u32"),
+  ix: z.literal("12u32"),
   _nonce: z.string(),
 });
 export type GameFinishedNotification = {
@@ -241,25 +257,22 @@ export type GameState =
   | "challenger:3"
   | "challenger:5"
   | "challenger:6"
+  | "challenger:9"
   | "opponent:0"
   | "opponent:1"
   | "opponent:2"
   | "opponent:3"
   | "opponent:5"
   | "opponent:6"
-  | "winner:4"
-  | "loser:4"
-  | "challenger:7" // TODO do we use this?
-  | "challenger:8" // Added this state for calculating outcome
-  | "challenger:11" // Added this state for calculating outcome
-  | "opponent:7";
+  | "opponent:9"
+  | "winner"
+  | "loser";
 
 export const getGameState = (game: GameNotification): GameState => {
   const challenger_or_opponent =
     game.recordData.challenger_address === game.recordData.owner
       ? "challenger"
       : "opponent";
-
   switch (game.recordData.ix) {
     case "2u32":
       return `opponent:1`;
@@ -274,16 +287,20 @@ export const getGameState = (game: GameNotification): GameState => {
     case "7u32":
       return `opponent:3`;
     case "8u32":
-      return `challenger:8`;
+      return `challenger:3`;
+    case "9u32":
+      return `challenger:4`;
+    case "10u32":
+      return `challenger:4`;
+    case "11u32":
+      return `${challenger_or_opponent}:5`;
+    case "12u32":
+      return `${challenger_or_opponent}:6`;
     case "9u32": {
       console.log("game.recordData.winner", game.recordData.winner);
       const isWinner = game.recordData.winner === game.recordData.owner;
-      return isWinner ? `winner:4` : `loser:4`;
+      return isWinner ? `winner` : `loser`;
     }
-    case "10u32":
-      return `${challenger_or_opponent}:5`;
-    case "11u32":
-      return "challenger:11";
     default:
       return "challenger:0";
   }
@@ -370,9 +387,3 @@ export const parseGameRecord = (
   }
   return undefined;
 };
-
-// game_state
-// 0field - StakeRenegedNotification
-// 1field - ChallengerWagerNotification, OpponentWagerNotification
-// 2field - WaitingRevealNotification, CalculatedOutcomeNotification, RevealAnswerNotification, GameFinishReqNotification
-// 3field - GameFinishedNotification
