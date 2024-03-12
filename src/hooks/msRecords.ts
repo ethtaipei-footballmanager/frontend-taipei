@@ -11,7 +11,6 @@ export const useMsRecords = (address?: string) => {
       type: "unspent",
     },
     address,
-    page: 1,
     multisig: true,
   });
   const msGameRecords = records?.filter(

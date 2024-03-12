@@ -103,7 +103,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     (state) => [state.largestPiece, state.availableBalance, state.currentGame]
   );
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  console.log("AVH msPuzzleRecords msAddress", msAddress);
   const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
     useMsRecords(msAddress);
   const [msPuzzleRecords, setMsPuzzleRecords] = useState<
@@ -148,7 +147,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     };
     response();
     if (isFinished) {
-      fetchGameOutcome();
+      fetchGameOutcomeObject();
     }
   }, []);
 
@@ -292,6 +291,22 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
   };
 
   const fetchGameOutcome = async () => {
+    try {
+      console.log("Fetching game outcome for game_id:", game_id);
+      const response = await fetch(
+        `https://node.puzzle.online/testnet3/program/football_game_v014.aleo/mapping/game_outcomes/${game_id}`
+      );
+      const dataText = await response.json(); // Change this to text(), as JSON parsing fails
+
+      console.log("Fetched data:", dataText); // Log the fetched data
+      return dataText;
+    } catch (error) {
+      console.error("There was an error fetching the game outcome:", error);
+    }
+  };
+
+// TODO: Use results from fetchGameOutcome as input
+  const fetchGameOutcomeObject = async () => {
     try {
       const response = await fetch(
         `https://node.puzzle.online/testnet3/program/football_game_v014.aleo/mapping/game_outcomes/${game_id}`
@@ -466,7 +481,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     console.log("joint_piece_winner", joint_piece_winner);
     console.log("piece_joint_stake", piece_joint_stake);
     console.log("joint_piece_time_claim", joint_piece_time_claim);
-    console.log("game_outcome", joint_piece_time_claim);
 
     if (
       !game_record ||

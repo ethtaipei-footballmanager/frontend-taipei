@@ -256,18 +256,16 @@ export type GameState =
   | "challenger:1"
   | "challenger:2"
   | "challenger:3"
-  | "challenger:5"
   | "challenger:6"
   | "challenger:9"
   | "opponent:0"
   | "opponent:1"
   | "opponent:2"
   | "opponent:3"
-  | "opponent:5"
   | "opponent:6"
   | "opponent:9"
-  | "winner"
-  | "loser";
+  | "winner:5"
+  | "loser:5";
 
 export const getGameState = (game: GameNotification): GameState => {
   const challenger_or_opponent =
@@ -293,15 +291,13 @@ export const getGameState = (game: GameNotification): GameState => {
       return `opponent:4`;
     case "10u32": // CalculatedOutcomeNotification
       return `challenger:4`;
-    case "11u32": // GameFinishReqNotification
-      return `${challenger_or_opponent}:5`;
-    case "12u32": // GameFinishedNotification
-      return `${challenger_or_opponent}:6`;
-    case "9u32": {
+    case "11u32": {
       console.log("game.recordData.winner", game.recordData.winner);
       const isWinner = game.recordData.winner === game.recordData.owner;
-      return isWinner ? `winner` : `loser`;
+      return isWinner ? `winner:5` : `winner:5`;
     }
+    case "12u32": // GameFinishedNotification
+      return `${challenger_or_opponent}:6`;
     default:
       return "challenger:0";
   }
@@ -353,9 +349,9 @@ export const getGameAction = (gameState: GameState): GameAction => {
       return undefined;
     case "opponent:9":
       return undefined;
-    case "winner":
+    case "winner:5":
       return "Claim";
-    case "loser":
+    case "loser:5":
       return "Lose";
   }
 };

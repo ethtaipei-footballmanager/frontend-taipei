@@ -126,14 +126,14 @@ const validStates = {
     "opponent:2", // opponent to accept game
     "challenger:3", // challenger to calculate outcome
     "challenger:4", // challenger to reveal outcome
-    "winner", // challenger or opponent to claim prize
+    "winner:5", // challenger or opponent to claim prize
   ]),
   theirTurn: new Set([
     "challenger:1", // challenger to ping opponent to submit wager
     "challenger:2", // challenger to ping opponent to accept game
     "opponent:3", // opponent to ping challenger to calculate outcome
     "opponent:4", // opponent to ping challenger to reveal outcome
-    "loser", // remind challenger or opponent to accept funds
+    "loser:5", // remind challenger or opponent to accept funds
   ]),
   finished: new Set([
     "opponent:0",
