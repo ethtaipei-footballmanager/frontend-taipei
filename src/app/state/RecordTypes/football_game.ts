@@ -228,7 +228,8 @@ export type GameNotification =
   | RevealAnswerNotification
   | GameFinishReqNotification
   | GameFinishedNotification
-  | CalculatedOutcomeNotification;
+  | CalculatedOutcomeNotification
+  | WaitingCalculationNotification;
 
 export const removeVisibilitySuffix = (obj: { [key: string]: string }) => {
   
@@ -274,27 +275,27 @@ export const getGameState = (game: GameNotification): GameState => {
       ? "challenger"
       : "opponent";
   switch (game.recordData.ix) {
-    case "2u32":
+    case "2u32": // GameReqNotification
       return `opponent:1`;
-    case "3u32":
+    case "3u32": // WaitingAcceptanceNotification
       return `challenger:1`;
-    case "4u32":
+    case "4u32": // StakeRenegedNotification
       return `${challenger_or_opponent}:0`;
-    case "5u32":
+    case "5u32": // ChallengerWagerNotification
       return `challenger:2`;
-    case "6u32":
+    case "6u32": // OpponentWagerNotification
       return `opponent:2`;
-    case "7u32":
+    case "7u32": // WaitingRevealNotification
       return `opponent:3`;
-    case "8u32":
+    case "8u32": // RevealAnswerNotification
       return `challenger:3`;
-    case "9u32":
+    case "9u32": // WaitingCalculationNotification
+      return `opponent:4`;
+    case "10u32": // CalculatedOutcomeNotification
       return `challenger:4`;
-    case "10u32":
-      return `challenger:4`;
-    case "11u32":
+    case "11u32": // GameFinishReqNotification
       return `${challenger_or_opponent}:5`;
-    case "12u32":
+    case "12u32": // GameFinishedNotification
       return `${challenger_or_opponent}:6`;
     case "9u32": {
       console.log("game.recordData.winner", game.recordData.winner);
@@ -323,18 +324,18 @@ export const getGameAction = (gameState: GameState): GameAction => {
     case "challenger:0":
       return undefined;
     case "challenger:1":
-      return "Renege"; // and ping
+      return undefined; // ping and Renege
     case "challenger:2":
-      return "Renege"; // and ping
-    // case "challenger:3":
-    //   return "Reveal";
-    case "winner:4":
-      return "Claim";
-    case "loser:4":
-      return "Lose";
+      return undefined; // ping and Renege
+    case "challenger:3":
+      return "Calculate";
+    case "challenger:4":
+      return "Reveal";
     case "challenger:5":
       return undefined;
     case "challenger:6":
+      return undefined;
+    case "challenger:9":
       return undefined;
     case "opponent:0":
       return undefined;
@@ -343,17 +344,19 @@ export const getGameAction = (gameState: GameState): GameAction => {
     case "opponent:2":
       return "Accept";
     case "opponent:3":
-      return "Ping";
+      return undefined; // ping  TODO Renege possible here?
+    case "opponent:4":
+      return undefined; // ping  TODO Renege possible here?
     case "opponent:5":
       return undefined;
     case "opponent:6":
       return undefined;
-    case "challenger:8":
-      return "Calculate";
-    case "challenger:11":
-      return "Reveal";
-    case "opponent:7":
-      return "Ping";
+    case "opponent:9":
+      return undefined;
+    case "winner":
+      return "Claim";
+    case "loser":
+      return "Lose";
   }
 };
 
@@ -371,6 +374,7 @@ export const parseGameRecord = (
     GameFinishReqNotificationSchema,
     GameFinishedNotificationSchema,
     CalculatedOutcomeNotificationSchema,
+    WaitingCalculationNotificationSchema,
   ];
   for (const schema of schemas) {
     try {
