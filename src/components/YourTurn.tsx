@@ -103,6 +103,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     (state) => [state.largestPiece, state.availableBalance, state.currentGame]
   );
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
+  console.log("msAddress", msAddress);
   const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
     useMsRecords(msAddress);
   const [msPuzzleRecords, setMsPuzzleRecords] = useState<
@@ -157,7 +158,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     const goalsAway = matchOutcome?.goals_away ?? 0;
 
     // Determine if the user's team is home or away
-    const userIsHome = matchOutcome?.team_id_home === account?.address;
+    const userIsHome = matchOutcome?.address_home === account?.address;
 
     // Check if the user's team won, lost, or it was a draw
     if (userIsHome) {
