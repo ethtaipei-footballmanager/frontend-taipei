@@ -294,7 +294,7 @@ export const getGameState = (game: GameNotification): GameState => {
     case "11u32": {
       console.log("game.recordData.winner", game.recordData.winner);
       const isWinner = game.recordData.winner === game.recordData.owner;
-      return isWinner ? `winner:5` : `winner:5`;
+      return isWinner ? `winner:5` : `loser:5`;
     }
     case "12u32": // GameFinishedNotification
       return `${challenger_or_opponent}:6`;

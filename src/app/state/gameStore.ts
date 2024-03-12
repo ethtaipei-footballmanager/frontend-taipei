@@ -133,7 +133,7 @@ const validStates = {
     "challenger:2", // challenger to ping opponent to accept game
     "opponent:3", // opponent to ping challenger to calculate outcome
     "opponent:4", // opponent to ping challenger to reveal outcome
-    "loser:5", // remind challenger or opponent to accept funds
+    "loser:5", // TODO: move this to finished instead?
   ]),
   finished: new Set([
     "opponent:0",
