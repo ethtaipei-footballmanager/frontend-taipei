@@ -119,31 +119,29 @@ const createGame = (
       : undefined,
   };
 };
-// TODO add state calculate outcome
+
 const validStates = {
   yourTurn: new Set([
-    "challenger:3", // challenger to reveal answer
-    "challenger:4:win", // challenger to claim prize
-    "winner:4", // challenger or opponent to claim prize
     "opponent:1", // opponent to submit wager
     "opponent:2", // opponent to accept game
-    "challenger:8", // challenger to calculate outcome (before reveal)
-    "challenger:11", // challenger to reveal outcome
+    "challenger:3", // challenger to calculate outcome
+    "challenger:4", // challenger to reveal outcome
+    "winner:5", // challenger or opponent to claim prize
   ]),
   theirTurn: new Set([
     "challenger:1", // challenger to ping opponent to submit wager
     "challenger:2", // challenger to ping opponent to accept game
-    "loser:4", // remind challenger or opponent to accept funds
-    "opponent:3", // opponent to ping challenger to reveal answer
-    "opponent:7", // opponent to ping challenger to calculate outcome
+    "opponent:3", // opponent to ping challenger to calculate outcome
+    "opponent:4", // opponent to ping challenger to reveal outcome
+    "loser:5", // TODO: move this to finished instead?
   ]),
   finished: new Set([
     "opponent:0",
-    "opponent:5",
     "opponent:6",
+    "opponent:9",
     "challenger:0",
-    "challenger:5",
     "challenger:6",
+    "challenger:9",
   ]),
 };
 

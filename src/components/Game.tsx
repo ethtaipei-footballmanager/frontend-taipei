@@ -272,7 +272,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
   const filter: RecordsFilter = {
     programIds: [
-      "football_game_v013.aleo",
+      "football_game_v014.aleo",
       "puzzle_pieces_v016.aleo",
       "multiparty_pvp_utils_v015_avh.aleo",
     ],
@@ -287,7 +287,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         // multisig: true,
       });
       const msGameRecordsData = records?.records?.filter(
-        (record) => record.programId === "football_game_v013.aleo"
+        (record) => record.programId === "football_game_v014.aleo"
       );
 
       const msPuzzleRecordsData = records?.records?.filter(

@@ -47,7 +47,7 @@ interface IYourTurn {
 
 const filter: RecordsFilter = {
   programIds: [
-    "football_game_v013.aleo",
+    "football_game_v014.aleo",
     "puzzle_pieces_v016.aleo",
     "multiparty_pvp_utils_v015_avh.aleo",
   ],
@@ -103,7 +103,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     (state) => [state.largestPiece, state.availableBalance, state.currentGame]
   );
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  console.log("AVH msPuzzleRecords msAddress", msAddress);
+  console.log("msAddress", msAddress);
   const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
     useMsRecords(msAddress);
   const [msPuzzleRecords, setMsPuzzleRecords] = useState<
@@ -133,7 +133,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
         // multisig: true,
       });
       const msGameRecordsData = records?.records?.filter(
-        (record) => record.programId === "football_game_v013.aleo"
+        (record) => record.programId === "football_game_v014.aleo"
       );
 
       const msPuzzleRecordsData = records?.records?.filter(
@@ -148,7 +148,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     };
     response();
     if (isFinished) {
-      fetchGameOutcome();
+      fetchGameOutcomeObject();
     }
   }, []);
 
@@ -158,7 +158,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     const goalsAway = matchOutcome?.goals_away ?? 0;
 
     // Determine if the user's team is home or away
-    const userIsHome = matchOutcome?.team_id_home === account?.address;
+    const userIsHome = matchOutcome?.address_home === account?.address;
 
     // Check if the user's team won, lost, or it was a draw
     if (userIsHome) {
@@ -293,8 +293,24 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
 
   const fetchGameOutcome = async () => {
     try {
+      console.log("Fetching game outcome for game_id:", game_id);
       const response = await fetch(
-        `https://node.puzzle.online/testnet3/program/football_game_v013.aleo/mapping/game_outcomes/${game_id}`
+        `https://node.puzzle.online/testnet3/program/football_game_v014.aleo/mapping/game_outcomes/${game_id}`
+      );
+      const dataText = await response.json(); // Change this to text(), as JSON parsing fails
+
+      console.log("Fetched data:", dataText); // Log the fetched data
+      return dataText;
+    } catch (error) {
+      console.error("There was an error fetching the game outcome:", error);
+    }
+  };
+
+// TODO: Use results from fetchGameOutcome as input
+  const fetchGameOutcomeObject = async () => {
+    try {
+      const response = await fetch(
+        `https://node.puzzle.online/testnet3/program/football_game_v014.aleo/mapping/game_outcomes/${game_id}`
       );
 
       const dataText = await response.text(); // Change this to text(), as JSON parsing fails
@@ -461,17 +477,11 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
       (r) => r.data.ix === "8u32.private"
     );
 
-    const multisig = game.gameNotification.recordData.game_multisig; // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
-    // let game_outcome; // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
-
-    const game_outcome = await fetchGameOutcome();
-    // await fetchGameOutcome(); // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
 
     console.log("game_record", game_record);
     console.log("joint_piece_winner", joint_piece_winner);
     console.log("piece_joint_stake", piece_joint_stake);
     console.log("joint_piece_time_claim", joint_piece_time_claim);
-    console.log("game_outcome", joint_piece_time_claim);
 
     if (
       !game_record ||
@@ -487,7 +497,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
       joint_piece_winner: joint_piece_winner,
       piece_joint_stake: piece_joint_stake,
       joint_piece_time_claim: joint_piece_time_claim,
-      game_outcome: game_outcome, // TODO REMOVE THIS IN NEXT CONTRACT UPGRADE
     };
 
     // setCalculateOutcomeInputs(newInputs);

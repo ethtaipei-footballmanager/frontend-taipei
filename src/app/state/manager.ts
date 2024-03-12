@@ -1,6 +1,6 @@
 import { RecordWithPlaintext } from "@puzzlehq/sdk";
 
-export const GAME_PROGRAM_ID = "football_game_v013.aleo";
+export const GAME_PROGRAM_ID = "football_game_v014.aleo";
 export const GAME_RESULTS_MAPPING = "game_outcomes";
 
 export const GAME_FUNCTIONS = {
@@ -83,5 +83,4 @@ export type FinishGameInputs = {
   joint_piece_winner: RecordWithPlaintext;
   piece_joint_stake: RecordWithPlaintext;
   joint_piece_time_claim: RecordWithPlaintext;
-  game_outcome: string; // TODO remove this in next contract upgrade
 };
