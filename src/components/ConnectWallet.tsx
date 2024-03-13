@@ -11,6 +11,7 @@ import {
 } from "@puzzlehq/sdk";
 import { SessionTypes } from "@walletconnect/types";
 import React, { useEffect, useState } from "react";
+import { FaXTwitter } from "react-icons/fa6";
 import { IoCopyOutline, IoLogOutOutline } from "react-icons/io5";
 import { MdDone } from "react-icons/md";
 import { ThemeToggle } from "./ToggleTheme";
@@ -197,6 +198,9 @@ const ConnectWallet: React.FC<IConnectWallet> = ({ setIsWalletModal }) => {
         </Button>
       )}
       {/* <div className="hidden md:flex"> */}
+      <a target="_blank" href="https://twitter.com/SuperLeoLig/">
+        <FaXTwitter className="text-black stroke-current w-5 h-5 dark:text-white" />
+      </a>
       <ThemeToggle />
       {/* </div> */}
     </div>

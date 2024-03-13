@@ -24,6 +24,7 @@ import {
   useBalance,
 } from "@puzzlehq/sdk";
 import { csv } from "d3";
+import { motion } from "framer-motion";
 import jsyaml from "js-yaml";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -109,6 +110,14 @@ export const initializeGrid = (
 
   return initialGrid;
 };
+
+const tabs = [
+  { id: "GK", label: "GK" },
+  { id: "DEF", label: "DEF" },
+  { id: "MID", label: "MID" },
+  { id: "ATT", label: "ATT" },
+];
+
 const messageToSign = "Let's play Super Leo Lig";
 const nonce = "1234567field"; // todo make this random?
 
@@ -120,6 +129,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const [tab, setTab] = useState<Position>("GK");
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
+  const [activeTab, setActiveTab] = useState(tabs[0].id);
+
   const [selectedPlayer, setSelectedPlayer] = useState<SelectedPlayer | null>(
     null
   );
@@ -972,28 +983,40 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
             value={tab}
             onValueChange={onTabChange}
             defaultValue="all"
-            className="max-w-3xl"
+            className="max-w-3xl   "
           >
-            <TabsList className="flex gap-4 max-w-3xl items-center justify-center">
-              {["GK", "DEF", "MID", "ATT"].map((position) => (
-                <TabsTrigger className="w-full" key={position} value={position}>
-                  {/* <Checkbox
-                    defaultChecked
-                    checked={selectedCheckboxes[position as Position]}
-                    id={position}
-                    title={position}
-                    onCheckedChange={() =>
-                      handleCheckboxChange(position as Position)
-                    }
-                  /> */}
-                  <label
-                    htmlFor={position}
-                    className="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  />
-                  {position}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            <div className="flex w-full items-center justify-center">
+              <TabsList className="flex w-fit  bg-transparent border  gap-4  items-center justify-center">
+                {tabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.id}
+                    className={`${
+                      activeTab === tab.id ? "text-white" : "text-black"
+                    } relative rounded-full  px-3 py-1.5 text-sm font-medium  dark:text-white transition focus-visible:outline-2 `}
+                    onClick={() => setActiveTab(tab.id)}
+                    style={{
+                      WebkitTapHighlightColor: "transparent",
+                    }}
+                    value={tab.id}
+                  >
+                    {activeTab === tab.id && (
+                      <motion.span
+                        layoutId="bubble"
+                        className="absolute inset-0 z-10 bg-white mix-blend-difference"
+                        style={{ borderRadius: 8 }}
+                        transition={{
+                          type: "spring",
+                          bounce: 0.2,
+                          duration: 0.6,
+                        }}
+                      />
+                    )}
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+
             {["GK", "DEF", "MID", "ATT"].map((position) => (
               <TabsContent key={position} value={position}>
                 <div className=" grid grid-cols-5 gap-2  h-64 p-6 ">
