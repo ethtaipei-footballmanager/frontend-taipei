@@ -1,9 +1,9 @@
 import { isValidPlacement } from "@/utils";
+import Image from "next/image";
 import React from "react";
 import { CgArrowsExchangeAlt } from "react-icons/cg";
 import { GiCancel } from "react-icons/gi";
 import { PlayerType, SelectedPlayer } from "../Game";
-import JerseySVG from "../Jersey";
 import Player from "../Player";
 interface IGridSlot {
   player: PlayerType | null;
@@ -37,24 +37,23 @@ const GridSlot: React.FC<IGridSlot> = ({
   jersey,
 }) => {
   const jerseyColor = isGoalkeeper ? "rgba(255,0,0,1)" : jersey;
-  // console.log("player30", player, jersey, isGoalkeeper);
   const isValid = isValidPlacement(selectedPlayer?.position, rowIndex);
   return (
     <div
       onClick={() => {
         setIsSelecting(true);
         if (!player) {
-          console.log("clicked", slot, rowIndex);
-
           movePlayer(selectedPlayer.id, rowIndex, slot);
         }
       }}
-      className={`w-20 h-20 relative ${isValid && !player && "hover:scale-105 duration-200 transition"
-        }  flex  flex-col ${isDisabled ? "cursor-not-allowed" : ""} ${isSelecting ? " " : ""
-        }`}
+      className={`w-20 h-20 relative ${
+        isValid && !player && "hover:scale-105 duration-200 transition"
+      }  flex  flex-col ${isDisabled ? "cursor-not-allowed" : ""} ${
+        isSelecting ? " " : ""
+      }`}
     >
       {isSelecting && (
-        <div className="absolute flex justify-end mx-auto w-[90%] -top-1.5 left-1">
+        <div className="absolute flex justify-end mx-auto w-[90%] -top-2 left-1">
           {/* <FaExchangeAlt
             onClick={() => {
               if (player) {
@@ -72,17 +71,19 @@ const GridSlot: React.FC<IGridSlot> = ({
         </div>
       )}
       <div>
-        <span className="w-20 absolute h-20">
-          <JerseySVG fillColor={jerseyColor} />
-          {/* <Image
-            src={`/svg/${isGoalkeeper ? "jersey_gk.svg" : jersey}`}
+        <span className="w-12 left-4 absolute h-12">
+          {/* <JerseySVG fillColor={jerseyColor} /> */}
+          <Image
+            // src={`/svg/${isGoalkeeper ? "jersey_gk.svg" : jersey}`}
+            src={jersey}
             alt="jersey"
+            className="relative"
             fill
-          /> */}
+          />
         </span>
         {isSelecting && isValid && (
-          <span className=" absolute left-[32%] top-[25%]">
-            <CgArrowsExchangeAlt className="h-6 w-6" />
+          <span className=" absolute left-[35%] top-[20%]">
+            <CgArrowsExchangeAlt className="h-6 fill-white text-white w-6" />
           </span>
         )}
 

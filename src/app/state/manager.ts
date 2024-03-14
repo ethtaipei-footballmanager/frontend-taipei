@@ -1,6 +1,6 @@
 import { RecordWithPlaintext } from "@puzzlehq/sdk";
 
-export const GAME_PROGRAM_ID = "football_game_v013.aleo";
+export const GAME_PROGRAM_ID = "football_game_v014.aleo";
 export const GAME_RESULTS_MAPPING = "game_outcomes";
 
 export const GAME_FUNCTIONS = {
@@ -17,7 +17,7 @@ export const transitionFees = {
   propose_game: 0.027,
   submit_wager: 0.0286,
   accept_game: 0.05901,
-  calculate_outcome: 0.1,
+  calculate_outcome: 3.1,
   reveal_answer: 0.1,
   finish_game: 0.1,
 };

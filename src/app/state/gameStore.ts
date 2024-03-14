@@ -18,14 +18,11 @@ const parsePuzzlePieces = (records: RecordWithPlaintext[]) => {
   if (records.length > 0) {
     let availableBalance = 0;
     let largestPiece = records[0];
-    console.log("🚀 ~ parsePuzzlePieces ~ largestPiece:", largestPiece);
-    console.log("records123", records);
 
     const totalBalance = records
       .filter((record) => !record.spent)
       .map((record) => {
         const amount = record.data?.amount?.replace("u64.private", "");
-        console.log("🚀 ~ .map ~ amount:", amount);
         if (amount && record.data?.ix === "0u32.private") {
           /// find largestPiece (and thus availableBalance)
           const amountInt = parseInt(amount);
@@ -122,30 +119,29 @@ const createGame = (
       : undefined,
   };
 };
-// TODO add state calculate outcome
+
 const validStates = {
   yourTurn: new Set([
-    "challenger:3", // challenger to reveal answer
-    "challenger:4:win", // challenger to claim prize
-    "winner:4", // challenger or opponent to claim prize
     "opponent:1", // opponent to submit wager
     "opponent:2", // opponent to accept game
-    "challenger:7", // challenger to calculate outcome (before reveal)
+    "challenger:3", // challenger to calculate outcome
+    "challenger:4", // challenger to reveal outcome
+    "winner:5", // challenger or opponent to claim prize
   ]),
   theirTurn: new Set([
     "challenger:1", // challenger to ping opponent to submit wager
     "challenger:2", // challenger to ping opponent to accept game
-    "loser:4", // remind challenger or opponent to accept funds
-    "opponent:3", // opponent to ping challenger to reveal answer
-    "opponent:7", // opponent to ping challenger to calculate outcome
+    "opponent:3", // opponent to ping challenger to calculate outcome
+    "opponent:4", // opponent to ping challenger to reveal outcome
+    "loser:5", // TODO: move this to finished instead?
   ]),
   finished: new Set([
     "opponent:0",
-    "opponent:5",
     "opponent:6",
+    "opponent:9",
     "challenger:0",
-    "challenger:5",
     "challenger:6",
+    "challenger:9",
   ]),
 };
 
@@ -166,7 +162,6 @@ export const useGameStore = create<GameStore>()(
         const utilRecords = records.utilRecords;
 
         const puzzleRecords = records.puzzleRecords;
-        console.log("🚀 ~ puzzleRecords:", puzzleRecords);
         const { availableBalance, totalBalance, largestPiece } =
           parsePuzzlePieces(puzzleRecords);
         set((state) => ({
@@ -192,6 +187,7 @@ export const useGameStore = create<GameStore>()(
           allGameNotifications,
           "recordData.game_multisig"
         );
+
         const gameNotifications = _.values(gameNotificationsByGameAddress).map(
           (notifications) => {
             if (notifications.length === 1) return notifications[0];
@@ -209,7 +205,6 @@ export const useGameStore = create<GameStore>()(
             }
           }
         );
-        console.log("gameNotifications", gameNotifications);
 
         const { yourTurn, theirTurn, finished } = gameNotifications.reduce<{
           yourTurn: Game[];
@@ -244,8 +239,6 @@ export const useGameStore = create<GameStore>()(
           },
           { yourTurn: [], theirTurn: [], finished: [] }
         );
-        console.log("yourTurn", yourTurn);
-        console.log("theirTurn", theirTurn);
 
         set({ yourTurn, theirTurn, finished });
       },

@@ -1,6 +1,7 @@
 import { useAcceptGameStore } from "@/app/accept-game/store";
 import {
   CalculateOutcomeInputs,
+  FinishGameInputs,
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
   RevealAnswerInputs,
@@ -11,12 +12,18 @@ import { useEventHandling } from "@/hooks/eventHandling";
 import { useMsRecords } from "@/hooks/msRecords";
 import {
   EventType,
+  RecordWithPlaintext,
+  RecordsFilter,
+  getRecords,
   importSharedState,
   requestCreateEvent,
   requestSignature,
+  useAccount,
 } from "@puzzlehq/sdk";
 import { useGameStore, type Game } from "@state/gameStore";
 import jsyaml from "js-yaml";
+//@ts-ignore
+import * as parseJson from "json-parse-even-better-errors";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { truncateAddress } from "./ConnectWallet";
@@ -35,24 +42,41 @@ import Identicon from "react-identicons";
 
 interface IYourTurn {
   game: Game;
+  isFinished: boolean;
 }
+
+const filter: RecordsFilter = {
+  programIds: [
+    "football_game_v014.aleo",
+    "puzzle_pieces_v016.aleo",
+    "multiparty_pvp_utils_v015_avh.aleo",
+  ],
+  type: "unspent",
+};
+
+type MatchOutcome = {
+  address_home: string;
+  address_away: string;
+  team_id_home: string;
+  team_id_away: string;
+  goals_home: number;
+  goals_away: number;
+};
+
 const messageToSign = "Accept Game Challenge"; // TODO replace this by appropriate msg
 
-// const networkClient = new AleoNetworkClient("https://vm.aleo.org/api");
-
-const YourTurn: React.FC<IYourTurn> = ({ game }) => {
+const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
   const router = useRouter();
+  const { account } = useAccount();
+
   const user = game.gameNotification.recordData.owner;
   const opponent_address = game.gameNotification.recordData.opponent_address;
   const challenger_address =
     game.gameNotification.recordData.challenger_address;
   const vs = user === opponent_address ? challenger_address : opponent_address;
   const game_id = game.gameNotification.recordData.game_multisig;
-
-  
-
+  const [matchOutcome, setMatchOutcome] = useState<MatchOutcome>();
   const [setCurrentGame] = useGameStore((state) => [state.setCurrentGame]);
-  console.log("game52", game);
 
   const wager = game.gameNotification.recordData.total_pot / 2;
   const [
@@ -79,93 +103,82 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     (state) => [state.largestPiece, state.availableBalance, state.currentGame]
   );
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  console.log("🚀 ~ msAddress 82:", msAddress);
-
-  const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
-  console.log("🚀 ~ msPuzzleRecords 82:", msPuzzleRecords);
-  console.log("🚀 ~ currentGMAE 82:", currentGame);
+  console.log("msAddress", msAddress);
+  const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
+    useMsRecords(msAddress);
+  const [msPuzzleRecords, setMsPuzzleRecords] = useState<
+    RecordWithPlaintext[] | undefined
+  >();
+  const [msGameRecords, setMsGameRecords] = useState<
+    RecordWithPlaintext[] | undefined
+  >();
 
   const puzzleRecord =
     availableBalance >= game.gameNotification.recordData.total_pot / 2
       ? largestPiece
       : undefined;
-  // const [
-  //   inputs,
-  //   eventIdSubmit,
-  //   setSubmitWagerInputs,
-  //   setEventIdSubmit,
-  //   setStep,
-  // ] = useAcceptGameStore((state) => [
-  console.log("🚀 ~ availableBalance:", availableBalance, largestPiece);
-  //   state.inputsSubmitWager,
-  //   state.eventIdSubmit,
-  //   state.setSubmitWagerInputs,
-  //   state.setEventIdSubmit,
-  //   state.setStep,
-  // ]);
 
   const [isModal, setIsModal] = useState(false);
   const { loading, error, event, setLoading, setError } = useEventHandling({
     id: eventIdSubmit,
     stepName: "Submit Wager",
-    // onSettled: () => setStep(Step._02_AcceptGame),
   });
 
-  // const createEvent = async () => {
-  //   console.log("clicked", inputs, game);
+  useEffect(() => {
+    const response = async () => {
+      const records = await getRecords({
+        filter,
+        address: msAddress,
 
-  //   if (
-  //     !inputs?.opponent_wager_record ||
-  //     !inputs.key_record ||
-  //     !inputs.game_req_notification
-  //   )
-  //     return;
-  //   setLoading(true);
-  //   setError(undefined);
-  //   const signature = await requestSignature({ message: messageToSign });
-  //   if (!signature.messageFields || !signature.signature) {
-  //     setError("Signature or signature message fields not found");
-  //     setLoading(false);
-  //     return;
-  //   }
-  //   const messageFields = Object(jsyaml.load(signature.messageFields));
+        // multisig: true,
+      });
+      const msGameRecordsData = records?.records?.filter(
+        (record) => record.programId === "football_game_v014.aleo"
+      );
 
-  //   const newInputs: Partial<SubmitWagerInputs> = {
-  //     opponent_wager_record: inputs.opponent_wager_record,
-  //     key_record: inputs.key_record,
-  //     game_req_notification: inputs.game_req_notification,
-  //     opponent_message_1: messageFields.field_1,
-  //     opponent_message_2: messageFields.field_2,
-  //     opponent_message_3: messageFields.field_3,
-  //     opponent_message_4: messageFields.field_4,
-  //     opponent_message_5: messageFields.field_5,
-  //     opponent_sig: signature.signature,
-  //   };
-  //   const game_multisig_seed = currentGame?.utilRecords?.[0].data.seed ?? "";
-  //   console.log("game_multisig seed", game_multisig_seed);
-  //   const { data } = await importSharedState(game_multisig_seed);
-  //   console.log(`Shared state imported: ${data?.address}`);
+      const msPuzzleRecordsData = records?.records?.filter(
+        (record) => record.programId === "puzzle_pieces_v016.aleo"
+      );
 
-  //   setSubmitWagerInputs(newInputs);
-  //   const response = await requestCreateEvent({
-  //     type: EventType.Execute,
-  //     programId: GAME_PROGRAM_ID,
-  //     functionId: GAME_FUNCTIONS.submit_wager,
-  //     fee: transitionFees.submit_wager,
-  //     inputs: Object.values(newInputs),
-  //     address: inputs.game_req_notification.owner, // opponent address
-  //   });
-  //   if (response.error) {
-  //     setError(response.error);
-  //     setLoading(false);
-  //   } else if (response.eventId) {
-  //     /// todo - other things here?
-  //     setEventIdSubmit(response.eventId);
-  //     setSubmitWagerInputs({ ...newInputs });
-  //     router.push(`/create-game`);
-  //     //   setSearchParams({ eventIdSubmit: response.eventId });
-  //   }
-  // };
+      const msUtilRecords = records?.records?.filter(
+        (record) => record.programId === "multiparty_pvp_utils_v015_avh.aleo"
+      );
+      setMsPuzzleRecords(msPuzzleRecordsData!);
+      setMsGameRecords(msGameRecordsData!);
+    };
+    response();
+    if (isFinished) {
+      fetchGameOutcomeObject();
+    }
+  }, []);
+
+  function determineGameOutcome() {
+    // Extract the numeric values of goals
+    const goalsHome = matchOutcome?.goals_home ?? 0;
+    const goalsAway = matchOutcome?.goals_away ?? 0;
+
+    // Determine if the user's team is home or away
+    const userIsHome = matchOutcome?.address_home === account?.address;
+
+    // Check if the user's team won, lost, or it was a draw
+    if (userIsHome) {
+      if (goalsHome > goalsAway) {
+        return "You won!";
+      } else if (goalsHome < goalsAway) {
+        return "You lost.";
+      } else {
+        return "It's a draw.";
+      }
+    } else {
+      if (goalsAway > goalsHome) {
+        return "You won!";
+      } else if (goalsAway < goalsHome) {
+        return "You lost.";
+      } else {
+        return "It's a draw.";
+      }
+    }
+  }
 
   useEffect(() => {
     if (!currentGame || !msPuzzleRecords || !msGameRecords) return;
@@ -202,11 +215,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
           currentGame.gameNotification.recordData.opponent_address
     );
 
-    console.log("msGameRecords[0]", msGameRecords[0]);
-    console.log("piece_stake_challenger", piece_stake_challenger);
-    console.log("piece_claim_challenger", piece_claim_challenger);
-    console.log("piece_stake_opponent", piece_stake_opponent);
-    console.log("piece_claim_opponent", piece_claim_opponent);
     if (
       piece_claim_challenger === undefined ||
       piece_claim_opponent === undefined ||
@@ -226,24 +234,17 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     currentGame?.gameNotification.recordData.game_multisig,
     [msPuzzleRecords, msGameRecords].toString(),
   ]);
+
   const createSubmitWagerEvent = async () => {
     const key_record = game.utilRecords[0];
-    console.log("🚀 ~ createSubmitWagerEvent ~ key_record:", key_record);
     const game_req_notification = game.gameNotification.recordWithPlaintext;
-    console.log(
-      "🚀 ~ createSubmitWagerEvent ~ game_req_notification:",
-      game_req_notification
-    );
-    console.log("🚀 ~ createSubmitWagerEvent ~ puzzleRecord:", puzzleRecord);
     if (!puzzleRecord || !key_record || !game_req_notification) {
       return;
     }
-    console.log("heere");
 
     setLoading(true);
     setError(undefined);
     const signature = await requestSignature({ message: messageToSign });
-    console.log("🚀 ~ createSubmitWagerEvent ~ signature:", signature);
     // setConfirmStep(ConfirmStep.Signing);
     if (!signature.messageFields || !signature.signature) {
       setError("Signature or signature message fields not found");
@@ -265,9 +266,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       opponent_sig: signature.signature,
     };
     const game_multisig_seed = currentGame?.utilRecords?.[0].data.seed ?? "";
-    console.log("game_multisig seed", game_multisig_seed);
     const { data } = await importSharedState(game_multisig_seed);
-    console.log(`Shared state imported: ${data?.address}`);
 
     setSubmitWagerInputs(newInputs);
     const response = await requestCreateEvent({
@@ -292,13 +291,89 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     }
   };
 
+  const fetchGameOutcome = async () => {
+    try {
+      console.log("Fetching game outcome for game_id:", game_id);
+      const response = await fetch(
+        `https://node.puzzle.online/testnet3/program/football_game_v014.aleo/mapping/game_outcomes/${game_id}`
+      );
+      const dataText = await response.json(); // Change this to text(), as JSON parsing fails
+
+      console.log("Fetched data:", dataText); // Log the fetched data
+      return dataText;
+    } catch (error) {
+      console.error("There was an error fetching the game outcome:", error);
+    }
+  };
+
+// TODO: Use results from fetchGameOutcome as input
+  const fetchGameOutcomeObject = async () => {
+    try {
+      const response = await fetch(
+        `https://node.puzzle.online/testnet3/program/football_game_v014.aleo/mapping/game_outcomes/${game_id}`
+      );
+
+      const dataText = await response.text(); // Change this to text(), as JSON parsing fails
+
+      console.log("Fetched data:", dataText); // Log the fetched data
+
+      // Convert the dataText string into valid JSON format
+      const cleanedDataString = dataText
+        .replace(/(\\n|\\)/g, "") // Remove escaped characters and line breaks
+        .replace(/'/g, '"') // Replace single quotes with double quotes to make it valid JSON
+        .replace(/(\w+)\s*:/g, '"$1":') // Add double quotes around keys
+        .replace(/:\s*([\w"]+)/g, ':"$1"'); // Add double quotes around values
+      console.log("Cleaned data:", cleanedDataString); // Log the cleaned data
+      const cleanedDataStringWithoutQuotes = cleanedDataString.slice(1, -1);
+      console.log(
+        "🚀 ~ fetchGameOutcome ~ cleanedDataStringWithoutQuotes:",
+        cleanedDataStringWithoutQuotes
+      );
+
+      const cleanedDataStringTrimmed = cleanedDataStringWithoutQuotes.trim();
+
+      console.log("Cleaned data trimmed:", cleanedDataStringTrimmed);
+
+      // Parse the JSON data into an object
+      // const data = JSON.parse(cleanedDataString.toString());
+      const data = parseJson(cleanedDataStringTrimmed);
+      console.log("Parsed data:", data);
+
+      const matchOutcome = {
+        address_home: data.address_home,
+        address_away: data.address_away,
+        team_id_home: data.team_id_home,
+        team_id_away: data.team_id_away,
+        goals_home: parseInt(data.goals_home.replace("u64", "")),
+        goals_away: parseInt(data.goals_away.replace("u64", "")),
+      };
+
+      console.log("goals", matchOutcome.goals_home, matchOutcome.goals_away);
+      setMatchOutcome(matchOutcome);
+
+      return data;
+      // If you need to access game_outcome later, you can do it after this line
+    } catch (error) {
+      console.error("There was an error fetching the game outcome:", error);
+    }
+  };
+
   // TODO: Complete this
   const createCalculateOutcomeEvent = async () => {
-    console.log("🚀 ~ createCalculateOutcomeEvent ~ TODO:");
+    const reveal_answer_notification_record =
+      game.gameNotification.recordWithPlaintext;
+    const challenger_answer_record = game.utilRecords.find(
+      (r) =>
+        r.data.owner.replace(".private", "") ===
+        game.gameNotification.recordData.challenger_address
+    );
+    if (!reveal_answer_notification_record || !challenger_answer_record) {
+      return;
+    }
 
     const newInputs: Partial<CalculateOutcomeInputs> = {
-      reveal_answer_notification_record: puzzleRecord, //todo
-      challenger_answer_record: puzzleRecord, // todo
+      reveal_answer_notification_record: reveal_answer_notification_record, //todo
+      challenger_answer_record: challenger_answer_record, // todo
     };
 
     // setCalculateOutcomeInputs(newInputs);
@@ -308,7 +383,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       functionId: GAME_FUNCTIONS.calculate_outcome,
       fee: transitionFees.calculate_outcome,
       inputs: Object.values(newInputs),
-      address: "TODO",
     });
     if (response.error) {
       setError(response.error);
@@ -322,20 +396,45 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
     }
   };
 
-  // TODO: Complete this
   const createRevealAnswerEvent = async () => {
-    console.log("🚀 ~ createRevealAnswerGameEvent ~ TODO:");
-    // const gameOutcome = await networkClient?.getProgramMappingValue(
-    //   GAME_PROGRAM_ID,
-    //   GAME_RESULTS_MAPPING,
-    //   game.gameNotification.recordData.game_multisig
-    // );
+    const calculated_outcome_notification_record =
+      game.gameNotification.recordWithPlaintext;
+
+    const challenger_claim_signature = game.puzzleRecords.find(
+      (r) => r.data.ix.replace(".private", "") === "7u32"
+    );
+
+    const challenger_answer_record = game.utilRecords.find(
+      (r) =>
+        r.data.owner.replace(".private", "") ===
+        game.gameNotification.recordData.challenger_address
+    );
+
+    const joint_piece_stake = game.puzzleRecords.find(
+      (r) => r.data.ix.replace(".private", "") === "10u32"
+    );
+
+    const multisig = game.gameNotification.recordData.game_multisig;
+
+    const game_outcome = await fetchGameOutcome();
+
+    if (
+      !calculated_outcome_notification_record ||
+      !challenger_answer_record ||
+      !joint_piece_stake ||
+      !challenger_claim_signature ||
+      !game_outcome
+    ) {
+      return;
+    }
+
     const newInputs: Partial<RevealAnswerInputs> = {
-      challenger_claim_signature: puzzleRecord,
-      calculated_outcome_notification_record: puzzleRecord,
-      joint_piece_state: puzzleRecord,
-      challenger_answer_record: puzzleRecord,
-      game_outcome: "win",
+      challenger_claim_signature: challenger_claim_signature,
+      calculated_outcome_notification_record:
+        calculated_outcome_notification_record,
+      joint_piece_state: joint_piece_stake,
+      challenger_answer_record: challenger_answer_record,
+      game_outcome: game_outcome,
     };
 
     // setCalculateOutcomeInputs(newInputs);
@@ -345,7 +444,6 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       functionId: GAME_FUNCTIONS.reveal_answer,
       fee: transitionFees.reveal_answer,
       inputs: Object.values(newInputs),
-      address: "TODO",
     });
     if (response.error) {
       setError(response.error);
@@ -356,6 +454,67 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       setCurrentGame(game);
       // setCalculateOutcomeInputs({ ...newInputs });
       // router.push(`/accept-game/${response.eventId}`);
+    }
+  };
+
+  const createFinishGameEvent = async () => {
+    console.log("createFinishGameEvent");
+    console.log("game", game);
+    console.log("msPuzzleRecords", msPuzzleRecords);
+    console.log("msGameRecords", msGameRecords);
+
+    if (!game || !msPuzzleRecords || !msGameRecords) return;
+
+    const game_record = msGameRecords[0];
+
+    const joint_piece_winner = msPuzzleRecords.find(
+      (r) => r.data.ix === "12u32.private"
+    );
+    const piece_joint_stake = msPuzzleRecords.find(
+      (r) => r.data.ix === "9u32.private"
+    );
+    const joint_piece_time_claim = msPuzzleRecords.find(
+      (r) => r.data.ix === "8u32.private"
+    );
+
+
+    console.log("game_record", game_record);
+    console.log("joint_piece_winner", joint_piece_winner);
+    console.log("piece_joint_stake", piece_joint_stake);
+    console.log("joint_piece_time_claim", joint_piece_time_claim);
+
+    if (
+      !game_record ||
+      !joint_piece_winner ||
+      !piece_joint_stake ||
+      !joint_piece_time_claim
+    ) {
+      return;
+    }
+
+    const newInputs: Partial<FinishGameInputs> = {
+      game_record: game_record,
+      joint_piece_winner: joint_piece_winner,
+      piece_joint_stake: piece_joint_stake,
+      joint_piece_time_claim: joint_piece_time_claim,
+    };
+
+    // setCalculateOutcomeInputs(newInputs);
+    const response = await requestCreateEvent({
+      type: EventType.Execute,
+      programId: GAME_PROGRAM_ID,
+      functionId: GAME_FUNCTIONS.finish_game,
+      fee: transitionFees.finish_game,
+      inputs: Object.values(newInputs),
+      address: game_record.owner, // opponent address
+    });
+    if (response.error) {
+      setError(response.error);
+      setLoading(false);
+    } else if (response.eventId) {
+      /// todo - other things here?
+      setEventIdSubmit(response.eventId);
+      setCurrentGame(game);
     }
   };
 
@@ -370,8 +529,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
                 onClick={() => {
                   setCurrentGame(game);
                   setIsModal(true);
-                }
-                }
+                }}
                 variant="outline"
                 className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
               >
@@ -406,15 +564,16 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
       case "Accept":
         // return <AcceptGameButton game={game} />;
         return (
-          <Button disabled={loading}
-          onClick={() => {
-            setCurrentGame(game);
-            router.push(
-              `/accept-game/${game.gameNotification.recordData.game_multisig}`
-            );          }
-          }
-          variant="outline"
-          className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
+          <Button
+            disabled={loading}
+            onClick={() => {
+              setCurrentGame(game);
+              router.push(
+                `/accept-game/${game.gameNotification.recordData.game_multisig}`
+              );
+            }}
+            variant="outline"
+            className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
           >
             Accept
           </Button>
@@ -423,91 +582,48 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
         return (
           <Button
             onClick={createCalculateOutcomeEvent} // TODO implement a simple wallet popup that consumes 2 records.
-            size="sm"
-            color="yellow"
+            variant="outline"
+            className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
           >
-            Play game
+            Calculate Outcome
           </Button>
         );
       case "Reveal":
         return (
-          <Button onClick={createRevealAnswerEvent} size="sm" color="yellow">
-            Reveal outcome
-          </Button>
-        );
-        return (
-          // TODO: Here we must do 3 things
-          // - gameOutcome must be retrieved from the mapping (multisig address is the key)
-          // - Wallet popup that consumes 4 records + gameOutcome
-          // - Navigate user to the page of this specific game (something like /games/{id}) // id = multisig address
           <Button
-            // onClick={() => {
-            //   setCurrentGame(game);
-            //   const gameOutcome = networkClient.getProgramMappingValue(GAME_PROGRAM_ID, GAME_RESULTS_MAPPING, game.gameNotification.recordData.game_multisig);
-            //   navigate(
-            //     `/reveal-answer/${game.gameNotification.recordData.game_multisig}`
-            //   );
-            // }}
-            size="sm"
-            color="yellow"
+            onClick={createRevealAnswerEvent} // TODO implement a simple wallet popup that consumes 2 records.
+            variant="outline"
+            className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
           >
             Reveal outcome
           </Button>
         );
-      // return (
-      // <Button
-      //     onClick={() => {
-      //         setCurrentGame(game);
-      //         navigate(
-      //             `/reveal-answer/${game.gameNotification.recordData.game_multisig}`
-      //         );
-      //     }}
-      //     size="sm"
-      //     color="yellow"
-      // >
-      //     Reveal
-      // </Button>
-      // );
+
       case "Lose":
         return (
-          <Button size="sm" color="yellow">
+          <Button
+            variant="outline"
+            className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
+          >
             Lose
           </Button>
         );
-      // return (
-      //     <Button
-      //         onClick={() => {
-      //             setCurrentGame(game);
-      //             navigate(
-      //                 `/finish-game/lose/${game.gameNotification.recordData.game_multisig}`
-      //             );
-      //         }}
-      //         size="sm"
-      //         color="yellow"
-      //     >
-      //         See Answer
-      //     </Button>
-      // );
+
       case "Claim":
         return (
-          <Button size="sm" color="yellow">
+          <Button
+            onClick={() => {
+              console.log("click claim");
+              setCurrentGame(game);
+              console.log("click claim game", game);
+              createFinishGameEvent();
+            }}
+            variant="outline"
+            className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
+          >
             Claim
           </Button>
         );
-      // return (
-      //     <Button
-      //         onClick={() => {
-      //             setCurrentGame(game);
-      //             navigate(
-      //                 `/finish-game/win/${game.gameNotification.recordData.game_multisig}`
-      //             );
-      //         }}
-      //         color="yellow"
-      //         size="sm"
-      //     >
-      //         View Result
-      //     </Button>
-      // );
     }
   };
   return (
@@ -533,9 +649,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
         </div> */}
         <div className="flex flex-col gap-2.5 items-center ">
           {/* Game id= multisig address */}
-          <span className="font-bold text-lg text-center">
-            {truncateAddress(game_id)} 
-          </span>
+
           <Identicon string={truncateAddress(vs)} size={36} />
           <span className="font-bold text-lg text-center">
             {truncateAddress(vs)}
@@ -543,13 +657,25 @@ const YourTurn: React.FC<IYourTurn> = ({ game }) => {
           <span className="text-sm text-gray-600 dark:text-gray-400">
             Challenged you
           </span>
+          <span className=" text-sm text-center text-gray-600">
+            Game id: {truncateAddress(game_id)}
+          </span>
         </div>
+
         <div className="flex flex-col text-center w-full items-center justify-center">
           <div>
             <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                Outcome: <strong>1-1</strong>
-              </p>
+              {isFinished && (
+                <div className="flex flex-col">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Outcome: <strong>{matchOutcome?.goals_home}</strong> -{" "}
+                    <strong>{matchOutcome?.goals_away}</strong>
+                  </p>
+                  <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                    {determineGameOutcome()}
+                  </p>
+                </div>
+              )}
               <p className="text-xs text-gray-600 dark:text-gray-400">
                 Amount: <strong>{wager}</strong>
               </p>

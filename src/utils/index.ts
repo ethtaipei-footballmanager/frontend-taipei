@@ -6,8 +6,6 @@ import {
 } from "@puzzlehq/sdk";
 
 export const getPositionRole = (positionCode: number): string => {
-  console.log("jey", positionCode);
-
   switch (positionCode) {
     case 1:
       return "GK";
@@ -23,8 +21,6 @@ export const getPositionRole = (positionCode: number): string => {
 };
 
 export const isValidPlacement = (playerPosition: string, gridIndex: number) => {
-  // console.log("params", playerPosition, gridIndex);
-
   if (playerPosition === "GK" && gridIndex !== 0) {
     return false;
   } else if (playerPosition === "DEF" && gridIndex !== 1) {
@@ -58,9 +54,27 @@ export const calculateAttribute = (value: number | string): number => {
 export const getAllPuzzleWalletEvents = async () => {
   const filter: EventsFilter = {
     type: EventType.Execute,
-    programId: "football_game_v013.aleo",
+    programId: "football_game_v014.aleo",
   };
   const events: GetEventsResponse = await getEvents(filter);
-  console.log("🚀 ~ getAllPuzzleWalletEvents ~ events:", events);
   return events.events;
+};
+
+export const getTeamName = (id: string) => {
+  switch (id) {
+    case "1":
+      return "a";
+    case "2":
+      return "b";
+    case "3":
+      return "c";
+    case "4":
+      return "d";
+    case "5":
+      return "e";
+    case "6":
+      return "f";
+    default:
+      return "Unknown";
+  }
 };

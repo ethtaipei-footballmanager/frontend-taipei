@@ -38,7 +38,8 @@ export const calculateStarRating = (
   const normalizedAttack = attack / 100;
   const normalizedMidfield = midfield / 100;
   const normalizedDefense = defense / 100;
-  const overallRating = (normalizedAttack + normalizedMidfield + normalizedDefense) / 3;
+  const overallRating =
+    (normalizedAttack + normalizedMidfield + normalizedDefense) / 3;
   const starRating = overallRating * 5;
   const roundedStarRating = Math.round(starRating * 2) / 2;
   return roundedStarRating;
@@ -132,28 +133,28 @@ export const renderStars = (starRating: number) => {
 
 const colorVariants: ColorVariants = {
   "0": [
-    "bg-[#3498db] hover:bg-[#3498db] border-[#3498db]",
-    "bg-[#bdc3c7] hover:bg-[#bdc3c7] border-[#bdc3c7]",
+    "bg-[#c90000] hover:bg-[#c90000] border-[#c90000]",
+    "bg-[#000] hover:bg-[#000] border-[#000]",
   ],
   "1": [
-    "bg-[#3498db] hover:bg-[#3498db] border-[#3498db]",
-    "bg-[#f39c12] hover:bg-[#f39c12] border-[#f39c12]",
+    "bg-[#000] hover:bg-[#000] border-[#000]",
+    "bg-[#e7dbdb] hover:bg-[#e7dbdb] border-[#e7dbdb]",
   ],
   "2": [
-    "bg-[#8e44ad] hover:bg-[#8e44ad] border-[#8e44ad]",
-    "bg-[#596275] hover:bg-[#596275] border-[#596275]",
+    "bg-[#e65800] hover:bg-[#e65800] border-[#e65800]",
+    "bg-[#0036e6] hover:bg-[#0036e6] border-[#0036e6]",
   ],
   "3": [
-    "bg-[#8b4513] hover:bg-[#8b4513] border-[#8b4513]",
-    "bg-[#008000] hover:bg-[#008000] border-[#008000]",
+    "bg-[#0036e6] hover:bg-[#0036e6] border-[#0036e6]",
+    "bg-[#000000] hover:bg-[#000000] border-[#000000]",
   ],
   "4": [
-    "bg-[#00ff00] hover:bg-[#00ff00] border-[#00ff00]",
-    "bg-[#c92d2d] hover:bg-[#c92d2d] border-[#c92d2d]",
+    "bg-[#3402b3] hover:bg-[#3402b3] border-[#3402b3]",
+    "bg-[#000] hover:bg-[#000] border-[#000]",
   ],
   "5": [
-    "bg-[#ffd700] hover:bg-[#ffd700] border-[#ffd700]",
-    "bg-[#000000] hover:bg-[#000000] border-[#000000]",
+    "bg-[#02b35b] hover:bg-[#02b35b] border-[#02b35b]",
+    "bg-[#4902b3] hover:bg-[#4902b3] border-[#4902b3]",
   ],
 };
 const TeamCard: React.FC<ITeamCard> = ({ team, selectedTeam, index }) => {
@@ -164,7 +165,9 @@ const TeamCard: React.FC<ITeamCard> = ({ team, selectedTeam, index }) => {
   const controls = useAnimation();
   useEffect(() => {
     controls.start({ width: `${(starRating % 1) * 100}%` });
-    setStarRating(calculateStarRating(team.attack, team.midfield, team.defense));
+    setStarRating(
+      calculateStarRating(team.attack, team.midfield, team.defense)
+    );
   }, [team.attack, team.midfield, team.defense]);
 
   const badgeColorOneStyle = {
@@ -188,7 +191,6 @@ const TeamCard: React.FC<ITeamCard> = ({ team, selectedTeam, index }) => {
             <Card
               className="flex flex-col gap-8   text-black  items-center border bg-neutral-100 cursor-pointer  p-2.5 w-80 h-[50vh] mt-4 rounded-[10px] border-solid  border-[#ddd]"
               onClick={() => {
-                console.log("team", team.name);
                 //   onTeamSelected(team.name);
                 //   setIsGameStarted(true);
               }}
@@ -228,7 +230,8 @@ const TeamCard: React.FC<ITeamCard> = ({ team, selectedTeam, index }) => {
                         MID
                       </h2>
                       <p className="text-lg tracking-tight">{team.midfield}</p>
-                    </div><div className="flex flex-col gap-2 items-center">
+                    </div>
+                    <div className="flex flex-col gap-2 items-center">
                       <h2 className="font-bold text-xl tracking-tighter underline">
                         DEF
                       </h2>

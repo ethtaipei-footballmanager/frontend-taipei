@@ -101,7 +101,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const [availableBalance, largestPiece, currentGame] = useGameStore(
     (state) => [state.availableBalance, state.largestPiece, state.currentGame]
   );
-  console.log("🚀 ~ currentGame:", currentGame, availableBalance, largestPiece);
   const [
     inputsSubmitWager,
     eventIdSubmit,
@@ -119,10 +118,8 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     state.setStep,
     state.setAcceptedSelectedTeam,
   ]);
-  console.log("🚀 ~ inputsSubmitWager:", eventIdSubmit, acceptGameInputs);
 
   const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  console.log("🚀 ~ msAddress:", msAddress);
   const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
   const [confirmStep, setConfirmStep] = useState(ConfirmStep.Signing);
   const router = useRouter();
@@ -134,7 +131,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const filter: RecordsFilter = {
     type: "unspent",
     programIds: [
-      "football_game_v013.aleo",
+      "football_game_v014.aleo",
       "puzzle_pieces_v016.aleo",
       "multiparty_pvp_utils_v015_avh.aleo",
     ],
@@ -145,24 +142,18 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         filter,
         // address: account?.address,
       });
-      console.log("🚀 ~ response ~ response:", record);
 
       return record;
     };
     response();
   }, [account]);
 
-  console.log("🚀 ~ availableBalance:", availableBalance);
-  console.log("🚀 ~ largestPiece:", largestPiece);
-
   const handleOpponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOpponent(e.target.value);
   };
   useEffect(() => {
     const wagerAmountResult = wagerAmountSchema.safeParse(bet);
-    console.log("🚀 ~ useEffect ~ wagerAmountResult:", wagerAmountResult);
     const opponentResult = opponentSchema.safeParse(opponent);
-    console.log("🚀 ~ useEffect ~ opponentResult:", opponentResult);
 
     if (!wagerAmountResult.success) {
       setBetError("Wager amount must be a valid number");
@@ -185,6 +176,26 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       });
     }
   }, [bet, opponent]);
+
+  const getPuzzlePieces = async () => {
+    setLoading(true);
+    try {
+      const response = await requestCreateEvent({
+        type: EventType.Execute,
+        programId: "puzzle_pieces_v016.aleo",
+        functionId: "mint_private",
+        fee: transitionFees.submit_wager,
+        inputs: Object.values({
+          amount: "1000u64",
+          address: account?.address!,
+        }),
+        address: account?.address, // opponent address
+      });
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
 
   const createSubmitWagerEvent = async () => {
     if (
@@ -218,9 +229,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       opponent_sig: signature.signature,
     };
     const game_multisig_seed = currentGame?.utilRecords?.[0].data.seed ?? "";
-    console.log("game_multisig seed", game_multisig_seed);
     const { data } = await importSharedState(game_multisig_seed);
-    console.log(`Shared state imported: ${data?.address}`);
 
     setSubmitWagerInputs(newInputs);
     const response = await requestCreateEvent({
@@ -254,13 +263,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   //   }
   // }, [account]);
 
-  console.log(
-    "acceptgame",
-    acceptGameInputs.game_req_notification,
-    acceptGameInputs?.opponent_wager_record,
-    acceptGameInputs.key_record
-  );
-
   const handleStartGame = () => {
     if (account?.address && bet <= availableBalance) {
       setIsGameStarted(true);
@@ -268,8 +270,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       toast.info("Please connect your Puzzle Wallet to play");
     }
   };
-
-  console.log("bet", bet, inputs);
 
   return (
     <div className="flex flex-col h-fit  items-center gap-16 mt-16 justify-around ">
@@ -312,7 +312,6 @@ const TeamSelection: React.FC<ITeamSelection> = ({
           </SwiperSlide>
         ))} */}
         {teams.map((team, index) => {
-          // console.log("teams", team);
           return (
             <SwiperSlide
               key={team.name}
@@ -355,10 +354,11 @@ const TeamSelection: React.FC<ITeamSelection> = ({
         {/* <div className="flex flex-row gap-1"> */}
         {/* </div> */}
       </div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="outline">Pick Team</Button>
-        </DialogTrigger>
+      {!isChallenged ? (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">Pick Team</Button>
+          </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Start Game</DialogTitle>
@@ -394,10 +394,18 @@ const TeamSelection: React.FC<ITeamSelection> = ({
               </div>
               {betError && <p className="text-red-500 text-sm">{betError}</p>}
               {availableBalance === 0 ? (
-                <div className="flex text-center w-full tracking-tight">
+                <div className="flex flex-col gap-4 -mb-6 items-center justify-center text-center w-full tracking-tight">
                   <p className="text-red-500 text-sm">
                     You need puzzle pieces to play the game
                   </p>
+                  <Button
+                    disabled={loading}
+                    onClick={getPuzzlePieces}
+                    className="w-32"
+                    variant={"outline"}
+                  >
+                    Mint Pieces
+                  </Button>
                 </div>
               ) : (
                 <div className="relative">
@@ -463,8 +471,17 @@ const TeamSelection: React.FC<ITeamSelection> = ({
               )}
             </div>
           </DialogContent>
-        
-      </Dialog>
+        </Dialog>
+      ) : (
+        <Button
+          onClick={handleStartGame}
+          className="w-36"
+          variant={"outline"}
+          type="submit"
+        >
+          Start Game
+        </Button>
+      )}
     </div>
   );
 };

@@ -1,10 +1,11 @@
 "use client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateAttribute } from "@/utils";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { PlayerType, SelectedPlayer } from "./Game";
 import { Badge } from "./ui/badge";
+
 interface IPlayer {
   player: PlayerType;
   movePlayer: (val0: number, val1: number, val2: number) => void;
@@ -87,7 +88,6 @@ const Player: React.FC<IPlayer> = ({
   const [playerRating, setPlayerRating] = useState(0);
 
   const handleDoubleClick = () => {
-    console.log("doulbe");
     if (removePlayer) removePlayer(player.id);
   };
 
@@ -171,11 +171,12 @@ const Player: React.FC<IPlayer> = ({
                 {player.position}
               </Badge>
             </div>
-            <div className="flex flex-col w-16 absolute left-8 h-24 items-center  justify-end  ">
-              <Avatar className=" w-10 h-10 ">
+            <div className="flex flex-col w-16 absolute left-7 mt-3 h-24 items-center  justify-end  ">
+              {/* <Avatar className=" w-10 h-10 ">
                 <AvatarImage src={player.image} />
                 <AvatarFallback className="hidden">FP</AvatarFallback>
-              </Avatar>
+              </Avatar> */}
+              <Image alt="player" width={24} height={24} src={player.image} />
               <h1 className=" font-bold text-base dark:text-white/80">
                 {player.name}
               </h1>

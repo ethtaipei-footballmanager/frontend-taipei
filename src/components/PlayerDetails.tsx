@@ -62,11 +62,18 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
       fullMark: 100,
     },
   ];
+  console.log("playerdetails", playerDetails);
+
   return (
     <Card className=" relative rounded-lg ">
       <CardHeader className="flex  flex-row gap-4 justify-center items-center">
         <div className="flex flex-col items-center text-center">
-          <Image alt="player" width={48} height={48} src="/player_b.svg" />
+          <Image
+            alt="player"
+            width={48}
+            height={48}
+            src={playerDetails.image}
+          />
           <div>
             <CardTitle className="text-lg font-bold ">
               {playerDetails.name}
