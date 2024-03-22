@@ -1,26 +1,7 @@
 "use client";
-import { Step, useAcceptGameStore } from "@/app/accept-game/store";
-import { useGameStore } from "@/app/state/gameStore";
-import {
-  GAME_FUNCTIONS,
-  GAME_PROGRAM_ID,
-  SubmitWagerInputs,
-  transitionFees,
-} from "@/app/state/manager";
-import { useEventHandling } from "@/hooks/eventHandling";
-import { useMsRecords } from "@/hooks/msRecords";
+import { useAcceptGameStore } from "@/app/accept-game/store";
+import { GAME_ADDRESS, TOKEN_ABI, TOKEN_ADDRESS } from "@/utils";
 import { teams } from "@/utils/team-data";
-import {
-  EventType,
-  RecordsFilter,
-  getRecords,
-  importSharedState,
-  requestCreateEvent,
-  requestSignature,
-  useAccount,
-  zodAddress,
-} from "@puzzlehq/sdk";
-import jsyaml from "js-yaml";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
@@ -30,7 +11,11 @@ import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 import { EffectCoverflow, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { parseUnits } from "viem";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { z } from "zod";
+// import TOKEN_ABI from "../abi/ERC20.json";
+import GAME_ABI from "../abi/Game.json";
 import { useNewGameStore } from "../app/create-game/store";
 import TeamCard from "./TeamCard";
 import { Button } from "./ui/button";
@@ -72,7 +57,9 @@ enum ConfirmStep {
 
 const messageToSign = "1234567field"; // TODO?
 
-const opponentSchema = zodAddress;
+const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+
+const opponentSchema = z.string().regex(ethereumAddressRegex);
 const wagerAmountSchema = z
   .number()
   .refine(
@@ -93,14 +80,12 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const [bet, setBet] = useState(1);
   const [opponent, setOpponent] = useState("");
   const swiperRef = useRef<any>();
+  const { address } = useAccount();
   const [opponentError, setOpponentError] = useState<string | null>(null);
   const [betError, setBetError] = useState<string | null>(null);
   // const [isChallenged, setIsChallenged] = useState(false);
-  const { account } = useAccount();
   const { setInputs, inputs } = useNewGameStore();
-  const [availableBalance, largestPiece, currentGame] = useGameStore(
-    (state) => [state.availableBalance, state.largestPiece, state.currentGame]
-  );
+  const [loading, setLoading] = useState(false);
   const [
     inputsSubmitWager,
     eventIdSubmit,
@@ -118,35 +103,38 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     state.setStep,
     state.setAcceptedSelectedTeam,
   ]);
+  const { writeContract } = useWriteContract();
 
-  const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  const { msPuzzleRecords, msGameRecords } = useMsRecords(msAddress);
-  const [confirmStep, setConfirmStep] = useState(ConfirmStep.Signing);
-  const router = useRouter();
-  const { loading, error, event, setLoading, setError } = useEventHandling({
-    id: eventIdSubmit,
-    stepName: "Submit Wager",
-    onSettled: () => setStep(Step._02_AcceptGame),
+  const result = useReadContract({
+    address: TOKEN_ADDRESS,
+    abi: TOKEN_ABI,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
   });
-  const filter: RecordsFilter = {
-    type: "unspent",
-    programIds: [
-      "football_game_v014.aleo",
-      "puzzle_pieces_v016.aleo",
-      "multiparty_pvp_utils_v015_avh.aleo",
-    ],
-  };
-  useEffect(() => {
-    const response = async () => {
-      const record = await getRecords({
-        filter,
-        // address: account?.address,
-      });
+  const result2 = useReadContract({
+    address: GAME_ADDRESS,
+    abi: GAME_ABI,
+    functionName: "gameCount",
+  });
 
-      return record;
-    };
-    response();
-  }, [account]);
+  console.log("🚀 ~ {data}:", result, address, result2);
+
+  const router = useRouter();
+
+  const getTokens = async () => {
+    setLoading(true);
+    try {
+      writeContract({
+        abi: TOKEN_ABI,
+        address: TOKEN_ADDRESS,
+        functionName: "mint",
+        args: [address as `0x${string}`, parseUnits("1000", 18)],
+      });
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
 
   const handleOpponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOpponent(e.target.value);
@@ -162,7 +150,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     }
 
     if (!opponentResult.success) {
-      setOpponentError("Opponent address must be valid aleo account");
+      setOpponentError("Opponent address must be valid account");
     } else {
       setOpponentError(null);
     }
@@ -172,99 +160,12 @@ const TeamSelection: React.FC<ITeamSelection> = ({
       setInputs({
         challenger_wager_amount: wagerAmountResult.data.toString(),
         opponent: opponentResult.data,
-        wager_record: largestPiece,
       });
     }
   }, [bet, opponent]);
 
-  const getPuzzlePieces = async () => {
-    setLoading(true);
-    try {
-      const response = await requestCreateEvent({
-        type: EventType.Execute,
-        programId: "puzzle_pieces_v016.aleo",
-        functionId: "mint_private",
-        fee: transitionFees.submit_wager,
-        inputs: Object.values({
-          amount: "1000u64",
-          address: account?.address!,
-        }),
-        address: account?.address, // opponent address
-      });
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-    }
-  };
-
-  const createSubmitWagerEvent = async () => {
-    if (
-      !acceptGameInputs?.opponent_wager_record ||
-      !acceptGameInputs.key_record ||
-      !acceptGameInputs.game_req_notification
-    ) {
-      return;
-    }
-    setLoading(true);
-    setError(undefined);
-    const signature = await requestSignature({ message: messageToSign });
-    setConfirmStep(ConfirmStep.Signing);
-    if (!signature.messageFields || !signature.signature) {
-      setError("Signature or signature message fields not found");
-      setLoading(false);
-      return;
-    }
-    setConfirmStep(ConfirmStep.RequestingEvent);
-    const messageFields = Object(jsyaml.load(signature.messageFields));
-
-    const newInputs: Partial<SubmitWagerInputs> = {
-      opponent_wager_record: inputsSubmitWager.opponent_wager_record,
-      key_record: inputsSubmitWager.key_record,
-      game_req_notification: inputsSubmitWager.game_req_notification,
-      opponent_message_1: messageFields.field_1,
-      opponent_message_2: messageFields.field_2,
-      opponent_message_3: messageFields.field_3,
-      opponent_message_4: messageFields.field_4,
-      opponent_message_5: messageFields.field_5,
-      opponent_sig: signature.signature,
-    };
-    const game_multisig_seed = currentGame?.utilRecords?.[0].data.seed ?? "";
-    const { data } = await importSharedState(game_multisig_seed);
-
-    setSubmitWagerInputs(newInputs);
-    const response = await requestCreateEvent({
-      type: EventType.Execute,
-      programId: GAME_PROGRAM_ID,
-      functionId: GAME_FUNCTIONS.submit_wager,
-      fee: transitionFees.submit_wager,
-      inputs: Object.values(newInputs),
-      address: acceptGameInputs.game_req_notification.owner, // opponent address
-    });
-    if (response.error) {
-      setError(response.error);
-      setLoading(false);
-    } else if (response.eventId) {
-      /// todo - other things here?
-      setEventIdSubmit(response.eventId);
-      setSubmitWagerInputs({ ...newInputs });
-      router.push(`/accept-game/${response.eventId}`);
-    }
-  };
-
-  // useEffect(() => {
-  //   if (
-  //     acceptGameInputs?.opponent_wager_record ||
-  //     acceptGameInputs.key_record ||
-  //     acceptGameInputs.game_req_notification
-  //   ) {
-  //     setIsChallenged(true);
-  //   } else {
-  //     setIsChallenged(false);
-  //   }
-  // }, [account]);
-
   const handleStartGame = () => {
-    if (account?.address && bet <= availableBalance) {
+    if (address && bet <= 123) {
       setIsGameStarted(true);
     } else {
       toast.info("Please connect your Puzzle Wallet to play");
@@ -393,14 +294,14 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                 </p>
               </div>
               {betError && <p className="text-red-500 text-sm">{betError}</p>}
-              {availableBalance === 0 ? (
+              {"123" !== betError ? (
                 <div className="flex flex-col gap-4 -mb-6 items-center justify-center text-center w-full tracking-tight">
                   <p className="text-red-500 text-sm">
                     You need puzzle pieces to play the game
                   </p>
                   <Button
                     disabled={loading}
-                    onClick={getPuzzlePieces}
+                    onClick={getTokens}
                     className="w-32"
                     variant={"outline"}
                   >
@@ -415,7 +316,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                     defaultValue={[100]}
                     value={[bet]}
                     min={0}
-                    max={availableBalance}
+                    max={123}
                     step={1}
                   />
                   {/* Min label */}
@@ -424,10 +325,29 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                   </span>
                   {/* Max label */}
                   <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-7">
-                    {availableBalance}
+                    {123}
                   </span>
                 </div>
               )}
+              <div className="relative">
+                <Slider
+                  className="mt-6"
+                  onValueChange={(e) => setBet(e[0])}
+                  defaultValue={[100]}
+                  value={[bet]}
+                  min={0}
+                  max={123}
+                  step={1}
+                />
+                {/* Min label */}
+                <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-7">
+                  0
+                </span>
+                {/* Max label */}
+                <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-7">
+                  {123}
+                </span>
+              </div>
             </div>
             <div className="flex w-full justify-center  items-center ">
               {/* <Button
@@ -459,16 +379,14 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                 Feeling Lucky!
               </motion.span>
             </Button> */}
-              {availableBalance !== 0 && (
-                <Button
-                  onClick={handleStartGame}
-                  className="w-full"
-                  variant={"outline"}
-                  type="submit"
-                >
-                  Start Game
-                </Button>
-              )}
+              <Button
+                onClick={handleStartGame}
+                className="w-full"
+                variant={"outline"}
+                type="submit"
+              >
+                Start Game
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

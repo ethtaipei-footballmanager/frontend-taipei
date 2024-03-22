@@ -2,14 +2,13 @@
 
 import { useGameStore } from "@/app/state/gameStore";
 import GameCard from "@/components/GameCard";
-import { useAccount, useEvent } from "@puzzlehq/sdk";
 import { format } from "date-fns";
+import { useAccount } from "wagmi";
 import { useNewGameStore } from "../store";
 interface IPage {}
 
 const Page: React.FC<IPage> = ({}) => {
-  const { account } = useAccount();
-
+  const { address } = useAccount();
   const [theirTurn, totalBalance] = useGameStore((state) => [
     state.theirTurn,
     state.totalBalance,
@@ -21,7 +20,6 @@ const Page: React.FC<IPage> = ({}) => {
   ]);
   const game_multisig = inputs?.game_multisig;
 
-  const { event } = useEvent({ id: eventId });
   return (
     <section className="w-full h-[50vh] flex items-center justify-center ">
       <GameCard

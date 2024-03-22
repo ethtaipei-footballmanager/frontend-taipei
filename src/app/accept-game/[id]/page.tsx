@@ -2,10 +2,7 @@
 
 import Game from "@/components/Game";
 import TeamSelection from "@/components/TeamSelection";
-import { useInitGame } from "@/hooks/initGame";
 import { useState } from "react";
-import { useGameStore } from '@state/gameStore';
-
 
 interface IAcceptGamePage {}
 

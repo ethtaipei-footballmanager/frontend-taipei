@@ -1,15 +1,16 @@
 "use client";
 
-import { useNewGameStore } from "../create-game/store";
 import { useGameStore } from "../state/gameStore";
 // import TheirTurn from '@components/TheirTurn';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useInitGame } from "@/hooks/initGame";
+import { GAME_ADDRESS, TOKEN_ADDRESS } from "@/utils";
 import YourTurn from "@components/YourTurn";
-import { useAccount } from "@puzzlehq/sdk";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useAccount, useBalance, useReadContract } from "wagmi";
+import GAME_ABI from "../../abi/Game.json";
+
 interface IYourGames {}
 
 const tabs = [
@@ -20,7 +21,7 @@ const tabs = [
 
 const YourGames: React.FC<IYourGames> = ({}) => {
   const [activeTab, setActiveTab] = useState(tabs[0].id);
-  useInitGame();
+
   const [yourTurn, theirTurn, finished, availableBalance] = useGameStore(
     (state) => [
       state.yourTurn,
@@ -29,13 +30,401 @@ const YourGames: React.FC<IYourGames> = ({}) => {
       state.availableBalance,
     ]
   );
-  const { account } = useAccount();
+  const { address } = useAccount();
   const [loading, setLoading] = useState(false);
   console.log("🚀 ~ yourTurn:", yourTurn);
   console.log("🚀 ~ theirTurn:", theirTurn);
   console.log("🚀 ~ finished:", finished);
 
-  const [initialize] = useNewGameStore((state) => [state.initialize]);
+  const result = useReadContract({
+    address: TOKEN_ADDRESS,
+    abi: [
+      {
+        inputs: [
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "symbol",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "initialSupply",
+            type: "uint256",
+          },
+          {
+            internalType: "uint8",
+            name: "decimals",
+            type: "uint8",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "constructor",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "allowance",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "needed",
+            type: "uint256",
+          },
+        ],
+        name: "ERC20InsufficientAllowance",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "balance",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "needed",
+            type: "uint256",
+          },
+        ],
+        name: "ERC20InsufficientBalance",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "approver",
+            type: "address",
+          },
+        ],
+        name: "ERC20InvalidApprover",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "receiver",
+            type: "address",
+          },
+        ],
+        name: "ERC20InvalidReceiver",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+        ],
+        name: "ERC20InvalidSender",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+        ],
+        name: "ERC20InvalidSpender",
+        type: "error",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+        ],
+        name: "Approval",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "from",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+        ],
+        name: "Transfer",
+        type: "event",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+        ],
+        name: "allowance",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+        ],
+        name: "approve",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+        ],
+        name: "balanceOf",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "from",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        name: "burn",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "decimals",
+        outputs: [
+          {
+            internalType: "uint8",
+            name: "",
+            type: "uint8",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        name: "mint",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "name",
+        outputs: [
+          {
+            internalType: "string",
+            name: "",
+            type: "string",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "symbol",
+        outputs: [
+          {
+            internalType: "string",
+            name: "",
+            type: "string",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "totalSupply",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+        ],
+        name: "transfer",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "from",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+        ],
+        name: "transferFrom",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+  });
+  const { data } = useBalance({
+    address: address,
+  });
+  console.log("🚀 ~ data:", data);
+
+  const result2 = useReadContract({
+    address: GAME_ADDRESS,
+    abi: GAME_ABI,
+    functionName: "gameCount",
+  });
+
+  console.log("🚀 ~ {data}:", result, address, result2);
 
   return (
     <div className="flex flex-col justify-center gap-4 items-center">
@@ -48,13 +437,13 @@ const YourGames: React.FC<IYourGames> = ({}) => {
           className="max-w-4xl "
         >
           <div className="flex w-full max-w-4xl items-center justify-center">
-            <TabsList className="flex border  w-fit absolute bottom-0 shadow-lg bg-transparent gap-4  items-center justify-center">
+            <TabsList className="flex border h-fit w-fit absolute bottom-0 shadow-lg bg-transparent gap-4  items-center justify-center">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.id}
                   className={`${
                     activeTab === tab.id ? "text-white" : "text-black"
-                  } relative rounded-full px-3 py-1.5 text-sm font-medium dark:text-white outline-sky-400 transition focus-visible:outline-2 `}
+                  } relative rounded-full px-3 py-3 text-base tracking-tighter font-semibold dark:text-white outline-sky-400 transition focus-visible:outline-2 `}
                   onClick={() => setActiveTab(tab.id)}
                   style={{
                     WebkitTapHighlightColor: "transparent",
@@ -64,7 +453,7 @@ const YourGames: React.FC<IYourGames> = ({}) => {
                   {activeTab === tab.id && (
                     <motion.span
                       layoutId="bubble"
-                      className="absolute inset-0 z-10 bg-white mix-blend-difference"
+                      className="absolute inset-0 z-10  bg-white mix-blend-difference"
                       style={{ borderRadius: 8 }}
                       transition={{
                         type: "spring",
