@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaXTwitter } from "react-icons/fa6";
 import { useWindowSize } from "react-use";
 import {
   FloatingMenu,
@@ -118,9 +117,7 @@ const Navbar = ({ className }: { className?: string }) => {
       </div>
       <div className="flex justify-center items-center  gap-6 z-50">
         <ConnectButton showBalance={true} />
-        <a target="_blank" href="https://twitter.com/SuperLeoLig/">
-          <FaXTwitter className="text-black stroke-current w-5 h-5 dark:text-white" />
-        </a>
+
         <ThemeToggle />
       </div>
     </div>

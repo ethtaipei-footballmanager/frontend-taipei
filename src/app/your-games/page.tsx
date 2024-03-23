@@ -1,15 +1,14 @@
+//@ts-nocheck
 "use client";
 
-import { useGameStore } from "../state/gameStore";
 // import TheirTurn from '@components/TheirTurn';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GAME_ADDRESS, TOKEN_ADDRESS } from "@/utils";
 import YourTurn from "@components/YourTurn";
-import { ethers } from "ethers";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { parseAbiItem } from "viem";
+import { formatUnits } from "viem";
 import {
   useAccount,
   useBalance,
@@ -27,25 +26,33 @@ const tabs = [
   { id: "finished", label: "Finished" },
 ];
 
+export type Game = {
+  opponent: string;
+  challenger: string;
+  wager: string;
+  outcome: string;
+  isFinished: boolean;
+};
+
 const YourGames: React.FC<IYourGames> = ({}) => {
-  const gameContract = new ethers.Contract(GAME_ADDRESS, GAME_ABI.abi);
+  // const provider = new ethers.JsonRpcProvider("https://sepolia-rpc.scroll.io");
+  // const gameContract = new ethers.Contract(
+  //   GAME_ADDRESS,
+  //   GAME_ABI.abi,
+  //   provider
+  // );
+  // console.log("🚀 ~ gameContract:", gameContract);
 
   const [activeTab, setActiveTab] = useState(tabs[0].id);
   const publicClient = usePublicClient();
-  const [yourTurn, theirTurn, finished, availableBalance] = useGameStore(
-    (state) => [
-      state.yourTurn,
-      state.theirTurn,
-      state.finished,
-      state.availableBalance,
-    ]
-  );
-  const { address } = useAccount();
-  const [loading, setLoading] = useState(false);
-  console.log("🚀 ~ yourTurn:", yourTurn);
-  console.log("🚀 ~ theirTurn:", theirTurn);
-  console.log("🚀 ~ finished:", finished);
 
+  const { address } = useAccount();
+  console.log("🚀 ~ address:", address);
+  const [loading, setLoading] = useState(false);
+
+  const [yourTurn, setYourTurn] = useState<Game[]>();
+  const [theirTurn, setTheirTurn] = useState<Game[]>();
+  const [finished, setFinished] = useState<Game[]>();
   const result = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI.abi,
@@ -69,61 +76,186 @@ const YourGames: React.FC<IYourGames> = ({}) => {
   const events = useWatchContractEvent({
     ...gameContractConfig,
     eventName: "GameProposed",
-    onLogs(logs) {
+    onLogs(logs: any) {
       console.log("New logs!", logs);
     },
   });
 
+  console.log("🚀 ~ events:", events);
   useEffect(() => {
-    // const getLogs = async () => {
-    //   const logs = await publicClient?.getLogs({
-    //     address: GAME_ADDRESS,
-    //     event: parseAbiItem(
-    //       "event GameProposed(uint256 gameId,address indexed challenger,address indexed opponent,uint256 wagerAmount)"
-    //     ),
-    //     // args: {
-    //     //   from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-    //     //   to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
-    //     // },
-    //     // args: {
-    //     //   opponent: address,
-    //     // },
-    //     fromBlock: 4556661n,
-    //     toBlock: "latest",
-    //   });
-    //   console.log("getlog", logs);
-    // };
-    // getLogs();
-    gameContract.on(
-      "GameProposed",
-      (gameId, challenger, opponent, wagerAmount) => {
-        let info = {
-          gameId: gameId,
-          challenger: challenger,
-          opponent: opponent,
-          wagerAmount: wagerAmount,
-        };
-        console.log("data98", JSON.stringify(info, null, 4));
-      }
-    );
-  }, []);
-
-  console.log("🚀 ~ events ~ events:", events);
-
-  useEffect(() => {
-    const getFilter = async () => {
-      const filter = await publicClient?.createEventFilter({
+    const getLogs = async () => {
+      const logs = await publicClient?.getContractEvents({
         address: GAME_ADDRESS,
-        event: parseAbiItem(
-          "event GameProposed(uint256 gameId,address indexed challenger,address indexed opponent,uint256 wagerAmount)"
-        ),
-        strict: true,
+        abi: GAME_ABI.abi,
+        // eventName: "GameProposed",
+        // args: {
+        //   from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+        //   to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+        // },
+        fromBlock: 3385459n,
+        toBlock: "latest",
       });
-      // const logs = await publicClient?.getFilterLogs({ filter });
-      // console.log("🚀 ~ getFilter ~ logs:", logs);
+      console.log("getlog", logs);
+
+      const gameContract = {
+        address: GAME_ADDRESS,
+        abi: GAME_ABI.abi,
+      } as const;
+
+      const getGameNumber = await publicClient?.readContract({
+        address: GAME_ADDRESS,
+        abi: GAME_ABI.abi,
+        functionName: "getGameCount",
+      });
+      console.log("🚀 ~ getLogs ~ getGameNumber:", Number(getGameNumber));
+
+      const results = await publicClient?.multicall({
+        contracts: Array.from(
+          { length: Number(getGameNumber) },
+          (_, index) => ({
+            address: GAME_ADDRESS,
+            abi: GAME_ABI.abi,
+            functionName: "games",
+            args: [index],
+          })
+        ),
+      });
+      const games = results?.map((game) => {
+        console.log("gameasd", game.result[0], game.result[1], address);
+
+        if (game.result[0] === address && (!game.result[3] as Boolean)) {
+          console.log("1asd");
+
+          setYourTurn((prevState: Game[] | undefined) => [
+            ...(prevState || []), // Ensure prevState is an array or initialize it as an empty array
+            {
+              challenger: game.result[0],
+              opponent: game.result[1],
+              wager: formatUnits(game.result[2], 18),
+              // gameId:   ,
+              outcome: ``,
+              isFinished: false,
+            },
+          ]);
+        } else if (game.result[1] === address && !game.result[3]) {
+          console.log("2asd");
+          setTheirTurn((prevState: Game[] | undefined) => [
+            ...(prevState || []), // Ensure prevState is an array or initialize it as an empty array
+            {
+              challenger: game.result[0],
+              opponent: game.result[1],
+              wager: formatUnits(game.result[2], 18),
+              // gameId:   ,
+              outcome: ``,
+              isFinished: false,
+            },
+          ]);
+        } else if (
+          (game.result[0] === address || game.result[1] === address) &&
+          game.result[3]
+        ) {
+          console.log("3asd");
+
+          setFinished((prevState: Game[] | undefined) => [
+            ...(prevState || []), // Ensure prevState is an array or initialize it as an empty array
+            {
+              challenger: game.result[0],
+              opponent: game.result[1],
+              wager: formatUnits(game.result[2], 18),
+              // gameId:   ,
+              outcome: `${Number(game.result[3].goalsHomeTeam)} - ${Number(
+                game.result[3].awayTeam
+              )}`,
+              isFinished: true,
+            },
+          ]);
+        }
+      });
+      console.log("🚀 ~ getLogs ~ results:", results, games);
+      // const filteredData = logs
+      //   ?.map((event) => {
+      //     // console.log("event", event.args);
+      //     if (event.name === "GameProposed") {
+      //       if (event.args.opponent.toLowerCase() === address?.toLowerCase()) {
+      //         setYourTurn((prevState: Game) => [
+      //           ...prevState,
+      //           {
+      //             opponent: event.args.opponent,
+      //             challenger: event.args.challenger,
+      //             wager: formatUnits(event.args.wagerAmount, 18),
+      //             gameId: event.args.gameId.toString(),
+      //             outcome: "",
+      //           },
+      //         ]);
+      //       }
+      //     } else if (event.name === "GameAccepted") {
+      //       if (
+      //         event.args.challenger.toLowerCase() === address?.toLowerCase()
+      //       ) {
+      //         setTheirTurn((prevState: Game) => [
+      //           ...prevState,
+      //           {
+      //             opponent: event.args.opponent,
+      //             challenger: event.args.challenger,
+      //             wager: formatUnits(event.args.wagerAmount, 18),
+      //             gameId: event.args.gameId.toString(),
+      //             outcome: "",
+      //           },
+      //         ]);
+      //       }
+      //     } else {
+      //       if (
+      //         event.args.challenger.toLowerCase() === address?.toLowerCase() ||
+      //         event.args.opponent.toLowercase() === address?.toLowerCase()
+      //       ) {
+      //         setFinished((prevState: Game) => [
+      //           ...prevState,
+      //           {
+      //             opponent: event.args.opponent,
+      //             challenger: event.args.challenger,
+      //             wager: formatUnits(event.args.wagerAmount, 18),
+      //             gameId: event.args.gameId.toString(),
+      //             outcome: "",
+      //           },
+      //         ]);
+      //       }
+      //     }
+      //   })
+      //   .filter(Boolean);
     };
-    getFilter();
-  }, []);
+    getLogs();
+    // gameContract.on(
+    //   "GameProposed",
+    //   (gameId, challenger, opponent, wagerAmount) => {
+    //     let info = {
+    //       gameId: gameId,
+    //       challenger: challenger,
+    //       opponent: opponent,
+    //       wagerAmount: wagerAmount,
+    //     };
+    //     console.log("data98", JSON.stringify(info, null, 4));
+    //   }
+    // );
+
+    // return gameContract.removeAllListeners("GameProposed");
+  }, [address]);
+
+  console.log("gamesasd", finished, yourTurn, theirTurn);
+
+  // useEffect(() => {
+  //   const getFilter = async () => {
+  //     const filter = await publicClient?.createEventFilter({
+  //       address: GAME_ADDRESS,
+  //       event: parseAbiItem(
+  //         "event GameProposed(uint256 gameId,address indexed challenger,address indexed opponent,uint256 wagerAmount)"
+  //       ),
+  //       strict: true,
+  //     });
+  //     // const logs = await publicClient?.getFilterLogs({ filter });
+  //     // console.log("🚀 ~ getFilter ~ logs:", logs);
+  //   };
+  //   getFilter();
+  // }, []);
 
   console.log("🚀 ~ {data}:", data, address, data2);
 
@@ -170,16 +302,17 @@ const YourGames: React.FC<IYourGames> = ({}) => {
           </div>
           <ScrollArea className=" overflow-y-auto h-[75vh] p-5">
             <TabsContent value={"your"}>
-              {yourTurn.length !== 0 ? (
+              {yourTurn && yourTurn.length !== 0 ? (
                 <div className="flex flex-col  gap-6 -mt-2  items-center w-full justify-center">
                   <h2 className="tracking-tighter text-2xl font-bold">
                     Your Turn to Play
                   </h2>
 
                   <div className="grid grid-cols-3 gap-4 p-2">
-                    {yourTurn.map((game, index) => (
-                      <YourTurn key={index} game={game} isFinished={false} />
-                    ))}
+                    {yourTurn &&
+                      yourTurn.map((game, index) => (
+                        <YourTurn key={index} game={game} isFinished={false} />
+                      ))}
                   </div>
                 </div>
               ) : (
@@ -191,16 +324,17 @@ const YourGames: React.FC<IYourGames> = ({}) => {
               )}
             </TabsContent>
             <TabsContent value={"their"} className="">
-              {theirTurn.length !== 0 ? (
+              {theirTurn && theirTurn.length !== 0 ? (
                 <div className="flex flex-col  gap-6 -mt-2  items-center w-full justify-center">
                   <h2 className="tracking-tighter text-2xl font-bold">
                     Their Turn to Play
                   </h2>
 
                   <div className="grid grid-cols-3 gap-4 p-2">
-                    {theirTurn.map((game, index) => (
-                      <YourTurn key={index} game={game} isFinished={false} />
-                    ))}
+                    {theirTurn &&
+                      theirTurn.map((game, index) => (
+                        <YourTurn key={index} game={game} isFinished={false} />
+                      ))}
                   </div>
                 </div>
               ) : (
@@ -212,16 +346,17 @@ const YourGames: React.FC<IYourGames> = ({}) => {
               )}
             </TabsContent>
             <TabsContent value={"finished"}>
-              {finished.length !== 0 ? (
+              {finished && finished.length !== 0 ? (
                 <div className="flex flex-col  gap-6 -mt-2  items-center w-full justify-center">
                   <h2 className="tracking-tighter text-2xl font-bold">
                     Finished Games
                   </h2>
 
                   <div className="grid grid-cols-3 gap-4 p-2">
-                    {finished.map((game, index) => (
-                      <YourTurn key={index} game={game} isFinished={true} />
-                    ))}
+                    {finished &&
+                      finished.map((game, index) => (
+                        <YourTurn key={index} game={game} isFinished={true} />
+                      ))}
                   </div>
                 </div>
               ) : (

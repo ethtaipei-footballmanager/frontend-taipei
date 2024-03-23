@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { CiTrophy } from "react-icons/ci";
-import { FaXTwitter } from "react-icons/fa6";
 import { IoFootballOutline, IoGameControllerOutline } from "react-icons/io5";
 export default function Home() {
   const header = "Welcome to Ten Taipei Football Manager".split(" ");
@@ -114,11 +113,6 @@ export default function Home() {
         <p className="text-xs text-white dark:text-gray-400">
           © 2024 Ten Taipei Football Manager. All rights reserved.
         </p>
-        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <a target="_blank" href="https://twitter.com/SuperLeoLig/">
-            <FaXTwitter className="text-white stroke-current" />
-          </a>
-        </nav>
       </footer>
     </div>
   );

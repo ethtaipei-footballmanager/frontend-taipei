@@ -11,7 +11,7 @@ export const config = getDefaultConfig({
   transports: {
     [ten.id]: http(),
     [lineaTestnet.id]: http(),
-    [scrollSepolia.id]: http(),
+    [scrollSepolia.id]: http(process.env.NEXT_PUBLIC_SCROLL_API),
   },
   ssr: true,
 });
@@ -21,6 +21,6 @@ export const wagmiConfig = createConfig({
   transports: {
     [ten.id]: http(),
     [lineaTestnet.id]: http("https://rpc.goerli.linea.build"),
-    [scrollSepolia.id]: http(),
+    [scrollSepolia.id]: http(process.env.NEXT_PUBLIC_SCROLL_API),
   },
 });

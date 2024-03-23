@@ -287,9 +287,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
     setLoadingMessage("Creating Game...");
 
-    const activePlayerIds = activePlayers.map((player) => {
-      return player.id;
-    });
+    // const activePlayerIds = activePlayers.map((player) => {
+    //   return player.id;
+    // });
     // inputs?.challenger_wager_amount;
 
     toast.info("Accept the transaction to create the game");
@@ -301,8 +301,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       args: [
         inputs?.opponent as `0x${string}`,
         parseUnits(inputs?.challenger_wager_amount!, 18),
-        activePlayerIds,
-        // [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+        // activePlayerIds,
+        [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
       ],
     });
     // await waitForTransactionReceipt(wagmiConfig, {
