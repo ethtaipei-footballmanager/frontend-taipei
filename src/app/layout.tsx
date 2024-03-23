@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Ten Taipei Football Manager",
   description: "Fully on-chain Football Manager game",
-  metadataBase: new URL("https://superleolig.online"),
+  // metadataBase: new URL("https://superleolig.online"),
 };
 
 export default function RootLayout({
