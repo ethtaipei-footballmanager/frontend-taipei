@@ -27,11 +27,13 @@ const tabs = [
 ];
 
 export type Game = {
+  game_id: int;
   opponent: string;
   challenger: string;
   wager: string;
-  outcome: string;
-  isFinished: boolean;
+  result: string; //change to tuple (0,0) or struct
+  blockNumber: int;
+  status: int; // 0 proposed, 1 accepted, 2 finished, 3 finishedbytimeout
 };
 
 const YourGames: React.FC<IYourGames> = ({}) => {
