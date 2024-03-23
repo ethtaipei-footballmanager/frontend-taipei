@@ -15,9 +15,7 @@ import { teams } from "@/utils/team-data";
 import {
   EventType,
   RecordWithPlaintext,
-  RecordsFilter,
   createSharedState,
-  getRecords,
   requestCreateEvent,
   requestSignature,
   useAccount,
@@ -200,119 +198,12 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     onSettled: () => setStep(Step._03_Confirmed),
   });
 
-  // const { balances: msBalances } = useBalance({
-  //   address: msAddress,
-  //   multisig: true,
-  // });
-  // const msPublicBalance =
-  //   msBalances && msBalances?.length > 0 ? msBalances[0].public : 0;
-
-  // const handleCheckboxChange = (position: Position) => {
-  //   if (
-  //     Object.values(selectedCheckboxes).filter(Boolean).length > 1 ||
-  //     !selectedCheckboxes[position]
-  //   ) {
-  //     setSelectedCheckboxes((prev) => ({
-  //       ...prev,
-  //       [position]: !prev[position],
-  //     }));
-  //   }
-  // };
-
   useEffect(() => {
     const filteredPlayers = benchPlayers.filter(
       (player) => player.position === tab
     );
     setFilteredPlayers(filteredPlayers);
   }, [tab, benchPlayers]);
-
-  useEffect(() => {
-    if (!currentGame || !msPuzzleRecords || !msGameRecords) return;
-    const piece_stake_challenger = msPuzzleRecords?.find(
-      (r: any) =>
-        r.data.ix === "3u32.private" &&
-        r.data.challenger.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address &&
-        r.data.staker.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address
-    );
-    const piece_claim_challenger = msPuzzleRecords.find(
-      (r: any) =>
-        r.data.ix === "6u32.private" &&
-        r.data.challenger.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address &&
-        r.data.claimer.replace(".private", "") ===
-          currentGame.gameNotification.recordData.challenger_address
-    );
-    const piece_stake_opponent = msPuzzleRecords.find(
-      (r) =>
-        r.data.ix === "3u32.private" &&
-        r.data.opponent.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address &&
-        r.data.staker.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address
-    );
-    const piece_claim_opponent = msPuzzleRecords.find(
-      (r) =>
-        r.data.ix === "6u32.private" &&
-        r.data.opponent.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address &&
-        r.data.claimer.replace(".private", "") ===
-          currentGame.gameNotification.recordData.opponent_address
-    );
-
-    if (
-      piece_claim_challenger === undefined ||
-      piece_claim_opponent === undefined ||
-      piece_stake_challenger === undefined ||
-      piece_stake_opponent === undefined ||
-      msGameRecords[0] === undefined
-    )
-      return;
-    initializeAcceptGame(
-      msGameRecords[0],
-      piece_stake_challenger,
-      piece_claim_challenger,
-      piece_stake_opponent,
-      piece_claim_opponent
-    );
-  }, [
-    currentGame?.gameNotification.recordData.game_multisig,
-    [msPuzzleRecords, msGameRecords].toString(),
-  ]);
-
-  const filter: RecordsFilter = {
-    programIds: [
-      "football_game_v014.aleo",
-      "puzzle_pieces_v016.aleo",
-      "multiparty_pvp_utils_v015_avh.aleo",
-    ],
-    type: "unspent",
-  };
-  useEffect(() => {
-    const response = async () => {
-      const records = await getRecords({
-        filter,
-        address: msAddress,
-
-        // multisig: true,
-      });
-      const msGameRecordsData = records?.records?.filter(
-        (record) => record.programId === "football_game_v014.aleo"
-      );
-
-      const msPuzzleRecordsData = records?.records?.filter(
-        (record) => record.programId === "puzzle_pieces_v016.aleo"
-      );
-
-      const msUtilRecords = records?.records?.filter(
-        (record) => record.programId === "multiparty_pvp_utils_v015_avh.aleo"
-      );
-      setMsPuzzleRecords(msPuzzleRecordsData!);
-      setMsGameRecords(msGameRecordsData!);
-    };
-    response();
-  }, []);
 
   const createAcceptGameEvent = async () => {
     if (
@@ -371,13 +262,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       setLoading(false);
     }
   };
-
-  // const [grid, setGrid] = useState<any>([
-  //   Array.from({ length: 1 }, () => null),
-  //   Array.from({ length: Number(formationSplitted[0]) ?? 4 }, () => null),
-  //   Array.from({ length: Number(formationSplitted[1]) ?? 4 }, () => null),
-  //   Array.from({ length: Number(formationSplitted[2]) ?? 2 }, () => null),
-  // ]);
 
   const createProposeGameEvent = async () => {
     setIsLoading(true);
@@ -1060,10 +944,10 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
             <DialogTitle>How to play?</DialogTitle>
             <DialogDescription>
               <h1 className="font-semibold tracking-tighter text-[#868989] ">
-                Welcome to Super Leo Lig. To create your starting squad; click
-                on the player you want, then click on the spot in the field to
-                place him. When you have all 11 players, go ahead and start the
-                game. Good luck!
+                Welcome to Ten Taipei Football Manager. To create your starting
+                squad; click on the player you want, then click on the spot in
+                the field to place him. When you have all 11 players, go ahead
+                and start the game. Good luck!
               </h1>
             </DialogDescription>
           </DialogHeader>

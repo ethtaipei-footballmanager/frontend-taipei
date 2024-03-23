@@ -66,7 +66,7 @@ const Navbar = ({ className }: { className?: string }) => {
               <Image
                 width={48}
                 height={48}
-                src={"/logo_2.png"}
+                src={"/logo-frog.png"}
                 className="rounded-full"
                 alt="logo"
               />
@@ -83,7 +83,7 @@ const Navbar = ({ className }: { className?: string }) => {
           <Image
             width={48}
             height={48}
-            src={"/logo_2.png"}
+            src={"/logo-frog.png"}
             className="rounded-full"
             alt="logo"
           />

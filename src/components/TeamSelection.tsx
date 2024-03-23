@@ -67,7 +67,7 @@ const wagerAmountSchema = z
     "Wager amount must be a valid number"
   )
   .refine(
-    (value) => Number(value) >= 0 && Number(value) <= 1000, // TODO change this to availableBalance?
+    (value) => Number(value) >= 0 && Number(value) <= 1000,
     "Wager amount must be between 0 and 1000"
   );
 
