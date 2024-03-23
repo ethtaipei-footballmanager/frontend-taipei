@@ -300,7 +300,9 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                 <p className="absolute text-xs tracking-tighter right-4">FBC</p>
               </div>
               {betError && <p className="text-red-500 text-sm">{betError}</p>}
-              {balance && Number(formatUnits(balance, 18)) === 0 ? (
+              {Number(
+                formatUnits(balance ? (balance as bigint) : BigInt(0), 18)
+              ) == 0 ? (
                 <div className="flex flex-col gap-4 -mb-6 items-center justify-center text-center w-full tracking-tight">
                   <p className="text-red-500 text-sm">
                     You need FBC to play the game

@@ -1,19 +1,17 @@
 "use client";
 
-
 import { truncateAddress } from "@/utils";
 import { Card } from "./ui/card";
 //@ts-ignore
 import Identicon from "react-identicons";
+import { useAccount } from "wagmi";
 interface IGameCard {
   playerOne: string;
   playerTwo: string;
   score?: string;
   state: string;
-  date: string;
+  date?: string;
 }
-
-
 
 const GameCard: React.FC<IGameCard> = ({
   playerOne,
@@ -22,12 +20,13 @@ const GameCard: React.FC<IGameCard> = ({
   state,
   date,
 }) => {
+  const { address } = useAccount();
   return (
     <Card className="  max-w-lg grid-span-1 w-full shadow-lg rounded-xl overflow-hidden">
       <div className="flex flex-col sm:flex-row justify-center items-center lg:justify-between p-6 space-y-6 sm:space-y-0">
         <div className="flex flex-col gap-2.5 items-center ">
           <span className="font-bold text-lg text-center">
-            {playerOne ? truncateAddress(playerOne) : ""}
+            {address ? truncateAddress(address) : ""}
           </span>
           {/* <img
           alt="Team A Logo"
@@ -61,7 +60,8 @@ const GameCard: React.FC<IGameCard> = ({
       <div className="flex w-full items-center justify-center">
         <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            Match Date: {date}
+            {/* Match Date: {date} */}
+            Match Date : 23/03/2024
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400">
             Stadium: Froggy Arena

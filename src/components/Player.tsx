@@ -171,7 +171,7 @@ const Player: React.FC<IPlayer> = ({
                 {player.position}
               </Badge>
             </div>
-            <div className="flex flex-col w-16 absolute left-7 mt-3 h-24 items-center  justify-end  ">
+            <div className="flex flex-col w-16 absolute left-[30%] mt-3 h-24 items-center  justify-end  ">
               {/* <Avatar className=" w-10 h-10 ">
                 <AvatarImage src={player.image} />
                 <AvatarFallback className="hidden">FP</AvatarFallback>

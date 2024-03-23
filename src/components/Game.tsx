@@ -25,9 +25,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useKeyPressEvent } from "react-use";
 import { toast } from "sonner";
-import { parseUnits } from "viem";
-import { waitForTransactionReceipt } from "viem/actions";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { formatUnits, parseUnits } from "viem";
+import {
+  useAccount,
+  usePublicClient,
+  useReadContract,
+  useWriteContract,
+} from "wagmi";
 import { useNewGameStore } from "../app/create-game/store";
 import {
   AcceptGameInputs,
@@ -139,6 +143,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   //   MID: true,
   //   ATT: true,
   // });
+  const publicClient = usePublicClient();
   const [movingPlayer, setMovingPlayer] = useState<PlayerType>();
   const [playerData, setPlayerData] = useState<PlayerType>();
   const [totalAttack, setTotalAttack] = useState(0);
@@ -181,10 +186,11 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>("");
 
-  const result2 = useReadContract({
+  const { data: allowance } = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI.abi,
     functionName: "allowance",
+    args: [address as `0x${string}`, GAME_ADDRESS as `0x${string}`],
   });
 
   useEffect(() => {
@@ -256,16 +262,29 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     setIsLoading(true);
     // setConfirmStep(ConfirmStep.Signing);
     // setError(undefined);
+    console.log(
+      "allowances",
+      Number(formatUnits(allowance as bigint, 18)),
+      Number(inputs?.challenger_wager_amount)
+    );
 
-    toast.info("Please approve.");
-    setLoadingMessage("Approving...");
-    const tx1 = await writeContract(config, {
-      abi: TOKEN_ABI.abi,
-      address: TOKEN_ADDRESS,
-      functionName: "approve",
-      args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],
-    });
-    await waitForTransactionReceipt(config, { hash: tx1, confirmations: 2 });
+    if (
+      Number(formatUnits(allowance as bigint, 18)) <
+      Number(inputs?.challenger_wager_amount)
+    ) {
+      toast.info("Please approve.");
+      setLoadingMessage("Approving...");
+      const tx1 = await writeContract(config, {
+        abi: TOKEN_ABI.abi,
+        address: TOKEN_ADDRESS,
+        functionName: "approve",
+        args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],
+      });
+      const transaction = await publicClient?.waitForTransactionReceipt({
+        hash: tx1,
+      });
+    }
+
     setLoadingMessage("Creating Game...");
 
     // const activePlayerIds = activePlayers.map((player) => {
@@ -286,9 +305,23 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
       ],
     });
-    await waitForTransactionReceipt(config, { hash: tx2, confirmations: 2 });
+    // await waitForTransactionReceipt(wagmiConfig, {
+    //   chainId: lineaTestnet.id,
+    //   hash: tx2,
+    //   confirmations: 2,
+    // });
+    const transaction2 = await publicClient?.waitForTransactionReceipt({
+      hash: tx2,
+    });
     setLoadingMessage("Starting Game...");
+    const gameNumber = await publicClient?.readContract({
+      address: GAME_ADDRESS,
+      abi: GAME_ABI.abi,
+      functionName: "getGameCount",
+    });
+    console.log("gameNumber,", gameNumber);
 
+    router.push(`/create-game/${Number(gameNumber)}`);
     // if (tx.error) {
     //   setIsLoading(false);
     //   setLoadingMessage("");

@@ -1,7 +1,7 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { lineaTestnet, scrollSepolia } from "viem/chains";
-import { http } from "wagmi";
+import { createConfig, http } from "wagmi";
 import { ten } from "../utils/chains";
 
 export const config = getDefaultConfig({
@@ -16,9 +16,11 @@ export const config = getDefaultConfig({
   ssr: true,
 });
 
-// export const config = createConfig({
-//   chains: [ten],
-//   transports: {
-//     [ten.id]: http(),
-//   },
-// });
+export const wagmiConfig = createConfig({
+  chains: [ten, scrollSepolia, lineaTestnet],
+  transports: {
+    [ten.id]: http(),
+    [lineaTestnet.id]: http("https://rpc.goerli.linea.build"),
+    [scrollSepolia.id]: http(),
+  },
+});

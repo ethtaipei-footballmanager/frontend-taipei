@@ -25,7 +25,7 @@ const Page: React.FC<IPage> = ({}) => {
       <GameCard
         playerOne={inputs?.wager_record?.owner ?? ""}
         playerTwo={inputs?.opponent ?? ""}
-        date={format(new Date(inputs?.wager_record?.timestamp!), "do MMM yyyy")}
+        // date={format(new Date(inputs?.wager_record?.timestamp!), "do MMM yyyy")}
         state={""}
       />
     </section>
