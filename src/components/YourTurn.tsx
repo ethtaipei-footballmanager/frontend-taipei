@@ -10,6 +10,7 @@ import {
 } from "@/app/state/manager";
 import { useEventHandling } from "@/hooks/eventHandling";
 import { useMsRecords } from "@/hooks/msRecords";
+import { truncateAddress } from "@/utils";
 import {
   EventType,
   RecordWithPlaintext,
@@ -26,7 +27,6 @@ import jsyaml from "js-yaml";
 import * as parseJson from "json-parse-even-better-errors";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { truncateAddress } from "./ConnectWallet";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import {

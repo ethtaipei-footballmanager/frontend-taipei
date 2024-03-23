@@ -1,6 +1,7 @@
 "use client";
 
-import { truncateAddress } from "./ConnectWallet";
+
+import { truncateAddress } from "@/utils";
 import { Card } from "./ui/card";
 //@ts-ignore
 import Identicon from "react-identicons";
@@ -11,6 +12,8 @@ interface IGameCard {
   state: string;
   date: string;
 }
+
+
 
 const GameCard: React.FC<IGameCard> = ({
   playerOne,
