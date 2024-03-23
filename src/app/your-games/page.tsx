@@ -418,13 +418,13 @@ const YourGames: React.FC<IYourGames> = ({}) => {
   });
   console.log("🚀 ~ data:", data);
 
-  const result2 = useReadContract({
+  const { data: data2 } = useReadContract({
     address: GAME_ADDRESS,
-    abi: GAME_ABI,
-    functionName: "gameCount",
+    abi: GAME_ABI.abi,
+    functionName: "getGameCount",
   });
 
-  console.log("🚀 ~ {data}:", result, address, result2);
+  console.log("🚀 ~ {data}:", data, address, data2);
 
   return (
     <div className="flex flex-col justify-center gap-4 items-center">

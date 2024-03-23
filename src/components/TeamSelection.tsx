@@ -103,7 +103,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     state.setStep,
     state.setAcceptedSelectedTeam,
   ]);
-  const { writeContract } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
 
   const result = useReadContract({
     address: TOKEN_ADDRESS,
@@ -111,20 +111,20 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     functionName: "balanceOf",
     args: [address as `0x${string}`],
   });
-  const result2 = useReadContract({
+  const { data } = useReadContract({
     address: GAME_ADDRESS,
-    abi: GAME_ABI,
-    functionName: "gameCount",
+    abi: GAME_ABI.abi,
+    functionName: "getGameCount",
   });
 
-  console.log("🚀 ~ {data}:", result, address, result2);
+  console.log("🚀 ~ {data}:", result, address, data);
 
   const router = useRouter();
 
   const getTokens = async () => {
     setLoading(true);
     try {
-      writeContract({
+      writeContractAsync({
         abi: TOKEN_ABI,
         address: TOKEN_ADDRESS,
         functionName: "mint",
@@ -168,7 +168,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     if (address && bet <= 123) {
       setIsGameStarted(true);
     } else {
-      toast.info("Please connect your Puzzle Wallet to play");
+      toast.info("Please connect your Wallet to play");
     }
   };
 
@@ -289,15 +289,13 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                   className="col-span-3 outline-none  ring-offset-0"
                   value={bet}
                 />
-                <p className="absolute text-xs tracking-tighter right-4">
-                  Puzzle Token
-                </p>
+                <p className="absolute text-xs tracking-tighter right-4">FBC</p>
               </div>
               {betError && <p className="text-red-500 text-sm">{betError}</p>}
               {"123" !== betError ? (
                 <div className="flex flex-col gap-4 -mb-6 items-center justify-center text-center w-full tracking-tight">
                   <p className="text-red-500 text-sm">
-                    You need puzzle pieces to play the game
+                    You need FBC to play the game
                   </p>
                   <Button
                     disabled={loading}

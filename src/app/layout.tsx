@@ -20,7 +20,9 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <meta key="og-image" property="og:image" content={"/"} />
+      </head>
       <body className={inter.className}>
         <Providers>
           <Navbar />

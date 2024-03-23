@@ -21,10 +21,11 @@ export default function FAQ() {
               </AccordionTrigger>
               <AccordionContent className="text-black/80 dark:text-white/70">
                 <p>
-                  You can play <strong>Ten Taipei Football Manager</strong> by connecting your
-                  Metamask Wallet to TEN network. Download Metamask here {" "}
+                  You can play <strong>Ten Taipei Football Manager</strong> by
+                  connecting your Metamask Wallet to TEN network. Download
+                  Metamask here{" "}
                   <a
-                    href="https://chromewebstore.google.com/detail/puzzle-wallet/fdchdcpieegfofnofhgdombfckhbcokj"
+                    href="https://chromewebstore.google.com/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn"
                     target="_blank"
                     className="underline"
                   >
@@ -56,8 +57,9 @@ export default function FAQ() {
                 Why is Ten Taipei Football Manager build on TEN?
               </AccordionTrigger>
               <AccordionContent className="text-black/80 dark:text-white/70">
-                TEN enables apps that are private by default. This enables users to commit
-                to their strategy, without revealing it to the opponent.
+                TEN enables apps that are private by default. This enables users
+                to commit to their strategy, without revealing it to the
+                opponent.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-5">
@@ -75,11 +77,11 @@ export default function FAQ() {
               </AccordionTrigger>
               <AccordionContent className="text-black/80 dark:text-white/70">
                 No! Ten Taipei Football Manager is built on the TEN network and
-                optimized for multiparty privacy games. All wagered amounts are 
-                stored in the game smart contract. Winners are able to claim their
-                winnings after the game is finished. If the game is not finished,
-                because someone ghosts, the wagered amount is is claimable by the
-                opponent after X blocks have passed.
+                optimized for multiparty privacy games. All wagered amounts are
+                stored in the game smart contract. Winners are able to claim
+                their winnings after the game is finished. If the game is not
+                finished, because someone ghosts, the wagered amount is is
+                claimable by the opponent after X blocks have passed.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

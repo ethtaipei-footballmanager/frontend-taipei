@@ -4,7 +4,13 @@ import { Step, useAcceptGameStore } from "@/app/accept-game/store";
 import { useGameStore } from "@/app/state/gameStore";
 import { useEventHandling } from "@/hooks/eventHandling";
 import { useMsRecords } from "@/hooks/msRecords";
+import { writeContract } from "@wagmi/core";
+import TOKEN_ABI from "../abi/ERC20.json";
+import GAME_ABI from "../abi/Game.json";
+
 import {
+  GAME_ADDRESS,
+  TOKEN_ADDRESS,
   calculateAttribute,
   getPositionRole,
   getTeamName,
@@ -12,29 +18,27 @@ import {
 } from "@/utils";
 import { teams } from "@/utils/team-data";
 
+import { config } from "@/app/config";
 import {
   EventType,
   RecordWithPlaintext,
-  createSharedState,
   requestCreateEvent,
-  requestSignature,
-  useAccount,
   useBalance,
 } from "@puzzlehq/sdk";
 import { csv } from "d3";
 import { motion } from "framer-motion";
-import jsyaml from "js-yaml";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useKeyPressEvent } from "react-use";
 import { toast } from "sonner";
+import { parseUnits } from "viem";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { useNewGameStore } from "../app/create-game/store";
 import {
   AcceptGameInputs,
   GAME_FUNCTIONS,
   GAME_PROGRAM_ID,
-  ProposeGameInputs,
   transitionFees,
 } from "../app/state/manager";
 import Player from "./Player";
@@ -121,8 +125,9 @@ const nonce = "1234567field"; // todo make this random?
 
 const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const ALEO_NETWORK_URL = "https://node.puzzle.online/testnet3";
-  const { account } = useAccount();
+  const { address } = useAccount();
   const { balances } = useBalance({});
+  const { writeContractAsync } = useWriteContract();
   const balance = balances?.[0]?.public ?? 0;
   const [tab, setTab] = useState<Position>("GK");
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
@@ -198,6 +203,12 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     onSettled: () => setStep(Step._03_Confirmed),
   });
 
+  const result2 = useReadContract({
+    address: TOKEN_ADDRESS,
+    abi: TOKEN_ABI.abi,
+    functionName: "allowance",
+  });
+
   useEffect(() => {
     const filteredPlayers = benchPlayers.filter(
       (player) => player.position === tab
@@ -268,159 +279,123 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     // setConfirmStep(ConfirmStep.Signing);
     // setError(undefined);
 
-    toast.info("Please sign the message");
-    setLoadingMessage("Signing...");
-    const signature = await requestSignature({ message: messageToSign });
+    toast.info("Please approve.");
+    setLoadingMessage("Approving...");
+    await writeContract(config, {
+      abi: TOKEN_ABI.abi,
+      address: TOKEN_ADDRESS,
+      functionName: "approve",
+      args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],
+    });
+    setLoadingMessage("Creating Game...");
 
-    if (signature.error || !signature.messageFields || !signature.signature) {
-      setIsLoading(false);
-      return;
-    }
-    setLoadingMessage("Creating Multisig...");
+    const activePlayerIds = activePlayers.map((player) => {
+      return player.id;
+    });
+    inputs?.challenger_wager_amount;
 
-    const sharedStateResponse = await createSharedState();
-    if (sharedStateResponse.error) {
-      setIsLoading(false);
-      return;
-    } else if (sharedStateResponse.data) {
-      const game_multisig_seed = sharedStateResponse.data.seed;
-      const game_multisig = sharedStateResponse.data.address;
+    toast.info("Accept the transaction to create the game");
 
-      setInputs({ ...inputs, game_multisig_seed, game_multisig });
+    const tx = await writeContract(config, {
+      abi: GAME_ABI.abi,
+      address: TOKEN_ADDRESS,
+      functionName: "approve",
+      args: [
+        inputs?.opponent as `0x${string}`,
+        parseUnits(inputs?.challenger_wager_amount!, 18),
+        // activePlayerIds,
+        [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+      ],
+    });
+    setLoadingMessage("Starting Game...");
 
-      if (
-        inputs?.opponent &&
-        inputs?.wager_record &&
-        inputs?.challenger_wager_amount &&
-        // inputs?.challenger_answer &&
-        // inputs?.challenger &&
-        signature &&
-        signature.messageFields &&
-        signature.signature &&
-        account
-      ) {
-        const fields = Object(jsyaml.load(signature.messageFields));
-        const activePlayerIds = activePlayers.map((player) => {
-          return `${player.id}u8`;
-        });
-
-        const proposalInputs: ProposeGameInputs = {
-          wager_record: inputs.wager_record,
-          challenger_wager_amount: inputs.challenger_wager_amount + "u64",
-          sender: account?.address,
-          challenger: account?.address,
-          opponent: inputs.opponent,
-          game_multisig: game_multisig,
-          challenger_message_1: fields.field_1,
-          challenger_message_2: fields.field_2,
-          challenger_message_3: fields.field_3,
-          challenger_message_4: fields.field_4,
-          challenger_message_5: fields.field_5,
-          challenger_sig: signature.signature,
-          challenger_nonce: nonce, /// todo - make this random
-          challenger_answer: "[" + activePlayerIds.toString() + "]",
-          game_multisig_seed,
-        };
-        toast.info("Approve the transaction to create the game");
-
-        const response = await requestCreateEvent({
-          type: EventType.Execute,
-          programId: GAME_PROGRAM_ID,
-          functionId: GAME_FUNCTIONS.propose_game,
-          fee: transitionFees.propose_game,
-          inputs: Object.values(proposalInputs),
-        });
-        setLoadingMessage("Starting Game...");
-
-        if (response.error) {
-          setIsLoading(false);
-          setLoadingMessage("");
-        } else if (!response.eventId) {
-          setIsLoading(false);
-          setLoadingMessage("");
-        } else {
-          setIsLoading(false);
-          setEventId(response.eventId);
-          router.push(`/create-game/${response.eventId}`);
-          //   setSearchParams({ eventId: response.eventId });
-        }
-      }
-    }
+    // if (tx.error) {
+    //   setIsLoading(false);
+    //   setLoadingMessage("");
+    // } else if (!response.eventId) {
+    //   setIsLoading(false);
+    //   setLoadingMessage("");
+    // } else {
+    //   setIsLoading(false);
+    //   setEventId(response.eventId);
+    //   router.push(`/create-game/${response.eventId}`);
+    //   //   setSearchParams({ eventId: response.eventId });
+    // }
   };
 
   // TODO AVH DELETE THIS LATER. ONLY FOR TESTING PURPOSES
-  const createDefaultProposeGameEvent = async () => {
-    setIsLoading(true);
-    // setConfirmStep(ConfirmStep.Signing);
-    // setError(undefined);
+  // const createDefaultProposeGameEvent = async () => {
+  //   setIsLoading(true);
+  //   // setConfirmStep(ConfirmStep.Signing);
+  //   // setError(undefined);
 
-    const signature = await requestSignature({ message: messageToSign });
+  //   const signature = await requestSignature({ message: messageToSign });
 
-    if (signature.error || !signature.messageFields || !signature.signature) {
-      setIsLoading(false);
-      return;
-    }
-    const sharedStateResponse = await createSharedState();
-    if (sharedStateResponse.error) {
-      setIsLoading(false);
-      return;
-    } else if (sharedStateResponse.data) {
-      const game_multisig_seed = sharedStateResponse.data.seed;
-      const game_multisig = sharedStateResponse.data.address;
+  //   if (signature.error || !signature.messageFields || !signature.signature) {
+  //     setIsLoading(false);
+  //     return;
+  //   }
+  //   const sharedStateResponse = await createSharedState();
+  //   if (sharedStateResponse.error) {
+  //     setIsLoading(false);
+  //     return;
+  //   } else if (sharedStateResponse.data) {
+  //     const game_multisig_seed = sharedStateResponse.data.seed;
+  //     const game_multisig = sharedStateResponse.data.address;
 
-      setInputs({ ...inputs, game_multisig_seed, game_multisig });
+  //     setInputs({ ...inputs, game_multisig_seed, game_multisig });
 
-      if (
-        inputs?.opponent &&
-        inputs?.wager_record &&
-        inputs?.challenger_wager_amount &&
-        // inputs?.challenger_answer &&
-        // inputs?.challenger &&
-        signature &&
-        signature.messageFields &&
-        signature.signature &&
-        account
-      ) {
-        const fields = Object(jsyaml.load(signature.messageFields));
+  //     if (
+  //       inputs?.opponent &&
+  //       inputs?.wager_record &&
+  //       inputs?.challenger_wager_amount &&
+  //       // inputs?.challenger_answer &&
+  //       // inputs?.challenger &&
+  //       signature &&
+  //       signature.messageFields &&
+  //       signature.signature &&
+  //       account
+  //     ) {
+  //       const fields = Object(jsyaml.load(signature.messageFields));
 
-        const proposalInputs: ProposeGameInputs = {
-          wager_record: inputs.wager_record,
-          challenger_wager_amount: inputs.challenger_wager_amount + "u64",
-          sender: account?.address,
-          challenger: account?.address,
-          opponent: inputs.opponent,
-          game_multisig: game_multisig,
-          challenger_message_1: fields.field_1,
-          challenger_message_2: fields.field_2,
-          challenger_message_3: fields.field_3,
-          challenger_message_4: fields.field_4,
-          challenger_message_5: fields.field_5,
-          challenger_sig: signature.signature,
-          challenger_nonce: nonce, /// todo - make this random
-          challenger_answer:
-            "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
-          game_multisig_seed,
-        };
-        const response = await requestCreateEvent({
-          type: EventType.Execute,
-          programId: GAME_PROGRAM_ID,
-          functionId: GAME_FUNCTIONS.propose_game,
-          fee: transitionFees.propose_game,
-          inputs: Object.values(proposalInputs),
-        });
-        if (response.error) {
-          // todo AVH
-        } else if (!response.eventId) {
-          // todo AVH
-        } else {
-          router.push(`/create-game/${response.eventId}`);
+  //       const proposalInputs: ProposeGameInputs = {
+  //         wager_record: inputs.wager_record,
+  //         challenger_wager_amount: inputs.challenger_wager_amount + "u64",
+  //         sender: account?.address,
+  //         challenger: account?.address,
+  //         opponent: inputs.opponent,
+  //         game_multisig: game_multisig,
+  //         challenger_message_1: fields.field_1,
+  //         challenger_message_2: fields.field_2,
+  //         challenger_message_3: fields.field_3,
+  //         challenger_message_4: fields.field_4,
+  //         challenger_message_5: fields.field_5,
+  //         challenger_sig: signature.signature,
+  //         challenger_nonce: nonce, /// todo - make this random
+  //         challenger_answer:
+  //           "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
+  //         game_multisig_seed,
+  //       };
+  //       const response = await requestCreateEvent({
+  //         type: EventType.Execute,
+  //         programId: GAME_PROGRAM_ID,
+  //         functionId: GAME_FUNCTIONS.propose_game,
+  //         fee: transitionFees.propose_game,
+  //         inputs: Object.values(proposalInputs),
+  //       });
+  //       if (response.error) {
+  //         // todo AVH
+  //       } else if (!response.eventId) {
+  //         // todo AVH
+  //       } else {
+  //         router.push(`/create-game/${response.eventId}`);
 
-          setEventId(response.eventId);
-          //   setSearchParams({ eventId: response.eventId });
-        }
-      }
-    }
-  };
+  //         setEventId(response.eventId);
+  //         //   setSearchParams({ eventId: response.eventId });
+  //       }
+  //     }
+  //   }
+  // };
 
   const createDefaultAcceptGameEvent = async () => {
     if (
@@ -540,7 +515,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   }, [selectedFormation]);
 
   const startGame = async () => {
-    if (activePlayers.length !== 11) {
+    if (activePlayers.length === 11) {
       toast.info("Please select 11 players");
     } else {
       if (isChallenged) {
@@ -550,15 +525,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       }
 
       // toast.info("You have selected 11 ");
-    }
-  };
-
-  // TODO AVH DELETE THIS LATER. ONLY FOR TESTING PURPOSES
-  const startDefaultGame = async () => {
-    if (isChallenged) {
-      const acceptGame = await createDefaultAcceptGameEvent();
-    } else {
-      const createGame = await createDefaultProposeGameEvent();
     }
   };
 
@@ -839,7 +805,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
             {loadingMessage ? loadingMessage : "Start Game"}
           </Button>
         </div>
-        <div className="w-full -mt-2 flex justify-center">
+        {/* <div className="w-full -mt-2 flex justify-center">
           <Button
             onClick={startDefaultGame}
             className="w-1/2"
@@ -847,7 +813,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
           >
             TEST
           </Button>
-        </div>
+        </div> */}
         GAME ID : {currentGame?.gameNotification.recordData.game_multisig}
         {/* Idea: Allow only to click start when multisig = path
         Also check if signed in wallet = opponent from game */}
