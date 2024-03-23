@@ -6,11 +6,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GAME_ADDRESS, TOKEN_ADDRESS } from "@/utils";
 import YourTurn from "@components/YourTurn";
+import { ethers } from "ethers";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { useAccount, useBalance, useReadContract } from "wagmi";
+import { useEffect, useState } from "react";
+import { parseAbiItem } from "viem";
+import {
+  useAccount,
+  useBalance,
+  usePublicClient,
+  useReadContract,
+  useWatchContractEvent,
+} from "wagmi";
+import TOKEN_ABI from "../../abi/ERC20.json";
 import GAME_ABI from "../../abi/Game.json";
-
 interface IYourGames {}
 
 const tabs = [
@@ -20,8 +28,10 @@ const tabs = [
 ];
 
 const YourGames: React.FC<IYourGames> = ({}) => {
-  const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const gameContract = new ethers.Contract(GAME_ADDRESS, GAME_ABI.abi);
 
+  const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const publicClient = usePublicClient();
   const [yourTurn, theirTurn, finished, availableBalance] = useGameStore(
     (state) => [
       state.yourTurn,
@@ -38,378 +48,7 @@ const YourGames: React.FC<IYourGames> = ({}) => {
 
   const result = useReadContract({
     address: TOKEN_ADDRESS,
-    abi: [
-      {
-        inputs: [
-          {
-            internalType: "string",
-            name: "name",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "symbol",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "initialSupply",
-            type: "uint256",
-          },
-          {
-            internalType: "uint8",
-            name: "decimals",
-            type: "uint8",
-          },
-        ],
-        stateMutability: "nonpayable",
-        type: "constructor",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "spender",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "allowance",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "needed",
-            type: "uint256",
-          },
-        ],
-        name: "ERC20InsufficientAllowance",
-        type: "error",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "sender",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "balance",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "needed",
-            type: "uint256",
-          },
-        ],
-        name: "ERC20InsufficientBalance",
-        type: "error",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "approver",
-            type: "address",
-          },
-        ],
-        name: "ERC20InvalidApprover",
-        type: "error",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "receiver",
-            type: "address",
-          },
-        ],
-        name: "ERC20InvalidReceiver",
-        type: "error",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "sender",
-            type: "address",
-          },
-        ],
-        name: "ERC20InvalidSender",
-        type: "error",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "spender",
-            type: "address",
-          },
-        ],
-        name: "ERC20InvalidSpender",
-        type: "error",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "spender",
-            type: "address",
-          },
-          {
-            indexed: false,
-            internalType: "uint256",
-            name: "value",
-            type: "uint256",
-          },
-        ],
-        name: "Approval",
-        type: "event",
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            indexed: false,
-            internalType: "uint256",
-            name: "value",
-            type: "uint256",
-          },
-        ],
-        name: "Transfer",
-        type: "event",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "spender",
-            type: "address",
-          },
-        ],
-        name: "allowance",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "spender",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "value",
-            type: "uint256",
-          },
-        ],
-        name: "approve",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "account",
-            type: "address",
-          },
-        ],
-        name: "balanceOf",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-        ],
-        name: "burn",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "decimals",
-        outputs: [
-          {
-            internalType: "uint8",
-            name: "",
-            type: "uint8",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-        ],
-        name: "mint",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "name",
-        outputs: [
-          {
-            internalType: "string",
-            name: "",
-            type: "string",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "symbol",
-        outputs: [
-          {
-            internalType: "string",
-            name: "",
-            type: "string",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [],
-        name: "totalSupply",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "value",
-            type: "uint256",
-          },
-        ],
-        name: "transfer",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "value",
-            type: "uint256",
-          },
-        ],
-        name: "transferFrom",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-    ],
+    abi: TOKEN_ABI.abi,
     functionName: "balanceOf",
     args: [address as `0x${string}`],
   });
@@ -423,6 +62,68 @@ const YourGames: React.FC<IYourGames> = ({}) => {
     abi: GAME_ABI.abi,
     functionName: "getGameCount",
   });
+  const gameContractConfig = {
+    address: GAME_ADDRESS,
+    abi: GAME_ABI.abi,
+  } as const;
+  const events = useWatchContractEvent({
+    ...gameContractConfig,
+    eventName: "GameProposed",
+    onLogs(logs) {
+      console.log("New logs!", logs);
+    },
+  });
+
+  useEffect(() => {
+    // const getLogs = async () => {
+    //   const logs = await publicClient?.getLogs({
+    //     address: GAME_ADDRESS,
+    //     event: parseAbiItem(
+    //       "event GameProposed(uint256 gameId,address indexed challenger,address indexed opponent,uint256 wagerAmount)"
+    //     ),
+    //     // args: {
+    //     //   from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+    //     //   to: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+    //     // },
+    //     // args: {
+    //     //   opponent: address,
+    //     // },
+    //     fromBlock: 4556661n,
+    //     toBlock: "latest",
+    //   });
+    //   console.log("getlog", logs);
+    // };
+    // getLogs();
+    gameContract.on(
+      "GameProposed",
+      (gameId, challenger, opponent, wagerAmount) => {
+        let info = {
+          gameId: gameId,
+          challenger: challenger,
+          opponent: opponent,
+          wagerAmount: wagerAmount,
+        };
+        console.log("data98", JSON.stringify(info, null, 4));
+      }
+    );
+  }, []);
+
+  console.log("🚀 ~ events ~ events:", events);
+
+  useEffect(() => {
+    const getFilter = async () => {
+      const filter = await publicClient?.createEventFilter({
+        address: GAME_ADDRESS,
+        event: parseAbiItem(
+          "event GameProposed(uint256 gameId,address indexed challenger,address indexed opponent,uint256 wagerAmount)"
+        ),
+        strict: true,
+      });
+      const logs = await publicClient?.getFilterLogs({ filter });
+      console.log("🚀 ~ getFilter ~ logs:", logs);
+    };
+    getFilter();
+  }, []);
 
   console.log("🚀 ~ {data}:", data, address, data2);
 
