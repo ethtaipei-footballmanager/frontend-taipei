@@ -119,8 +119,8 @@ const YourGames: React.FC<IYourGames> = ({}) => {
         ),
         strict: true,
       });
-      const logs = await publicClient?.getFilterLogs({ filter });
-      console.log("🚀 ~ getFilter ~ logs:", logs);
+      // const logs = await publicClient?.getFilterLogs({ filter });
+      // console.log("🚀 ~ getFilter ~ logs:", logs);
     };
     getFilter();
   }, []);
