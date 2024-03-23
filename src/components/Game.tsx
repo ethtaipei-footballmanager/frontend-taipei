@@ -1,9 +1,7 @@
 "use client";
 
-import { Step, useAcceptGameStore } from "@/app/accept-game/store";
+import { useAcceptGameStore } from "@/app/accept-game/store";
 import { useGameStore } from "@/app/state/gameStore";
-import { useEventHandling } from "@/hooks/eventHandling";
-import { useMsRecords } from "@/hooks/msRecords";
 import { writeContract } from "@wagmi/core";
 import TOKEN_ABI from "../abi/ERC20.json";
 import GAME_ABI from "../abi/Game.json";
@@ -19,12 +17,7 @@ import {
 import { teams } from "@/utils/team-data";
 
 import { config } from "@/app/config";
-import {
-  EventType,
-  RecordWithPlaintext,
-  requestCreateEvent,
-  useBalance,
-} from "@puzzlehq/sdk";
+import { EventType, requestCreateEvent } from "@puzzlehq/sdk";
 import { csv } from "d3";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -33,6 +26,7 @@ import { useEffect, useState } from "react";
 import { useKeyPressEvent } from "react-use";
 import { toast } from "sonner";
 import { parseUnits } from "viem";
+import { waitForTransactionReceipt } from "viem/actions";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { useNewGameStore } from "../app/create-game/store";
 import {
@@ -126,9 +120,7 @@ const nonce = "1234567field"; // todo make this random?
 const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   const ALEO_NETWORK_URL = "https://node.puzzle.online/testnet3";
   const { address } = useAccount();
-  const { balances } = useBalance({});
   const { writeContractAsync } = useWriteContract();
-  const balance = balances?.[0]?.public ?? 0;
   const [tab, setTab] = useState<Position>("GK");
   const [benchPlayers, setBenchPlayers] = useState<PlayerType[]>([]);
   const [activePlayers, setActivePlayers] = useState<PlayerType[]>([]);
@@ -185,23 +177,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   ]);
   const [currentGame] = useGameStore((state) => [state.currentGame]);
   const [filteredPlayers, setFilteredPlayers] = useState<PlayerType[]>([]);
-  const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
-    useMsRecords(msAddress);
-  const [msPuzzleRecords, setMsPuzzleRecords] = useState<
-    RecordWithPlaintext[] | undefined
-  >();
-  const [msGameRecords, setMsGameRecords] = useState<
-    RecordWithPlaintext[] | undefined
-  >();
 
-  const { loading, error, event, setLoading, setError } = useEventHandling({
-    id: eventIdAccept,
-    address: msAddress,
-    multisig: true,
-    stepName: "Accept Game",
-    onSettled: () => setStep(Step._03_Confirmed),
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>("");
 
   const result2 = useReadContract({
     address: TOKEN_ADDRESS,
@@ -281,25 +259,26 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
     toast.info("Please approve.");
     setLoadingMessage("Approving...");
-    await writeContract(config, {
+    const tx1 = await writeContract(config, {
       abi: TOKEN_ABI.abi,
       address: TOKEN_ADDRESS,
       functionName: "approve",
       args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],
     });
+    await waitForTransactionReceipt(config, { hash: tx1, confirmations: 2 });
     setLoadingMessage("Creating Game...");
 
-    const activePlayerIds = activePlayers.map((player) => {
-      return player.id;
-    });
-    inputs?.challenger_wager_amount;
+    // const activePlayerIds = activePlayers.map((player) => {
+    //   return player.id;
+    // });
+    // inputs?.challenger_wager_amount;
 
     toast.info("Accept the transaction to create the game");
 
-    const tx = await writeContract(config, {
+    const tx2 = await writeContract(config, {
       abi: GAME_ABI.abi,
-      address: TOKEN_ADDRESS,
-      functionName: "approve",
+      address: GAME_ADDRESS,
+      functionName: "proposeGame",
       args: [
         inputs?.opponent as `0x${string}`,
         parseUnits(inputs?.challenger_wager_amount!, 18),
@@ -307,6 +286,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
       ],
     });
+    await waitForTransactionReceipt(config, { hash: tx2, confirmations: 2 });
     setLoadingMessage("Starting Game...");
 
     // if (tx.error) {

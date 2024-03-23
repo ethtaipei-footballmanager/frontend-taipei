@@ -11,7 +11,7 @@ import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 import { EffectCoverflow, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { parseUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { z } from "zod";
 // import TOKEN_ABI from "../abi/ERC20.json";
@@ -81,6 +81,14 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const [opponent, setOpponent] = useState("");
   const swiperRef = useRef<any>();
   const { address } = useAccount();
+  const { data: balance } = useReadContract({
+    address: TOKEN_ADDRESS,
+    abi: TOKEN_ABI,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+  });
+  console.log("balance", balance);
+
   const [opponentError, setOpponentError] = useState<string | null>(null);
   const [betError, setBetError] = useState<string | null>(null);
   // const [isChallenged, setIsChallenged] = useState(false);
@@ -264,7 +272,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
             <DialogHeader>
               <DialogTitle>Start Game</DialogTitle>
               <DialogDescription>
-                Enter your opponent&apos;s Aleo address and how much you are
+                Enter your opponent&apos;s wallet address and how much you are
                 wagering for the game
               </DialogDescription>
             </DialogHeader>
@@ -292,7 +300,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                 <p className="absolute text-xs tracking-tighter right-4">FBC</p>
               </div>
               {betError && <p className="text-red-500 text-sm">{betError}</p>}
-              {"123" !== betError ? (
+              {balance && Number(formatUnits(balance, 18)) === 0 ? (
                 <div className="flex flex-col gap-4 -mb-6 items-center justify-center text-center w-full tracking-tight">
                   <p className="text-red-500 text-sm">
                     You need FBC to play the game
@@ -303,7 +311,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                     className="w-32"
                     variant={"outline"}
                   >
-                    Mint Pieces
+                    Mint FBC
                   </Button>
                 </div>
               ) : (
@@ -313,8 +321,8 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                     onValueChange={(e) => setBet(e[0])}
                     defaultValue={[100]}
                     value={[bet]}
-                    min={0}
-                    max={123}
+                    min={1}
+                    max={balance ? Number(formatUnits(balance, 18)) : 0}
                     step={1}
                   />
                   {/* Min label */}
@@ -323,29 +331,10 @@ const TeamSelection: React.FC<ITeamSelection> = ({
                   </span>
                   {/* Max label */}
                   <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-7">
-                    {123}
+                    {balance ? formatUnits(balance, 18) : 0}
                   </span>
                 </div>
               )}
-              <div className="relative">
-                <Slider
-                  className="mt-6"
-                  onValueChange={(e) => setBet(e[0])}
-                  defaultValue={[100]}
-                  value={[bet]}
-                  min={0}
-                  max={123}
-                  step={1}
-                />
-                {/* Min label */}
-                <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-7">
-                  0
-                </span>
-                {/* Max label */}
-                <span className="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-7">
-                  {123}
-                </span>
-              </div>
             </div>
             <div className="flex w-full justify-center  items-center ">
               {/* <Button
