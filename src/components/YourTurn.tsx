@@ -109,8 +109,9 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
           );
         } 
 
-        // TODO (optional) if game.block_number difference from current block number > 100. Allow opponent to call opponentClaimTimelock. 
-        // Challenger can still call revealOutcome in this case, unless opponent has claimed earlier
+        //// TODO (optional) if game.block_number difference from current block number > 100. Allow opponent to call opponentClaimTimelock. 
+        //// Challenger can still call revealOutcome in this case, unless opponent has claimed earlier
+        //// hardcoded 100 here, but timelockBlocks is defined in contract. maybe read that value instead?
         // else if (game.opponent === address && (game.blockNumber - blockNumber.data?) > 100) {
         //   return (
         //     <Button
