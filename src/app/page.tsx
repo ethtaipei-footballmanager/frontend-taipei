@@ -9,7 +9,7 @@ import { CiTrophy } from "react-icons/ci";
 import { FaXTwitter } from "react-icons/fa6";
 import { IoFootballOutline, IoGameControllerOutline } from "react-icons/io5";
 export default function Home() {
-  const header = "Welcome to Super Leo Lig".split(" ");
+  const header = "Welcome to Ten Taipei Football Manager".split(" ");
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden bg-white dark:bg-gray-900">
       <main className="flex-1">
@@ -112,7 +112,7 @@ export default function Home() {
       </main>
       <footer className="flex flex-col bg-[#3B3486] dark:bg-[#020817] gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-white dark:text-gray-400">
-          © 2024 Super Leo Lig. All rights reserved.
+          © 2024 Ten Taipei Football Manager. All rights reserved.
         </p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <a target="_blank" href="https://twitter.com/SuperLeoLig/">

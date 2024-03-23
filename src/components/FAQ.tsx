@@ -17,12 +17,12 @@ export default function FAQ() {
           <Accordion className="w-full mt-4" type="multiple">
             <AccordionItem value="item-1">
               <AccordionTrigger className="hover:no-underline font-semibold tracking-tight">
-                How to play Super Leo Lig?
+                How to play Ten Taipei Football Manager?
               </AccordionTrigger>
               <AccordionContent className="text-black/80 dark:text-white/70">
                 <p>
-                  You can play <strong>Super Leo Lig</strong> by connecting your
-                  Aleo account using the Puzzle Wallet. Download the wallet{" "}
+                  You can play <strong>Ten Taipei Football Manager</strong> by connecting your
+                  Metamask Wallet to TEN network. Download Metamask here {" "}
                   <a
                     href="https://chromewebstore.google.com/detail/puzzle-wallet/fdchdcpieegfofnofhgdombfckhbcokj"
                     target="_blank"
@@ -53,11 +53,10 @@ export default function FAQ() {
             </AccordionItem>
             <AccordionItem value="item-4">
               <AccordionTrigger className="hover:no-underline font-semibold tracking-tight">
-                Why is Super Leo Lig build on Aleo?
+                Why is Ten Taipei Football Manager build on TEN?
               </AccordionTrigger>
               <AccordionContent className="text-black/80 dark:text-white/70">
-                Super Leo Lig is only available on Aleo, because Aleo enables
-                apps that are private by default. This enables users to commit
+                TEN enables apps that are private by default. This enables users to commit
                 to their strategy, without revealing it to the opponent.
               </AccordionContent>
             </AccordionItem>
@@ -75,12 +74,12 @@ export default function FAQ() {
                 Will I get rugged if my opponent rage quits?
               </AccordionTrigger>
               <AccordionContent className="text-black/80 dark:text-white/70">
-                No! Super Leo Lig uses the Puzzle SDK and wallet, which are
-                optimized for multiparty privacy games. Because Super Leo lig
-                implements the Puzzle SDK, all wagered amounts are stored in a
-                time-locked multisig. If an opponent decides to not finish the
-                game, the wagered amount is released to the user after the
-                time-lock expires.
+                No! Ten Taipei Football Manager is built on the TEN network and
+                optimized for multiparty privacy games. All wagered amounts are 
+                stored in the game smart contract. Winners are able to claim their
+                winnings after the game is finished. If the game is not finished,
+                because someone ghosts, the wagered amount is is claimable by the
+                opponent after X blocks have passed.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

@@ -11,12 +11,7 @@ const queryClient = new QueryClient();
 export function Providers({ children }) {
   return (
     <ThemeProvider enableSystem defaultTheme="system" attribute="class">
-      {/* <PuzzleWalletProvider
-        dAppName="Super Leo Lig"
-        dAppDescription="Zk Football Manager game"
-        dAppUrl="https://superleolig.online/"
-        dAppIconURL="https://superleolig.online/logo.png"
-      > */}
+      
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider theme={midnightTheme()}>

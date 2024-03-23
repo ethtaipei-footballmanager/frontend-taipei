@@ -118,7 +118,7 @@ const tabs = [
   { id: "ATT", label: "ATT" },
 ];
 
-const messageToSign = "Let's play Super Leo Lig";
+const messageToSign = "Let's play Ten Taipei Football Manager";
 const nonce = "1234567field"; // todo make this random?
 
 const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {

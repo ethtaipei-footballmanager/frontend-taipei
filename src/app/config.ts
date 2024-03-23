@@ -4,7 +4,7 @@ import { http } from "wagmi";
 import { ten } from "../utils/chains";
 
 export const config = getDefaultConfig({
-  appName: "Super Leo Lig",
+  appName: "Ten Taipei Football Manager",
   projectId: "2467c634f2cd36c070a52b8f688931da",
   chains: [ten],
   transports: {

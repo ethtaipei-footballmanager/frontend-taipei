@@ -8,8 +8,8 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Super Leo Lig",
-  description: "ZK Football Manager game",
+  title: "Ten Taipei Football Manager",
+  description: "Fully on-chain Football Manager game",
   metadataBase: new URL("https://superleolig.online"),
 };
 

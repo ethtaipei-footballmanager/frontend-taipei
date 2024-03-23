@@ -61,7 +61,7 @@ const GameCard: React.FC<IGameCard> = ({
             Match Date: {date}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            Stadium: Super Leo Arena
+            Stadium: Froggy Arena
           </p>
         </div>
         {/* <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
