@@ -528,7 +528,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   }, [selectedFormation]);
 
   const startGame = async () => {
-    if (activePlayers.length === 11) {
+    if (activePlayers.length !== 11) {
       toast.info("Please select 11 players");
     } else {
       if (isChallenged) {
