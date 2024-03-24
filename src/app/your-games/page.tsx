@@ -152,7 +152,7 @@ const YourGames: React.FC<IYourGames> = ({}) => {
                 challenger: game.result[1],
                 opponent: game.result[2],
                 wager: formatUnits(game.result[3], 18),
-                outcome: "",
+                result: "",
                 game_id: game.result[0],
                 blockNumber: Number(game.result[5]),
                 status: game.result[6],
@@ -166,7 +166,22 @@ const YourGames: React.FC<IYourGames> = ({}) => {
                 challenger: game.result[1],
                 opponent: game.result[2],
                 wager: formatUnits(game.result[3], 18),
-                outcome: "",
+                result: "",
+                game_id: game.result[0],
+                blockNumber: Number(game.result[5]),
+                status: game.result[6],
+              },
+            ]);
+          }
+        } else if (game.result[6] === 1) {
+          if (game.result[1].toLowerCase() === address?.toLowerCase()) {
+            setYourTurn((prevState: Game[] | undefined) => [
+              ...(prevState || []),
+              {
+                challenger: game.result[1],
+                opponent: game.result[2],
+                wager: formatUnits(game.result[3], 18),
+                result: "",
                 game_id: game.result[0],
                 blockNumber: Number(game.result[5]),
                 status: game.result[6],
@@ -183,7 +198,9 @@ const YourGames: React.FC<IYourGames> = ({}) => {
                 challenger: game.result[1],
                 opponent: game.result[2],
                 wager: formatUnits(game.result[3], 18),
-                outcome: "", // You may need to set the outcome based on your logic
+                result: `${Number(game.result[4].goalsHomeTeam)} - ${Number(
+                  game.result[4].goalsAwayTeam
+                )}`,
                 game_id: game.result[0],
                 blockNumber: Number(game.result[5]),
                 status: game.result[6],

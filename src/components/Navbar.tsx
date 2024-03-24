@@ -115,7 +115,7 @@ const Navbar = ({ className }: { className?: string }) => {
           </FloatingMenu>
         )}
       </div>
-      <div className="flex justify-center items-center  gap-6 z-50">
+      <div className="flex justify-center items-center mb-1 gap-6 z-50">
         <ConnectButton showBalance={true} />
 
         <ThemeToggle />

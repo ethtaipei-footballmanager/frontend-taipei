@@ -1,13 +1,20 @@
+//@ts-nocheck
+"use client";
 import { useAcceptGameStore } from "@/app/accept-game/store";
-import { truncateAddress } from "@/utils";
+import { GAME_ADDRESS, truncateAddress } from "@/utils";
 //@ts-ignore
+import { config } from "@/app/config";
 import { Game } from "@/app/your-games/page";
+import { writeContract } from "@wagmi/core";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 //@ts-ignore
 import Identicon from "react-identicons";
-import { useAccount } from "wagmi";
+import { toast } from "sonner";
+import { useAccount, usePublicClient } from "wagmi";
+import GAME_ABI from "../abi/Game.json";
 
 interface IYourTurn {
   game: Game;
@@ -17,9 +24,9 @@ interface IYourTurn {
 const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
   const router = useRouter();
   console.log("game32", game);
-
+  const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
-
+  const publicClient = usePublicClient();
   const [
     inputsSubmitWager,
     eventIdSubmit,
@@ -40,6 +47,42 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     state.initializeAcceptGame,
   ]);
 
+  const revealOutcome = async () => {
+    setIsLoading(true);
+
+    toast.loading("Simulating game...");
+    const tx = await writeContract(config, {
+      abi: GAME_ABI.abi,
+      address: GAME_ADDRESS,
+      functionName: "revealOutcome",
+      args: [game.game_id],
+    });
+    // await waitForTransactionReceipt(wagmiConfig, {
+    //   chainId: lineaTestnet.id,
+    //   hash: tx2,
+    //   confirmations: 2,
+    // });
+    const transaction2 = await publicClient?.waitForTransactionReceipt({
+      hash: tx,
+    });
+
+    const gameData = await publicClient?.readContract({
+      address: GAME_ADDRESS,
+      abi: GAME_ABI.abi,
+      functionName: "games",
+      args: [game.game_id],
+    });
+
+    console.log("🚀 ~ revealOutcome ~ gameData:", gameData);
+    toast.info(
+      `Result is ${Number(gameData[4].goalsHomeTeam)} - ${Number(
+        gameData[4].awayTeam
+      )}`
+    );
+
+    setIsLoading(false);
+  };
+
   const renderActionButton = () => {
     switch (game.status) {
       case 0:
@@ -47,7 +90,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
         if (game.opponent === address) {
           return (
             <Button
-              // disabled={loading}
+              disabled={isLoading}
               onClick={() => {
                 // setCurrentGame(game);
                 router.push(`/accept-game/${game.game_id}`);
@@ -70,6 +113,8 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
               //     `/accept-game/${game.gameNotification.recordData.game_multisig}`
               //   );
               // }}
+              onClick={revealOutcome}
+              disabled={isLoading}
               variant="outline"
               className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
             >
@@ -156,14 +201,13 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
         <div className="flex flex-col text-center w-full items-center justify-center">
           <div>
             <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
-              {game.status === 2 ||
-                (game.status === 3 && (
-                  <div className="flex flex-col">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Outcome: <strong>{game?.result}</strong>
-                    </p>
-                  </div>
-                ))}
+              {(game.status === 2 || game.status === 3) && (
+                <div className="flex flex-col">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Outcome: <strong>{game.result}</strong>
+                  </p>
+                </div>
+              )}
               <p className="text-xs text-gray-600 dark:text-gray-400">
                 Amount: <strong>{game.wager}</strong>
               </p>

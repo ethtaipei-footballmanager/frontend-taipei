@@ -17,7 +17,6 @@ import {
 import { teams } from "@/utils/team-data";
 
 import { config } from "@/app/config";
-import { EventType, requestCreateEvent } from "@puzzlehq/sdk";
 import { csv } from "d3";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -33,12 +32,6 @@ import {
   useWriteContract,
 } from "wagmi";
 import { useNewGameStore } from "../app/create-game/store";
-import {
-  AcceptGameInputs,
-  GAME_FUNCTIONS,
-  GAME_PROGRAM_ID,
-  transitionFees,
-} from "../app/state/manager";
 import Player from "./Player";
 import PlayerDetails from "./PlayerDetails";
 import SelectFormation from "./SelectFormation";
@@ -122,7 +115,6 @@ const messageToSign = "Let's play Ten Taipei Football Manager";
 const nonce = "1234567field"; // todo make this random?
 
 const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
-  const ALEO_NETWORK_URL = "https://node.puzzle.online/testnet3";
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const [tab, setTab] = useState<Position>("GK");
@@ -200,65 +192,67 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     setFilteredPlayers(filteredPlayers);
   }, [tab, benchPlayers]);
 
-  const createAcceptGameEvent = async () => {
+  const acceptGame = async () => {
+    setIsLoading(true);
+    const parts = pathname.split("/"); // Split the pathname by '/'
+    const gameId = parts[2];
+    console.log("🚀 ~ acceptGame ~ gameId:", gameId, parts);
+    const gameData = await publicClient?.readContract({
+      address: GAME_ADDRESS,
+      abi: GAME_ABI.abi,
+      functionName: "games",
+      args: [gameId],
+    });
+    console.log("🚀 ~ acceptGame ~  :", gameData);
     if (
-      !inputsAcceptGame?.game_record ||
-      !inputsAcceptGame.piece_stake_challenger ||
-      !inputsAcceptGame.piece_claim_challenger ||
-      !inputsAcceptGame.piece_stake_opponent ||
-      !inputsAcceptGame.piece_claim_opponent
-    )
-      return;
-    setLoading(true);
-    setError(undefined);
-    try {
-      const response_block_ht = await fetch(
-        `${ALEO_NETWORK_URL}/latest/height`
-      );
-      const activePlayerIds = activePlayers.map((player) => {
-        return `${player.id}u8`;
+      Number(formatUnits(allowance as bigint, 18)) <
+      Number(formatUnits(gameData[3] as bigint, 18))
+    ) {
+      toast.info("Please approve.");
+      setLoadingMessage("Approving...");
+      const tx1 = await writeContract(config, {
+        abi: TOKEN_ABI.abi,
+        address: TOKEN_ADDRESS,
+        functionName: "approve",
+        args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],
       });
-      const block_ht = Number(await response_block_ht.json());
-      // TODO: Error handling for missing input
-      const acceptGameInputs: Omit<
-        AcceptGameInputs,
-        "opponent_answer_readable"
-      > = {
-        game_record: inputsAcceptGame.game_record,
-        opponent_answer: "[" + activePlayerIds.toString() + "]",
-        piece_stake_challenger: inputsAcceptGame.piece_stake_challenger,
-        piece_claim_challenger: inputsAcceptGame.piece_claim_challenger,
-        piece_stake_opponent: inputsAcceptGame.piece_stake_opponent,
-        piece_claim_opponent: inputsAcceptGame.piece_claim_opponent,
-        block_ht: block_ht.toString() + "u32",
-      };
-      const response = await requestCreateEvent({
-        type: EventType.Execute,
-        programId: GAME_PROGRAM_ID,
-        functionId: GAME_FUNCTIONS.accept_game,
-        fee: transitionFees.accept_game,
-        inputs: Object.values(acceptGameInputs),
-        address: inputsAcceptGame.game_record.owner,
+      const transaction = await publicClient?.waitForTransactionReceipt({
+        hash: tx1,
       });
-      setLoadingMessage("Joining game...");
-
-      if (response.error) {
-        setError(response.error);
-        setLoading(false);
-      } else if (!response.eventId) {
-        setError("No eventId found!");
-        setLoading(false);
-      } else {
-        setEventIdAccept(response.eventId);
-        router.push(`/create-game/${response.eventId}`);
-      }
-    } catch (e) {
-      setError((e as Error).message);
-      setLoading(false);
     }
+
+    setLoadingMessage("Creating Game...");
+
+    const activePlayerIds = activePlayers.map((player) => {
+      return player.id;
+    });
+    // inputs?.challenger_wager_amount;
+
+    toast.info("Accept the transaction to create the game");
+
+    const tx2 = await writeContract(config, {
+      abi: GAME_ABI.abi,
+      address: GAME_ADDRESS,
+      functionName: "acceptGame",
+      args: [
+        gameId,
+        activePlayerIds,
+        // [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+      ],
+    });
+    // await waitForTransactionReceipt(wagmiConfig, {
+    //   chainId: lineaTestnet.id,
+    //   hash: tx2,
+    //   confirmations: 2,
+    // });
+    const transaction2 = await publicClient?.waitForTransactionReceipt({
+      hash: tx2,
+    });
+    setLoadingMessage("Starting Game...");
+    setIsLoading(false);
   };
 
-  const createProposeGameEvent = async () => {
+  const createGame = async () => {
     setIsLoading(true);
     // setConfirmStep(ConfirmStep.Signing);
     // setError(undefined);
@@ -287,9 +281,9 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
     setLoadingMessage("Creating Game...");
 
-    // const activePlayerIds = activePlayers.map((player) => {
-    //   return player.id;
-    // });
+    const activePlayerIds = activePlayers.map((player) => {
+      return player.id;
+    });
     // inputs?.challenger_wager_amount;
 
     toast.info("Accept the transaction to create the game");
@@ -301,8 +295,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       args: [
         inputs?.opponent as `0x${string}`,
         parseUnits(inputs?.challenger_wager_amount!, 18),
-        // activePlayerIds,
-        [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+        activePlayerIds,
+        // [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
       ],
     });
     // await waitForTransactionReceipt(wagmiConfig, {
@@ -410,62 +404,62 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   //   }
   // };
 
-  const createDefaultAcceptGameEvent = async () => {
-    if (
-      !inputsAcceptGame?.game_record ||
-      !inputsAcceptGame.piece_stake_challenger ||
-      !inputsAcceptGame.piece_claim_challenger ||
-      !inputsAcceptGame.piece_stake_opponent ||
-      !inputsAcceptGame.piece_claim_opponent
-    )
-      return;
-    setLoading(true);
-    setError(undefined);
-    try {
-      const response_block_ht = await fetch(
-        `${ALEO_NETWORK_URL}/latest/height`
-      );
+  // const createDefaultAcceptGameEvent = async () => {
+  //   if (
+  //     !inputsAcceptGame?.game_record ||
+  //     !inputsAcceptGame.piece_stake_challenger ||
+  //     !inputsAcceptGame.piece_claim_challenger ||
+  //     !inputsAcceptGame.piece_stake_opponent ||
+  //     !inputsAcceptGame.piece_claim_opponent
+  //   )
+  //     return;
+  //   setLoading(true);
+  //   setError(undefined);
+  //   try {
+  //     const response_block_ht = await fetch(
+  //       `${ALEO_NETWORK_URL}/latest/height`
+  //     );
 
-      const block_ht = Number(await response_block_ht.json());
-      const acceptGameInputs: Omit<
-        AcceptGameInputs,
-        "opponent_answer_readable"
-      > = {
-        game_record: inputsAcceptGame.game_record,
-        opponent_answer:
-          "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
-        piece_stake_challenger: inputsAcceptGame.piece_stake_challenger,
-        piece_claim_challenger: inputsAcceptGame.piece_claim_challenger,
-        piece_stake_opponent: inputsAcceptGame.piece_stake_opponent,
-        piece_claim_opponent: inputsAcceptGame.piece_claim_opponent,
-        block_ht: block_ht.toString() + "u32",
-      };
+  //     const block_ht = Number(await response_block_ht.json());
+  //     const acceptGameInputs: Omit<
+  //       AcceptGameInputs,
+  //       "opponent_answer_readable"
+  //     > = {
+  //       game_record: inputsAcceptGame.game_record,
+  //       opponent_answer:
+  //         "[1u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8]",
+  //       piece_stake_challenger: inputsAcceptGame.piece_stake_challenger,
+  //       piece_claim_challenger: inputsAcceptGame.piece_claim_challenger,
+  //       piece_stake_opponent: inputsAcceptGame.piece_stake_opponent,
+  //       piece_claim_opponent: inputsAcceptGame.piece_claim_opponent,
+  //       block_ht: block_ht.toString() + "u32",
+  //     };
 
-      const response = await requestCreateEvent({
-        type: EventType.Execute,
-        programId: GAME_PROGRAM_ID,
-        functionId: GAME_FUNCTIONS.accept_game,
-        fee: transitionFees.accept_game,
-        inputs: Object.values(acceptGameInputs),
-        address: inputsAcceptGame.game_record.owner,
-      });
-      setLoadingMessage("Joining game...");
+  //     const response = await requestCreateEvent({
+  //       type: EventType.Execute,
+  //       programId: GAME_PROGRAM_ID,
+  //       functionId: GAME_FUNCTIONS.accept_game,
+  //       fee: transitionFees.accept_game,
+  //       inputs: Object.values(acceptGameInputs),
+  //       address: inputsAcceptGame.game_record.owner,
+  //     });
+  //     setLoadingMessage("Joining game...");
 
-      if (response.error) {
-        setError(response.error);
-        setLoading(false);
-      } else if (!response.eventId) {
-        setError("No eventId found!");
-        setLoading(false);
-      } else {
-        setEventIdAccept(response.eventId);
-        router.push(`/create-game/${response.eventId}`);
-      }
-    } catch (e) {
-      setError((e as Error).message);
-      setLoading(false);
-    }
-  };
+  //     if (response.error) {
+  //       setError(response.error);
+  //       setLoading(false);
+  //     } else if (!response.eventId) {
+  //       setError("No eventId found!");
+  //       setLoading(false);
+  //     } else {
+  //       setEventIdAccept(response.eventId);
+  //       router.push(`/create-game/${response.eventId}`);
+  //     }
+  //   } catch (e) {
+  //     setError((e as Error).message);
+  //     setLoading(false);
+  //   }
+  // };
 
   const activePlayersCount = activePlayers.filter(Boolean).length;
 
@@ -528,13 +522,13 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   }, [selectedFormation]);
 
   const startGame = async () => {
-    if (activePlayers.length === 11) {
+    if (activePlayers.length !== 11) {
       toast.info("Please select 11 players");
     } else {
-      if (isChallenged) {
-        const acceptGame = await createAcceptGameEvent();
+      if (pathname.includes("accept-game")) {
+        await acceptGame();
       } else {
-        const createGame = await createProposeGameEvent();
+        await createGame();
       }
 
       // toast.info("You have selected 11 ");
@@ -688,7 +682,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
   return (
     // <DndProvider backend={HTML5Backend}>
-    <div className="grid grid-rows-2 px-20 py-8  h-[90vh] overflow-hidden w-full ">
+    <div className="grid grid-rows-2 px-20 py-6  h-[90vh] overflow-hidden w-full ">
       <div className=" relative  grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4  gap-y-8  bg-center max-h-[85vh]  bg-no-repeat w-full   ">
         <div className=" col-span-1 xl:col-span-4  h-80 relative">
           <Image className="absolute z-0" src="/field.svg" fill alt="field" />
@@ -827,7 +821,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
             TEST
           </Button>
         </div> */}
-        GAME ID : {currentGame?.gameNotification.recordData.game_multisig}
         {/* Idea: Allow only to click start when multisig = path
         Also check if signed in wallet = opponent from game */}
       </div>
