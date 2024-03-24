@@ -76,7 +76,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     console.log("🚀 ~ revealOutcome ~ gameData:", gameData);
     toast.info(
       `Result is ${Number(gameData[4].goalsHomeTeam)} - ${Number(
-        gameData[4].awayTeam
+        gameData[4].goalsAwayTeam
       )}`
     );
 

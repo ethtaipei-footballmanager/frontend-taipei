@@ -206,6 +206,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     console.log("🚀 ~ acceptGame ~  :", gameData);
     if (
       Number(formatUnits(allowance as bigint, 18)) <
+      //@ts-ignore
       Number(formatUnits(gameData[3] as bigint, 18))
     ) {
       toast.info("Please approve.");
