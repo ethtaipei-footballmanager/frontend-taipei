@@ -27,14 +27,26 @@ const tabs = [
 ];
 
 export type Game = {
-  game_id: int;
+  game_id: number;
   opponent: string;
   challenger: string;
   wager: string;
   result: string; //change to tuple (0,0) or struct
-  blockNumber: int;
-  status: int; // 0 proposed, 1 accepted, 2 finished, 3 finishedbytimeout
+  blockNumber: number;
+  status: number; // 0 proposed, 1 accepted, 2 finished, 3 finishedbytimeout
 };
+
+interface GameData {
+  result: [
+    bigint,
+    string,
+    string,
+    bigint,
+    { goalsHomeTeam: bigint; goalsAwayTeam: bigint },
+    bigint,
+    number
+  ];
+}
 
 const YourGames: React.FC<IYourGames> = ({}) => {
   // const provider = new ethers.JsonRpcProvider("https://sepolia-rpc.scroll.io");
@@ -113,7 +125,7 @@ const YourGames: React.FC<IYourGames> = ({}) => {
 
       const results = await publicClient?.multicall({
         contracts: Array.from(
-          { length: Number(getGameNumber) },
+          { length: Number(getGameNumber) + 1 },
           (_, index) => ({
             address: GAME_ADDRESS,
             abi: GAME_ABI.abi,
@@ -122,55 +134,62 @@ const YourGames: React.FC<IYourGames> = ({}) => {
           })
         ),
       });
-      const games = results?.map((game) => {
-        console.log("gameasd", game.result[0], game.result[1], address);
+      const games = results?.map((game: GameData) => {
+        console.log(
+          "game137",
+          game,
+          game.result[2].toLowerCase() === address?.toLowerCase(),
+          game.result[1].toLowerCase() === address?.toLowerCase()
+        );
 
-        if (game.result[0] === address && (!game.result[3] as Boolean)) {
-          console.log("1asd");
-
-          setYourTurn((prevState: Game[] | undefined) => [
-            ...(prevState || []), // Ensure prevState is an array or initialize it as an empty array
-            {
-              challenger: game.result[0],
-              opponent: game.result[1],
-              wager: formatUnits(game.result[2], 18),
-              // gameId:   ,
-              outcome: ``,
-              isFinished: false,
-            },
-          ]);
-        } else if (game.result[1] === address && !game.result[3]) {
-          console.log("2asd");
-          setTheirTurn((prevState: Game[] | undefined) => [
-            ...(prevState || []), // Ensure prevState is an array or initialize it as an empty array
-            {
-              challenger: game.result[0],
-              opponent: game.result[1],
-              wager: formatUnits(game.result[2], 18),
-              // gameId:   ,
-              outcome: ``,
-              isFinished: false,
-            },
-          ]);
-        } else if (
-          (game.result[0] === address || game.result[1] === address) &&
-          game.result[3]
-        ) {
-          console.log("3asd");
-
-          setFinished((prevState: Game[] | undefined) => [
-            ...(prevState || []), // Ensure prevState is an array or initialize it as an empty array
-            {
-              challenger: game.result[0],
-              opponent: game.result[1],
-              wager: formatUnits(game.result[2], 18),
-              // gameId:   ,
-              outcome: `${Number(game.result[3].goalsHomeTeam)} - ${Number(
-                game.result[3].awayTeam
-              )}`,
-              isFinished: true,
-            },
-          ]);
+        if (game.result[6] === 0) {
+          // Game is in progress
+          if (game.result[2].toLowerCase() === address?.toLowerCase()) {
+            // If the connected address is opponent, put it in "Your Turn" state
+            setYourTurn((prevState: Game[] | undefined) => [
+              ...(prevState || []),
+              {
+                challenger: game.result[1],
+                opponent: game.result[2],
+                wager: formatUnits(game.result[3], 18),
+                outcome: "",
+                game_id: game.result[0],
+                blockNumber: Number(game.result[5]),
+                status: game.result[6],
+              },
+            ]);
+          } else if (game.result[1] === address) {
+            // If the connected address is challenger, put it in "Their Turn" state
+            setTheirTurn((prevState: Game[] | undefined) => [
+              ...(prevState || []),
+              {
+                challenger: game.result[1],
+                opponent: game.result[2],
+                wager: formatUnits(game.result[3], 18),
+                outcome: "",
+                game_id: game.result[0],
+                blockNumber: Number(game.result[5]),
+                status: game.result[6],
+              },
+            ]);
+          }
+        } else if ([2, 3].includes(game.result[6])) {
+          // Game is finished
+          if (game.result[1] === address || game.result[2] === address) {
+            // If the connected address is either challenger or opponent, put it in "Finished" state
+            setFinished((prevState: Game[] | undefined) => [
+              ...(prevState || []),
+              {
+                challenger: game.result[1],
+                opponent: game.result[2],
+                wager: formatUnits(game.result[3], 18),
+                outcome: "", // You may need to set the outcome based on your logic
+                game_id: game.result[0],
+                blockNumber: Number(game.result[5]),
+                status: game.result[6],
+              },
+            ]);
+          }
         }
       });
       console.log("🚀 ~ getLogs ~ results:", results, games);

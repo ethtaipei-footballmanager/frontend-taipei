@@ -1,25 +1,13 @@
 import { useAcceptGameStore } from "@/app/accept-game/store";
-import { useEventHandling } from "@/hooks/eventHandling";
-import { useMsRecords } from "@/hooks/msRecords";
 import { truncateAddress } from "@/utils";
-import { RecordWithPlaintext } from "@puzzlehq/sdk";
 //@ts-ignore
 import { Game } from "@/app/your-games/page";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
 //@ts-ignore
 import Identicon from "react-identicons";
-import { useAccount, useBlockNumber } from "wagmi";
+import { useAccount } from "wagmi";
 
 interface IYourTurn {
   game: Game;
@@ -28,6 +16,7 @@ interface IYourTurn {
 
 const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
   const router = useRouter();
+  console.log("game32", game);
 
   const { address } = useAccount();
 
@@ -51,65 +40,45 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
     state.initializeAcceptGame,
   ]);
 
-  const msAddress = currentGame?.gameNotification.recordData.game_multisig;
-  console.log("msAddress", msAddress);
-  const { msPuzzleRecords: recordsPuzzle, msGameRecords: recordsGame } =
-    useMsRecords(msAddress);
-  const [msPuzzleRecords, setMsPuzzleRecords] = useState<
-    RecordWithPlaintext[] | undefined
-  >();
-  const [msGameRecords, setMsGameRecords] = useState<
-    RecordWithPlaintext[] | undefined
-  >();
-
-
   const renderActionButton = () => {
     switch (game.status) {
       case 0:
         // TODO: only render this button for the opponent
         if (game.opponent === address) {
-
           return (
             <Button
               // disabled={loading}
-              onClick={
-              //   () => {
-              //   setCurrentGame(game);
-              //   router.push(
-              //     `/accept-game/${game.gameNotification.recordData.game_multisig}`
-              //   );
-              // }
-            }
+              onClick={() => {
+                // setCurrentGame(game);
+                router.push(`/accept-game/${game.game_id}`);
+              }}
               variant="outline"
               className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
             >
               Accept
             </Button>
           );
-      }
+        }
 
       case 1:
-        let blockNumber = await useBlockNumber();
+        // let blockNumber = await useBlockNumber();
         if (game.challenger === address) {
           return (
             <Button
-              onClick={
-                // () => {
-                //   setCurrentGame(game);
-                //   router.push(
-                //     `/accept-game/${game.gameNotification.recordData.game_multisig}`
-                //   );
-                // }
-              }
+              // onClick={() => {
+              //   router.push(
+              //     `/accept-game/${game.gameNotification.recordData.game_multisig}`
+              //   );
+              // }}
               variant="outline"
               className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
             >
               Reveal outcome
             </Button>
           );
-        } 
+        }
 
-        //// TODO (optional) if game.block_number difference from current block number > 100. Allow opponent to call opponentClaimTimelock. 
+        //// TODO (optional) if game.block_number difference from current block number > 100. Allow opponent to call opponentClaimTimelock.
         //// Challenger can still call revealOutcome in this case, unless opponent has claimed earlier
         //// hardcoded 100 here, but timelockBlocks is defined in contract. maybe read that value instead?
         // else if (game.opponent === address && (game.blockNumber - blockNumber.data?) > 100) {
@@ -133,7 +102,7 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
 
         return (
           <Button
-            onClick={} // TODO implement a simple wallet popup that consumes 2 records.
+            // onClick={} // TODO implement a simple wallet popup that consumes 2 records.
             variant="outline"
             className="tracking-wider text-sm text-black dark:text-white font-semibold flex gap-2.5"
           >
@@ -166,26 +135,35 @@ const YourTurn: React.FC<IYourTurn> = ({ game, isFinished }) => {
         <div className="flex flex-col gap-2.5 items-center ">
           {/* Game id= multisig address */}
 
-          <Identicon string={{game.challenger === address ? truncateAddress(game.opponent) : truncateAddress(game.challenger)}} size={36} />
+          <Identicon
+            string={
+              game.challenger === address
+                ? truncateAddress(game.opponent)
+                : truncateAddress(game.challenger)
+            }
+            size={36}
+          />
           <span className="font-bold text-lg text-center">
-            {game.challenger === address ? truncateAddress(game.opponent) : truncateAddress(game.challenger)}
+            {game.challenger === address
+              ? truncateAddress(game.opponent)
+              : truncateAddress(game.challenger)}
           </span>
           <span className="text-sm text-gray-600 dark:text-gray-400">
             Challenged you
           </span>
-         
         </div>
 
         <div className="flex flex-col text-center w-full items-center justify-center">
           <div>
             <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
-              {game.isFinished && (
-                <div className="flex flex-col">
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Outcome: <strong>{game?.outcome}</strong>
-                  </p>
-                </div>
-              )}
+              {game.status === 2 ||
+                (game.status === 3 && (
+                  <div className="flex flex-col">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Outcome: <strong>{game?.result}</strong>
+                    </p>
+                  </div>
+                ))}
               <p className="text-xs text-gray-600 dark:text-gray-400">
                 Amount: <strong>{game.wager}</strong>
               </p>
