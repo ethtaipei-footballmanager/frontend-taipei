@@ -254,7 +254,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   };
 
   const createGame = async () => {
-    setIsLoading(true);
+    console.log("🚀 ~ createGame ~ inputs", inputs);
+    // setIsLoading(true);
     // setConfirmStep(ConfirmStep.Signing);
     // setError(undefined);
     console.log(

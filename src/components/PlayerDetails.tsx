@@ -62,7 +62,7 @@ const PlayerDetails: React.FC<IPlayerDetails> = ({ playerDetails }) => {
       fullMark: 100,
     },
   ];
-  console.log("playerdetails", playerDetails);
+  // console.log("playerdetails", playerDetails);
 
   return (
     <Card className=" relative rounded-lg ">

@@ -1,5 +1,5 @@
-export const TOKEN_ADDRESS = "0x479a15a13358561c3fe9B982b69c3da191aB4F92";
-export const GAME_ADDRESS = "0x40B10e8A06fBE442D82Eda1D547A278Ce372CA9A";
+export const TOKEN_ADDRESS = "0x7d671aed0E98286525a94b2F56422375EFc79886";
+export const GAME_ADDRESS = "0xA8FCcd8B3b0e5b68E9171585fF6b2D514dc2e3a2";
 
 export const getPositionRole = (positionCode: number): string => {
   switch (positionCode) {
