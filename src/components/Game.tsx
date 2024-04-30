@@ -3,12 +3,13 @@
 import { useAcceptGameStore } from "@/app/accept-game/store";
 import { useGameStore } from "@/app/state/gameStore";
 import { writeContract } from "@wagmi/core";
-import TOKEN_ABI from "../abi/ERC20.json";
+
 import GAME_ABI from "../abi/Game.json";
 
 import {
   GAME_ADDRESS,
   TOKEN_ADDRESS,
+  TOKEN_ABI,
   calculateAttribute,
   getPositionRole,
   getTeamName,
@@ -180,7 +181,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
   const { data: allowance } = useReadContract({
     address: TOKEN_ADDRESS,
-    abi: TOKEN_ABI.abi,
+    abi: TOKEN_ABI,
     functionName: "allowance",
     args: [address as `0x${string}`, GAME_ADDRESS as `0x${string}`],
   });
@@ -212,7 +213,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       toast.info("Please approve.");
       setLoadingMessage("Approving...");
       const tx1 = await writeContract(config, {
-        abi: TOKEN_ABI.abi,
+        abi: TOKEN_ABI,
         address: TOKEN_ADDRESS,
         functionName: "approve",
         args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],
@@ -268,10 +269,11 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       Number(formatUnits(allowance as bigint, 18)) <
       Number(inputs?.challenger_wager_amount)
     ) {
+      // avh
       toast.info("Please approve.");
       setLoadingMessage("Approving...");
       const tx1 = await writeContract(config, {
-        abi: TOKEN_ABI.abi,
+        abi: TOKEN_ABI,
         address: TOKEN_ADDRESS,
         functionName: "approve",
         args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],

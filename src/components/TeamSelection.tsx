@@ -84,7 +84,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const { data: balance } = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI,
-    functionName: "balanceOf",
+    functionName: "userBalanceOf",
     args: [address as `0x${string}`],
   });
   console.log("balance", balance);
@@ -116,7 +116,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const result = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI,
-    functionName: "balanceOf",
+    functionName: "userBalanceOf",
     args: [address as `0x${string}`],
   });
   const { data } = useReadContract({
@@ -132,6 +132,7 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const getTokens = async () => {
     setLoading(true);
     try {
+      // avh
       writeContractAsync({
         abi: TOKEN_ABI,
         address: TOKEN_ADDRESS,
