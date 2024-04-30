@@ -184,11 +184,6 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     abi: TOKEN_ABI.abi,
     functionName: "allowance",
     args: [address as `0x${string}`, GAME_ADDRESS as `0x${string}`],
-    chainId: 443,
-    query: {
-      enabled: true,
-      retry: true,
-    },
   });
 
   useEffect(() => {
