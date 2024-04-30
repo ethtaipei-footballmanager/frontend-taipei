@@ -1,6 +1,6 @@
 "use client";
 import { useAcceptGameStore } from "@/app/accept-game/store";
-import { GAME_ADDRESS, TOKEN_ABI, TOKEN_ADDRESS } from "@/utils";
+import { GAME_ADDRESS, TOKEN_ADDRESS } from "@/utils";
 import { teams } from "@/utils/team-data";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
@@ -14,7 +14,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { formatUnits, parseUnits } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { z } from "zod";
-// import TOKEN_ABI from "../abi/ERC20.json";
+import TOKEN_ABI from "../abi/ERC20.json";
 import GAME_ABI from "../abi/Game.json";
 import { useNewGameStore } from "../app/create-game/store";
 import TeamCard from "./TeamCard";
@@ -81,11 +81,12 @@ const TeamSelection: React.FC<ITeamSelection> = ({
   const [opponent, setOpponent] = useState("");
   const swiperRef = useRef<any>();
   const { address } = useAccount();
+  console.log("AVH address", address);
   const { data: balance } = useReadContract({
     address: TOKEN_ADDRESS,
-    abi: TOKEN_ABI,
+    abi: TOKEN_ABI.abi,
     functionName: "userBalanceOf",
-    args: [address as `0x${string}`],
+    args: [address],
   });
   console.log("balance", balance);
 
@@ -115,9 +116,9 @@ const TeamSelection: React.FC<ITeamSelection> = ({
 
   const result = useReadContract({
     address: TOKEN_ADDRESS,
-    abi: TOKEN_ABI,
+    abi: TOKEN_ABI.abi,
     functionName: "userBalanceOf",
-    args: [address as `0x${string}`],
+    args: [address],
   });
   const { data } = useReadContract({
     address: GAME_ADDRESS,
@@ -134,10 +135,10 @@ const TeamSelection: React.FC<ITeamSelection> = ({
     try {
       // avh
       writeContractAsync({
-        abi: TOKEN_ABI,
+        abi: TOKEN_ABI.abi,
         address: TOKEN_ADDRESS,
         functionName: "mint",
-        args: [address as `0x${string}`, parseUnits("1000", 18)],
+        args: [address, parseUnits("1000", 18)],
       });
       setLoading(false);
     } catch (error) {

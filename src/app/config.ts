@@ -10,7 +10,7 @@ export const config = getDefaultConfig({
   chains: [ten, scrollSepolia, lineaTestnet],
   transports: {
     [ten.id]: http(),
-    [lineaTestnet.id]: http(),
+    [lineaTestnet.id]: http("https://testnet.ten.xyz/v1/?token=1999a0685471767ececcd830ca81b2a024f07cec"),
     [scrollSepolia.id]: http(process.env.NEXT_PUBLIC_SCROLL_API),
   },
   ssr: true,
@@ -19,7 +19,7 @@ export const config = getDefaultConfig({
 export const wagmiConfig = createConfig({
   chains: [ten, scrollSepolia, lineaTestnet],
   transports: {
-    [ten.id]: http(),
+    [ten.id]: http("https://testnet.ten.xyz/v1/?token=1999a0685471767ececcd830ca81b2a024f07cec"),
     [lineaTestnet.id]: http("https://rpc.goerli.linea.build"),
     [scrollSepolia.id]: http(process.env.NEXT_PUBLIC_SCROLL_API),
   },

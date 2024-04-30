@@ -5,11 +5,11 @@ import { useGameStore } from "@/app/state/gameStore";
 import { writeContract } from "@wagmi/core";
 
 import GAME_ABI from "../abi/Game.json";
+import TOKEN_ABI from "../abi/ERC20.json";
 
 import {
   GAME_ADDRESS,
   TOKEN_ADDRESS,
-  TOKEN_ABI,
   calculateAttribute,
   getPositionRole,
   getTeamName,
@@ -181,9 +181,14 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
 
   const { data: allowance } = useReadContract({
     address: TOKEN_ADDRESS,
-    abi: TOKEN_ABI,
+    abi: TOKEN_ABI.abi,
     functionName: "allowance",
     args: [address as `0x${string}`, GAME_ADDRESS as `0x${string}`],
+    chainId: 443,
+    query: {
+      enabled: true,
+      retry: true,
+    },
   });
 
   useEffect(() => {
@@ -213,7 +218,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       toast.info("Please approve.");
       setLoadingMessage("Approving...");
       const tx1 = await writeContract(config, {
-        abi: TOKEN_ABI,
+        abi: TOKEN_ABI.abi,
         address: TOKEN_ADDRESS,
         functionName: "approve",
         args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],
@@ -261,22 +266,21 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
     // setError(undefined);
     console.log(
       "allowances",
-      Number(formatUnits(allowance as bigint, 18)),
+      allowance,
       Number(inputs?.challenger_wager_amount)
     );
 
-    if (
-      Number(formatUnits(allowance as bigint, 18)) <
-      Number(inputs?.challenger_wager_amount)
-    ) {
-      // avh
+    if (true) {
       toast.info("Please approve.");
       setLoadingMessage("Approving...");
+      console.log("inputs " + GAME_ADDRESS.toString() + " " + 100000);
+      // setLoadingMessage("Approving...");
+
       const tx1 = await writeContract(config, {
-        abi: TOKEN_ABI,
+        abi: TOKEN_ABI.abi,
         address: TOKEN_ADDRESS,
         functionName: "approve",
-        args: [GAME_ADDRESS as `0x${string}`, parseUnits("100000", 18)],
+        args: [GAME_ADDRESS as `0x${string}`, 100000],
       });
       const transaction = await publicClient?.waitForTransactionReceipt({
         hash: tx1,
@@ -299,8 +303,8 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
       args: [
         inputs?.opponent as `0x${string}`,
         parseUnits(inputs?.challenger_wager_amount!, 18),
-        activePlayerIds,
-        // [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+        // activePlayerIds,
+        [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
       ],
     });
     // await waitForTransactionReceipt(wagmiConfig, {
@@ -526,7 +530,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
   }, [selectedFormation]);
 
   const startGame = async () => {
-    if (activePlayers.length !== 11) {
+    if (activePlayers.length == 12) {
       toast.info("Please select 11 players");
     } else {
       if (pathname.includes("accept-game")) {
@@ -808,7 +812,7 @@ const Game: React.FC<IGame> = ({ selectedTeam, isChallenged }) => {
         )}
         <div className="w-full -mt-2 flex justify-center">
           <Button
-            disabled={isLoading}
+            // disabled={isLoading}
             onClick={startGame}
             className="w-1/2"
             variant={"outline"}
